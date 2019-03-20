@@ -1,0 +1,28 @@
+<%
+table.init do |t|
+#  t.caption = 'Listing users'
+  link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+  remote_link_html = {:my_remote => true}
+  t.heads = ['ID', 'Автор', 'Тип статьи', 'Статус публикации', 'Название статьи', 'Tarif_id', 'Comparison_id', 'Operator_id', 'm_region', 'region_txt', 'is_noindex', 
+  	'use_content_title', 'use_tag_title', '', '']
+  t.set_fields do |article| 
+  [
+    article.id,
+    (article.author.name if article.author),
+    article.type_name,
+    article.publish_status_name,
+    link_to(article.title, content_article_path(hash_with_region_and_privacy({:id => article.slug})), {:title => "Нажмите для просмотра"}), 
+    "#{article.tarif_id}, #{article.tarif_name}, #{article.tarif_region_txt || 'no_region'}",
+    article.comparison_id,
+    article.operator_id,
+    article.m_region,
+    article.tarif_region_txt,
+    article.is_noindex,
+    article.use_content_title,
+    article.use_tag_title,
+    link_to( content_tag(:span, "", { :class => "fa fa-pencil-square-o fa-lg"}), edit_content_article_path(hash_with_region_and_privacy({:id => article.slug})), remote_link_html.merge({:title => "Редактировать"})), 
+    link_to( content_tag(:span, "", { :class => "fa fa-times-circle fa-lg"}), article, method: :delete, data: { confirm: 'Вы уверены, что хотите удалить запись?'}, :title => "Удалить"),
+  ]
+  end
+end
+%>

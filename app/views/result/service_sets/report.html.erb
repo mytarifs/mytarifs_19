@@ -1,0 +1,139 @@
+<% title "Рекомендация по выбору самого выгодного тарифа #{region_and_privacy_tag}" %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <div class="h4">Данная рекомендация представляет сводные данные по результатам подбора оптимального тарифа для вас.</div>
+            <hr>
+        </div>
+        <%= render :partial => "application/shared/social_share_buttons" %>
+    </div> 
+</header>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<div class="my_collapsable h3">
+			<a my_collapsable="true" data-toggle="collapse" href="#report_content" aria-expanded=true aria-controls="report_content">
+				Разделы рекомендации<span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>		
+	</div> 
+	<ul id="report_content" class="list-group collapse in" >
+		<li class="list-group-item"><%= link_to("Лучшее предложение", "#best_tarif_head") %></li>
+		<li class="list-group-item"><%= link_to("Лучшие 5 предложений", "#best_n_tarif_head") %></li>
+		<li class="list-group-item"><%= link_to("Статистика мобильных услуг", "#call_stat_head") %></li>
+		<li class="list-group-item"><%= link_to("Агрегированные затраты по выбранному тарифу и опциям", "#aggregated_results_head") %></li>
+		<li class="list-group-item"><%= link_to("Затраты в разрезе тарифа, опций и мобильных услуг", "#detailed_results_head") %></li>
+		<li class="list-group-item"><%= link_to("Описание подбора тарифа", "#tarif_optimization_desciption_head") %></li>
+	</ul>
+</div>
+
+<div id="best_tarif_head" class="panel panel-default">
+	<div class="panel-heading">
+		<div class="my_collapsable h3">
+			<a my_collapsable="true" data-toggle="collapse" href="#best_tarif" aria-expanded=true aria-controls="best_tarif">
+				Лучшие тариф и опции<span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>		
+	</div> 
+	<div id="best_tarif" class="list-group collapse in">
+		<%= render(:partial => 'result/service_sets/report/best_service_set', :layout => 'application/layouts/model_table', :locals => {:table => results_best_n_service_set(1)}) %> 
+	</div>
+</div>
+
+<div id="best_n_tarif_head" class="panel panel-default">
+	<div class="panel-heading">
+		<div class="my_collapsable h3">
+			<a my_collapsable="true" data-toggle="collapse" href="#best_n_tarif" aria-expanded=true aria-controls="best_n_tarif">
+				Лучшие 5 тарифов и опций<span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>		
+	</div> 
+	<div id="best_n_tarif" class="list-group collapse in">
+		<%= render(:partial => 'result/service_sets/report/best_service_set', :layout => 'application/layouts/model_table', :locals => {:table => results_best_n_service_set(5)}) %> 
+	</div>
+</div>
+
+<div id="call_stat_head" class="panel panel-default">
+	<div class="panel-heading">
+		<div class="my_collapsable h3">
+			<a my_collapsable="true" data-toggle="collapse" href="#call_stat" aria-expanded=true aria-controls="call_stat">
+				Статистика мобильных услуг<span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>		
+	</div> 
+	<div id="call_stat" class="list-group collapse in">
+		<p>
+			<p><span class="small">*Можете изменять степень детализации статистики, отмечая нужные параметры </span></p>
+			
+			<%= render(:partial => 'application/shared/call_stat/calls_stat_options', :layout => 'application/layouts/filtr_form_inline', 
+				:locals => {:form_item => calls_stat_options, 
+					:action_name => result_service_sets_report_path(hash_with_region_and_privacy({:result_run_id => params[:result_run_id], :service_set_id => controller.service_set_id}) )}) %>
+		</p>
+		<%= render(:partial => 'application/shared/call_stat/calls_stat', :layout => 'application/layouts/model_table', 
+			:locals => {:table => calls_stat, 
+				:action_name => result_service_sets_report_path(hash_with_region_and_privacy({:result_run_id => params[:result_run_id], :service_set_id => controller.service_set_id}) )}) %> 
+	</div>
+</div>
+
+<div id="aggregated_results_head" class="panel panel-default">
+	<div class="panel-heading">
+		<div class="my_collapsable h3">
+			<a my_collapsable="true" data-toggle="collapse" href="#aggregated_results" aria-expanded=true aria-controls="aggregated_results">
+				Агрегированные затраты по выбранному тарифу и опциям<span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>		
+	</div> 
+	<div id="aggregated_results" class="list-group collapse in">
+		<%= render(:partial => 'result/service_sets/report/result_agregates', :layout => 'application/layouts/model_table', :locals => {:table => result_agregates}) %> 
+	</div>
+</div>
+
+<div id="detailed_results_head" class="panel panel-default">
+	<div class="panel-heading">
+		<div class="my_collapsable h3">
+			<a my_collapsable="true" data-toggle="collapse" href="#detailed_results" aria-expanded=true aria-controls="detailed_results">
+				Затраты в разрезе тарифа, опций и мобильных услуг<span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>		
+	</div> 
+	<div id="detailed_results" class="list-group collapse in">
+		<p><span class="small">*Для того, чтобы посмотреть затраты по тарифу или опцию, нажмите на нужную строку в таблице ниже.</span></p>
+	    <%= render(:partial => 'result/service_sets/report/result_services', :layout => 'application/layouts/model_table', :locals => {:table => result_services}) %>
+	    <%= render(:partial => 'result/service_sets/report/result_service_categories', :layout => 'application/layouts/model_table', :locals => {:table => result_service_categories}) %>
+	</div>
+</div>
+
+<div id="tarif_optimization_desciption_head" class="panel panel-default">
+	<div class="panel-heading">
+		<div class="my_collapsable h3">
+			<a my_collapsable="true" data-toggle="collapse" href="#tarif_optimization_desciption" aria-expanded=true aria-controls="tarif_optimization_desciption">
+				Описание подбора тарифа<span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>		
+	</div> 
+	<% result_run = results_service_set.try(:run) %>
+	<% if result_run %>
+		<ul id="tarif_optimization_desciption" class="list-group collapse in" >
+			<li class="list-group-item"><strong>Способ подбора тарифа: </strong><%= (result_run.optimization_type || "Способ подбора не выбран") %></li>
+			<% if m_privacy == 'business' %>
+				<li class="list-group-item"><strong><%= "Для бизнеса" %></strong></li>
+			<% end %>		
+			<li class="list-group-item"><strong>Выбранные регион: </strong><%= Category::MobileRegions[m_region]['name'] %></li>
+			<li class="list-group-item"><strong>Ваш текущий оператор (из детализации): </strong><%= (result_run.call_run.try(:operator).try(:name) || "Оператор не определен") %></li>
+			<li class="list-group-item"><strong>Ваш телефон (из детализации): </strong>
+				<%= (general_customer_info.try(:info).try(:[], "call_run").try(:[], result_run.call_run_id.try(:to_s)).try(:[], "own_number") || "Телефон не определен") %>
+			</li>
+			<li class="list-group-item"><strong>Период расчета: </strong><%= (result_run.accounting_period || "Период расчета не выбран") %></li>
+
+		</ul>
+	<% end %> 
+	<div class="panel-footer">
+		<%= link_to( "Перейти к списку результатов", result_runs_path(hash_with_region_and_privacy), {:class => "btn btn-success", :type =>"button", :remote => true}) %>	
+	</div>
+</div>
+
+
+      

@@ -1,0 +1,129 @@
+<%
+
+content_in :tabs do |user| 
+  {
+  	:left =>([
+	    [
+	     '', 
+	     link_to(content_tag(:span, image_tag('logo_1.png', alt: "Логотип", height: 25) + ' www.MyTarifs.ru'), 
+	     	root_with_region_and_privacy(m_privacy, m_region), {:class => "nav navbar-brand hidden-xs", :remote => false}),
+	     'link',
+	     "" 
+	    ], 
+	    [
+	     "Подбор тарифов", 
+	     render('/application/menus/main_top_megamenu/services'),
+	     'dropdown-menu',
+	     "hidden-xs",     
+	    ], 
+	    [
+	     "Рейтинги", 
+	     render('/application/menus/main_top_megamenu/ratings'),
+	     'dropdown-menu',
+	     "visible-xs-block",     
+	    ], 
+	    [
+	     "", 
+	     link_to("Оценка затрат", estimate_cost_tarif_class_path(hash_with_region_and_privacy)),
+	     'link',     
+	     "visible-xs-block"     
+	    ], 
+	    [
+	     "Калькуляторы", 
+	     render('/application/menus/main_top_megamenu/calculators'),
+	     'dropdown-menu',
+	     "visible-xs-block"     
+	    ], 
+	    [
+	     "Сравнение тарифов", 
+	     render('/application/menus/main_top_megamenu/comparing'),
+	     'dropdown-menu',
+	     "visible-xs-block clearfix"     
+	    ], 
+	    [
+	     "Описание тарифов", 
+	     render('/application/menus/main_top_megamenu/tarifs'),
+	     'dropdown-menu',
+	     "hidden-xs",     
+	    ], 
+	    [
+	     "Описание тарифов", 
+	     render('/application/menus/main_top_megamenu/tarif_classes'),
+	     'dropdown-menu',     
+	     "visible-xs-block"     
+	    ], 
+	    [
+	     "Статьи", 
+	     render('/application/menus/main_top_megamenu/articles'),
+	     'dropdown-menu',     
+	     "",#"visible-xs-block"     
+	    ], 
+	    [
+	     t(:service_description), 
+	     render('/application/menus/main_top_megamenu/service_description'),
+	     'dropdown-menu',     
+	     "", #"visible-xs-block"     
+	    ], 
+	    [
+	     content_tag(:span, "Меню пользователя"), 
+	     render('/application/menus/main_top_megamenu/user_info'),
+	     'dropdown-menu',     
+	     "visible-xs-block"     
+	    ], 
+	    ([
+	     t(:admin), 
+	     render('/application/menus/main_top_megamenu/admin'),
+	     'dropdown-menu',
+	     ""     
+	    ] if current_user_admin?), 
+	    ([
+	     'Cpanet', 
+	     render('/application/menus/main_top_megamenu/cpanet'),
+	     'dropdown-menu',     
+	     ""     
+	    ] if current_user_admin?), 
+  	]).compact,
+  	:right =>([
+		([
+		 '', 
+		"<br class='visible-xs-block'>".html_safe + 
+		 content_tag(:div, render( :partial => 'application/shared/social_login'), {:class => "center-block visible-xs-block"}),
+		 'link' 
+		] if controller.show_login?),
+		[
+		 '', 
+		"<br class='visible-xs-block'>".html_safe + 
+#    	content_tag(:br, "", {:class => "visible-xs-inline-block"}) +
+		link_to("Подобрать выгодный тариф", comparison_fast_optimizations_path(hash_with_region_and_privacy), 
+			{:class => "btn btn-success  center-block visible-xs-block", :onclick => set_target("individ_podbor")}),
+		 'link' 
+		],
+		[
+		 '', 
+		"<br class='visible-xs-block'>".html_safe + 
+		 content_tag(:div, render( :partial => 'application/shared/yandex_search_form'), {:class => "center-block visible-xs-block"}),
+		 'link' 
+		],
+	    [
+	     content_tag(:span, image_tag("user_img.png"), {:class => "icon_menu_img hidden-xs"}) +
+	     content_tag(:span, current_user ? current_user.name : "Войти", {:class => "hidden-xs"}) +
+	     content_tag(:span, '', {:class => "caret  hidden-xs"}), 
+	     render('/application/menus/main_top_megamenu/user_info'),
+	     'dropdown-menu'     
+	    ], 
+  	]).compact,
+  	:collapsed =>([
+	    [
+	     link_to(content_tag(:span, image_tag('logo_1.png', alt: "Логотип", height: 25) + ' www.MyTarifs.ru'), 
+	     	root_with_region_and_privacy(m_privacy, m_region), {:class => "nav navbar-brand visible-xs-block"} )
+	    ], 
+	    [
+	     content_tag(:a, {:class => "navbar-brand visible-xs-block pull-right"}) do
+		     content_tag(:span, image_tag("user_img.png"), {:class => "icon_menu_img"}) +
+		     content_tag(:span, current_user ? current_user.name : "Гость", {:class => "small"}) 
+	     end
+	    ], 
+  	]).compact,
+  }
+end
+%>

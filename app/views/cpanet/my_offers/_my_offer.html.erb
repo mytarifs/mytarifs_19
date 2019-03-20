@@ -1,0 +1,23 @@
+<%
+form_item.init do |fi|
+#  fi.caption = 'Show tarif class'
+  fi.set_fields do |my_offer| 
+
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control "}
+	label_html = {:class => "form-label "}
+  	s = session_model_params(fi)
+
+	[
+      [
+      	link_to('Edit', edit_cpanet_my_offer_path(my_offer), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+      	link_to('MyOffers', cpanet_my_offers_path, {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+      ],  
+      ['ID', my_offer.id],
+      ['Name', my_offer.name],
+      ['Website', my_offer.try(:website).try(:name)],
+      ['Status', my_offer.status],
+      ['Features', my_offer.features],
+	]
+  end
+end	
+%>

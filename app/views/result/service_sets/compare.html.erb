@@ -1,0 +1,50 @@
+<% title (result_service_sets_model.first.try(:run).try(:comparison_group) ? "Сравнение лучших тарифов для рейтинга: \
+	#{result_service_sets_model.first.run.comparison_group.optimization.name}, \
+	корзина: #{result_service_sets_model.first.run.comparison_group.name} #{region_and_privacy_tag}" :
+	"Сравнение лучших тарифов для подбора тарифов пользователя #{region_and_privacy_tag}") %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1> 
+            <span class="h5">Сравнение тарифов помогает проанализировать отличия в стоимости между подобранными тарифами и опциями.
+				Возможны два варианта сравнения: по стоимости или по цене. </span>
+            <hr>
+        </div>
+    </div>
+</header> 
+
+<div class="panel panel-default">
+	<div class="panel-heading"><span class="h4">Описание подбора тарифа</span></div> 
+
+	<% if result_service_sets_model.first.run.comparison_group %>
+		<ul class="list-group" >
+			<li class="list-group-item"><strong>Название рейтинга: </strong><%= result_service_sets_model.first.run.comparison_group.optimization.name %></li>
+			<li class="list-group-item"><strong>Название корзины: </strong><%= result_service_sets_model.first.run.comparison_group.name %></li>
+		</ul>
+	<% else %>
+		<ul class="list-group" >
+			<li class="list-group-item"><strong>Сохраненное название подбора: </strong><%= result_service_sets_model.first.run.name %></li>
+			<li class="list-group-item"><strong>Сохраненное название звонков: </strong><%= result_service_sets_model.first.run.call_run.try(:name) %></li>
+		</ul>
+	<% end if result_service_sets_model.first %>
+	<div class="panel-footer">
+		<%= render( :partial => 'result/service_sets/compare/information') + 
+			link_to("Назад", service_sets_result_return_link_to, {:class => "btn btn-success", :type =>"button", :remote => true}) %>
+	</div>
+</div>
+
+<div class="panel panel-default" >
+	<div class="panel-heading"><span class="h4">Параметры сравнения тарифов</span></div>
+	<div class="panel-body">
+		<%= render(:partial => 'result/service_sets/compare/service_set_choicer', :layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => service_set_choicer} ) %>
+		<p>
+		<%= render(:partial => 'result/service_sets/compare/comparison_options', :layout => 'application/layouts/filtr_form_inline', :locals => {:form_item => comparison_options} ) %>
+		</p>
+	</div>
+</div>
+
+
+<%= render(:partial => 'result/service_sets/compare/service_sets', :layout => 'application/layouts/model_table', :locals => {:table => comparison_service_sets})%>
+     	

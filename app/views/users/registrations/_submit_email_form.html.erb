@@ -1,0 +1,41 @@
+<%
+	input_html = {:class => "form-control  "}
+	link_to_html = {:class => "btn btn-link", :type => 'button'}
+	submit_html = {:class => "btn btn-primary btn-group-justified"}
+	label_html = {:class => "control-label "}	
+%>
+
+<% render :partial => 'users/layouts/field_temp' %>
+
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: {:class => "" }) do |f| %>
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) if current_user %>
+
+  <%= tag(:input, :name => "registration_type", :type => "hidden", :value => :only_email ) %>
+
+   <% if !devise_error_messages!.blank? %>
+	<div class="alert alert-warning alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert">
+			<span aria-hidden="true">&times;</span>
+			<span class="sr-only">Close</span>
+		</button>
+		<%= devise_error_messages! %>
+	</div>
+  <% end %>
+
+  <% field_temp true do %>
+	  	<%= f.label :email, label_html %>
+  		<%= f.email_field( :email, {autofocus: true }.merge(input_html) ) %>
+  <% end %>
+
+  <% field_temp true do %>
+  		<br />
+  		<%= f.submit( "Отправить", submit_html.merge({:onclick => set_target("press_registration_on_users_sign_up")})) %>
+  <% end %>
+
+  <% field_temp true do %>
+  		<br />
+  		<%= render :partial => "application/shared/social_login" %>
+  <% end %>
+
+<% end %>
+

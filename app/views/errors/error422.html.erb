@@ -1,0 +1,8 @@
+<% title t('.title') %>
+
+<div class="dialog">
+	<div>
+		<p>Возможно вы попытались сделать то, на что у вас нет разрешения на сайте</p>
+		<p><%= link_to("Вы можете перейти на главную страницу сайта", root_with_region_and_privacy(m_privacy, m_region)) %></p>
+	</div>
+</div>

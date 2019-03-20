@@ -1,0 +1,42 @@
+<%
+form_item.init do |fi|
+#  fi.caption = 'Show tarif class'
+  	action_path = scrap_tarif_lists_path(hash_with_region_and_privacy)
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+    s = session[:filtr]['service_list_parsing_filtr'] || {}	
+  	tarif_list_filtr = session[:filtr]['tarif_list_region_filtr'] || {}
+  	tarif_class_filtr = session[:filtr]['general_tarif_class_filtr'] || {}  	
+
+  fi.set_fields do |tarif_list| 
+  	parser = ServiceParser::Runner.init({
+  		:operator_id => tarif_class_filtr.try(:[], 'operator_id').try(:to_i),
+  		:region_id => tarif_list.try(:region_id),
+  		:original_page => tarif_list.description,
+  		:tarif_class => tarif_list.try(:tarif_class),
+  		:parsing_class => tarif_list.try(:tarif_class).try(:parsing_class),
+  	})
+  	
+  	search_services_results = if parser and tarif_class_filtr['for_parsing'] == 'true'
+		test_service_tag_result = s.try(:[], 'search_services_tag').try(:[], 'check') == 'true' ? 
+			parser.test_search_tag([ [ s['search_services_tag'].try(:[], 'new_value') ] ]) : 'no test of search_service_tag'
+			
+		result = []
+
+		result << ['search_service_tag_result',  '']
+		search_service_tag = tarif_list.tarif_class.try(:search_services_tag)
+		parser.search_services(search_service_tag, parser.excluded_words_for_service_search, tarif_list.visited_page_url).
+			map{|href, names| result << [href, names] }
+				
+		[ 
+			['test_service_tag_result', test_service_tag_result.try(:to_html).try(:html_safe)],
+		] + result
+	else
+		[]
+  	end
+  	
+  	search_services_results
+
+  end
+end	
+%>

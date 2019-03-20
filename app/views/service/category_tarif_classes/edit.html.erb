@@ -1,0 +1,4 @@
+<% title t('.title') %>
+
+<%= render :partial => 'form', :layout => 'application/layouts/model_form_for_broad_input_column', 
+	:locals => {:form_item => service_category_tarif_class_form, :url => service_category_tarif_class_path(hash_with_region_and_privacy({:id => service_category_tarif_class.id})) } %>

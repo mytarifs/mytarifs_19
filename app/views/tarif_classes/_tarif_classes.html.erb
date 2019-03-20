@@ -1,0 +1,40 @@
+<%
+table.init do |t|
+#  t.caption = 'Список тарифов и опций'
+  filtr = session[:filtr]['tarif_class_filtr'] || {}
+  show_as_for_admin = (user_type == :admin and filtr['show_as_for_not_admin'] != 'true')
+
+  t.heads = ['Название тарифа (опции, услуги)', 'Оператор', 'Для физических лиц', ' Тариф / Опция / Услуга',] + 
+  	(show_as_for_admin ? ['ID', 'region_txt', 'regions', 'archived_regions', 'excluded_from_optimization', '', '', '', '', ''] : [])
+  
+  t.set_fields do |tarif_class| 
+  	
+	tarif_class_link_to = link_to( "#{tarif_class.name}", tarif_class_path(hash_with_region_and_privacy({:id => tarif_class.slug})), :my_remote => false)
+	
+	http = tarif_class.full_http_from_http(m_region, :http)
+  [
+    tarif_class_link_to, 
+	content_tag(:span, "", {class: "operator-#{tarif_class.operator.slug}"}),
+	(tarif_class.privacy_id == Category::Privacies['personal']['id'] ? "+" : "-"),
+    (tarif_category_txt_from_standard_service_id(tarif_class.standard_service_id) if tarif_class.standard_service), 
+  ] + (show_as_for_admin ? [
+    tarif_class.id, 
+    (tarif_class.region_txt || "no region"),
+    (tarif_class.regions || []), 
+    (tarif_class.archived_regions || []), 
+    (tarif_class.excluded_from_optimization.try(:to_s) || "no value"),
+#    (tarif_class.payment_type || "no payment_type"),
+    link_to_if(tarif_class.features, tarif_class.name, http, :target => ""), 
+    link_to( 'Show admin', admin_tarif_class_path(hash_with_region_and_privacy({:id => tarif_class.id})), :my_remote => true), 
+    link_to( 'Edit', edit_tarif_class_path(hash_with_region_and_privacy({:id => tarif_class.id})), :my_remote => true), 
+    link_to( 'Full copy', copy_tarif_class_path({:id => tarif_class.id, :region_to_copy => tarif_class.region_txt, :privacy_id_to_copy => tarif_class.privacy_id, :fail_url => tarif_classes_path}), 
+    	:my_remote => true),       		 
+    link_to( 'Change status', change_status_tarif_class_path(hash_with_region_and_privacy({:id => tarif_class.id})), 
+    	:my_remote => true),       		 
+#    (tarif_class.created_at.to_formatted_s(:short) if  tarif_class.created_at), 
+#    (tarif_class.updated_at.to_formatted_s(:short) if tarif_class.updated_at), 
+    (link_to( 'Destroy', tarif_class, method: :delete, data: { confirm: 'Are you sure?' } ) if ( tarif_class.publication_status != Content::Article::PublishStatus[:published]))
+  ] : []).compact
+  end
+end
+%>

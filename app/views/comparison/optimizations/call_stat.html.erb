@@ -1,0 +1,44 @@
+<%
+	comparison_group = controller.comparison_groups.model.try(:first)
+%>
+
+<% title (comparison_group ? "Статистика использования мобильной связи для рейтинга: \
+	#{comparison_group.optimization.name}, корзина: #{comparison_group.name} #{region_and_privacy_tag}" : 
+	"Статистика использования мобильной связи для подбора тарифов пользователя #{region_and_privacy_tag}") %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <span class="h5">Статистика использования мобильной связи показывает на основаниие каких данных получен результат.</span>
+            <hr>
+        </div>
+    </div>
+</header>
+
+
+<% link_to_html = {:class => "btn btn-success", :type =>"button", :remote => true} %>
+
+<div class="panel panel-default">
+	<div class="panel-heading"><span class="h4"> подбора тарифа</span></div>
+		<ul class="list-group" >
+			<li class="list-group-item"><strong>Название рейтинга: </strong><%= comparison_group.optimization.name %></li>
+			<li class="list-group-item"><strong>Название корзины: </strong><%= comparison_group.name %></li>
+		</ul>
+	<div class="panel-footer">
+		<%= render :partial => 'comparison/optimizations/call_stat/information' %>
+		<%= link_to( "Вернуться к описанию рейтинга", comparison_optimization_path(hash_with_region_and_privacy({:id => params[:id]})), link_to_html) %>
+	</div>
+</div>
+
+</p>
+<%= render(:partial => 'comparison/optimizations/call_stat/operator_choicer', 
+	:layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => calls_stat_options} ) if user_type == :admin %> 
+<p>
+<%= render(:partial => 'application/shared/call_stat/calls_stat_options', :layout => 'application/layouts/filtr_form_inline', 
+		:locals => {:form_item => calls_stat_options, :action_name => comparison_call_stat_path(hash_with_region_and_privacy({:id => params[:id]}))} ) %> 
+</p>
+<%= render(:partial => 'application/shared/call_stat/calls_stat', :layout => 'application/layouts/model_table', 
+		:locals => {:table => calls_stat, :action_name => comparison_call_stat_path(hash_with_region_and_privacy({:id => params[:id]}))}) %>
+

@@ -1,0 +1,43 @@
+<%
+business_text_tag = m_privacy == 'personal' ? :span : :u	
+personal_text_tag = m_privacy == 'personal' ? :u : :span	
+
+content_in :tabs do |user| 
+  {
+  	:left =>([
+	    [
+	     content_tag(:span, "#{Category::MobileRegions[m_region].try(:[], 'name')}") +
+	     content_tag(:span, '', {:class => "caret  hidden-xs"}), 
+	     render('/application/menus/region_and_privacy/region_choiser'),
+	     'dropdown-menu',
+	     "hidden-xs",     
+	    ], 
+	    [
+	     "Выбрать регион", 
+	     render('/application/menus/region_and_privacy/region_choiser'),
+	     'dropdown-menu',
+	     "visible-xs-block",     
+	    ], 
+		[
+		 '', 
+		"<br class='visible-xs-block'>".html_safe + 
+		 link_to(content_tag(personal_text_tag, 'Для частных лиц'), root_with_region_and_privacy('personal', m_region) ),
+		 'link' 
+		],
+		[
+		 '', 
+		"<br class='visible-xs-block'>".html_safe + 
+		 link_to(content_tag(business_text_tag, 'Для бизнеса'), root_with_region_and_privacy('business', m_region) ),
+		 'link' 
+		],
+  	]).compact,
+  	:collapsed =>([
+	    [
+	    	content_tag(:p, {:class => "ins small navbar-text visible-xs-block pull-center"}) do
+	    		content_tag(:span, "#{Category::MobileRegions[m_region].try(:[], 'name')}, #{Category::Privacies[m_privacy]['name']}")
+	    	end
+	    ], 
+  	]).compact,
+  }
+end
+%>

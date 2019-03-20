@@ -1,0 +1,50 @@
+<%
+form_item.init do |fi|
+input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => estimate_cost_tarif_class_path(hash_with_region_and_privacy)}
+label_html = {:class => "control-label "}
+  s = session_filtr_params(fi)	
+#  fi.caption = "Выбор тарифов"	
+  #s = {}
+  optimization_ids = FastOptimization::DataLoader::InputRegionData[m_privacy][m_region][:optimization_id]
+  
+  tarif_ids = Result::ServiceSet.joins(run: :comparison_group).
+    where({:comparison_groups => {:optimization_id => optimization_ids}}).pluck(:tarif_id).uniq
+    
+  s['tarifs'] ||= {}  
+  (s['tarifs'].values - ['']).each{|tarif_id| s['tarifs'] = nil if !tarif_ids.include?(tarif_id.to_i)}  
+  
+  
+  tarif_ids = tarif_ids & TarifClass.unlimited_tarif_ids if (s["unlimited_only_tarifs"] || "true") == 'true'
+  basic_tarifs = TarifClass.where(:id => tarif_ids)
+  
+  fi.set_fields do |filtr_name|
+    [
+      [
+        label(filtr_name, 'unlimited_only_tarifs', "Сравнивать только безлимитные тарифы", label_html),
+ 	 	check_box(filtr_name, "unlimited_only_tarifs", ((s["unlimited_only_tarifs"] || "false") == 'true' ? {:checked => 'checked'} : {} ).merge(input_html), true, false ),
+	
+      	label(filtr_name, "operators[0]", "Выберите оператора №1", label_html),
+      	collection_select(filtr_name, "operators[0]", Category.where(:id => Category::Operator::Const::OperatorsWithTarifs ), :id, :name, 
+	  	{:include_blank => "выберите оператора", :selected => s["operators"].try(:[], "0").try(:to_i) }, input_html.merge({:size => 5}) ) +
+	  	label(filtr_name, "tarifs[0]", "Выберите тариф №1", label_html) +
+      	collection_select(filtr_name, "tarifs[0]", basic_tarifs.where(:operator_id => s["operators"].try(:[], "0").try(:to_i)), :id, :name, 
+	  	{:include_blank => "выберите тариф", :selected => s["tarifs"].try(:[], "0").try(:to_i) }, input_html ),
+
+      	label(filtr_name, "operators[1]", "Выберите оператора №2", label_html),
+      	collection_select(filtr_name, "operators[1]", Category.where(:id => Category::Operator::Const::OperatorsWithTarifs ), :id, :name, 
+	  	{:include_blank => "выберите оператора", :selected => s["operators"].try(:[], "1").try(:to_i) }, input_html.merge({:size => 5}) ) +
+	  	label(filtr_name, "tarifs[1]", "Выберите тариф №2", label_html) +
+      	collection_select(filtr_name, "tarifs[1]", basic_tarifs.where(:operator_id => s["operators"].try(:[], "1").try(:to_i)), :id, :name, 
+	  	{:include_blank => "выберите тариф", :selected => s["tarifs"].try(:[], "1").try(:to_i) }, input_html ),
+
+      	label(filtr_name, "operators[2]", "Выберите оператора №3", label_html),
+      	collection_select(filtr_name, "operators[2]", Category.where(:id => Category::Operator::Const::OperatorsWithTarifs ), :id, :name, 
+	  	{:include_blank => "выберите оператора", :selected => s["operators"].try(:[], "2").try(:to_i) }, input_html.merge({:size => 5}) ) +
+	  	label(filtr_name, "tarifs[2]", "Выберите тариф №3", label_html) +
+      	collection_select(filtr_name, "tarifs[2]", basic_tarifs.where(:operator_id => s["operators"].try(:[], "2").try(:to_i)), :id, :name, 
+	  	{:include_blank => "выберите тариф", :selected => s["tarifs"].try(:[], "2").try(:to_i) }, input_html ),
+	  ],
+    ] 
+  end
+end
+%>

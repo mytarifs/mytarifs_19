@@ -1,0 +1,25 @@
+<%
+form_item.init do |f|
+#  f.caption = "Choice of service"	
+  f.set_fields do |filtr_name|
+  	action_name = estimate_cost_tarif_class_path(hash_with_region_and_privacy)
+  	
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control", :action_name => action_name}
+	label_html = {:class => "control-label"}
+	link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+	
+    #s = {}
+    s = session_filtr_params(f)
+	
+	result = fast_optimization_options.keys.map do |part|
+		initial_value = s.try(:[], part).blank? ? fast_optimization_options[part][:options].try(:to_a).try(:[], 0).try(:[], 0).try(:to_s) : s.try(:[], part)
+		[
+			label(filtr_name, part, fast_optimization_options[part][:name], label_html),
+	      	select(filtr_name, part, fast_optimization_options[part][:options].to_a.map{|i| [i[1], i[0].to_s]}, 
+		  	{:selected => initial_value}, input_html.merge({:size => fast_optimization_options[part][:options].size}) )		  	
+		]
+	end
+	result.flatten.in_groups_of(6)
+  end
+end
+%>

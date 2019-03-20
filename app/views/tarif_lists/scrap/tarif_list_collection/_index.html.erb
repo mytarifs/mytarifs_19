@@ -1,0 +1,20 @@
+<%
+table.init do |t|
+  t.heads = ['region', 'service', 'url', 'tarif_list_for_parsing_ids', 'status', 'error404', 'h1', 'fixed_month_payment', 'fixed_day_payment', '']
+  t.set_fields do |tarif_list| 
+
+  [
+  	tarif_list.region.try(:name),
+  	tarif_list.tarif_class.try(:name),
+  	(tarif_list.visited_page_url.blank? ? '' : link_to('url', tarif_list.visited_page_url, {:target => :blank})),
+  	tarif_list.features.try(:[], 'tarif_list_for_parsing_ids'),
+  	tarif_list.features.try(:[], 'status'),
+  	tarif_list.features.try(:[], 'initial_processing').try(:[], 'error404'),
+  	tarif_list.features.try(:[], 'initial_processing').try(:[], 'h1'),
+  	tarif_list.features.try(:[], 'initial_processing').try(:[], 'fixed_month_payment'),
+  	tarif_list.features.try(:[], 'initial_processing').try(:[], 'fixed_day_payment'),
+  	link_to( 'Destroy', tarif_list, method: :delete, data: { confirm: 'Are you sure?' } )
+  ]
+  end
+end
+%>

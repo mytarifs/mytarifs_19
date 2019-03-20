@@ -1,0 +1,12 @@
+<% 
+	colors = ["primary", "success", "default"]
+	steps = ['Загрузка детализации', 'Выбор метода подбора', 'Задание опций подбора', 'Вычисления', 'Рекомендация по выгодному тарифу']
+%>
+
+<div>
+	<div class="h4">Этапы расчета</div>	
+	<% steps.each_with_index do |step, index| %>
+		<% color = colors[(index <=> current_step) + 1] %>
+		<div style="display: inline-block;"><span class="h5 label label-<%= color %>"><%= step %></span></div>
+	<% end %>
+</div>

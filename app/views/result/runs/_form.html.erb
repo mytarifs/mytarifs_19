@@ -1,0 +1,52 @@
+<%
+
+form_item.init do |fi|
+	action_path = fi.model.id ? edit_result_run_path(hash_with_region_and_privacy({:id => fi.model.id})) : new_result_run_path(hash_with_region_and_privacy)	
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+	link_to_html = {:class => "btn btn-info", :type =>"button", :remote => true}
+	s = session_model_params(fi)
+
+  fi.set_fields do |f|
+
+ 	  [
+	   [
+	   	f.label( :name, 'Название', label_html), 
+	   	f.text_field( :name, input_html.merge({:value =>(s['name'] || "подбор тарифа 1")}))
+	   ], 
+	   [
+	   	f.label( :description, 'Описание', label_html), 
+	   	f.text_area( :description, input_html.merge({:value => (s['description'] || "детальное описание подбора тарифа 1")}))
+	   ], 
+	   [
+	   	f.label( :optimization_type_id, 'Тип подбора тарифа', label_html), 
+	 	f.select(:optimization_type_id, (user_type == :admin ? Result::Run::OptimizationTypes : Result::Run::UserOptimizationTypes).map{|r| [r[1][:name], r[0]]}, 
+	 		{}, input_html.merge({:value => s['optimization_type_id']}))
+	   	], 
+	   [
+	   	f.label( :call_run_id, 'Описание источников звонков', label_html), 
+	   	f.collection_select(:call_run_id, Customer::CallRun.where(:user_id => current_or_guest_user_id), :id, :full_name, 
+  	   		{:include_blank => 'выберите источник звонков', :selected => s["call_run_id"] }, input_html )
+	   ], 
+	   [
+	   	f.label( :accounting_period, 'Календарный период', label_html), 
+	   	f.collection_select(:accounting_period, accounting_periods(s['call_run_id']), :accounting_period, :accounting_period, 
+  	   		{:include_blank => 'выберите календарный период', :selected => s["accounting_period"] }, input_html )
+	   ], 
+	   [
+	   	f.label( :run, 'Номер подбора тарифа', label_html), 
+	   	f.number_field( :run, input_html.merge({:value => (s['run'] || 1), within: 1...10}))
+	   ], 
+	   [
+	   	link_to( t('result.runs.edit.results_link'), result_runs_path(hash_with_region_and_privacy), link_to_html), 
+	   	f.submit(t('result.runs.edit.save_link'), :class => "btn btn-primary", :type =>"submit", :remote => true)
+	   ],
+	   [
+	   	'', 
+	   	f.text_field( :user_id, {:hidden => true, :value => current_or_guest_user_id })
+	   ],
+	  ]
+  end
+end
+%>
+

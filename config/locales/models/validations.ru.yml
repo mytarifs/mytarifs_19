@@ -1,0 +1,13 @@
+ru:
+  errors:
+    messages:
+      greater_than_or_equal_to: "Число должно быть больше или равно %{count}" 
+      greater_than: "Число должно быть больше или равно %{count}"
+      less_than_or_equal_to: "Число должно быть меньше или равно %{count}"
+      less_than: "Число должно быть меньше %{count}"
+      not_a_number: "Поле должно содержать число"
+      inclusion: Недействительное значение
+      record_invalid: Запись не может быть сохранена
+      blank: 'Поле не может быть пустым'
+      not_an_integer: "Чисто должно быть целым"
+

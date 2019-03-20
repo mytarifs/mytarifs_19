@@ -1,0 +1,10 @@
+<%= content_tag(:h2) do
+		render( :partial => 'tarif_classes/parsed_tarif_lists/tarif_class_filtr', 
+		:layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => parsed_tarif_lists_tarif_class_filtr}) +
+
+     	render(:partial => 'tarif_classes/parsed_tarif_lists/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     	:locals => {:form_item => parsed_tarif_lists_filtr, :saved_parsed_tarif_lists => parsed_tarif_lists_model})
+    end %>
+
+<%= render :partial => 'tarif_classes/parsed_tarif_lists/tabs', :layout => 'application/layouts/tabs', 
+	:locals => {:name => 'parsed_tarif_lists_tabs', :active => session[:current_tabs_page]['parsed_tarif_lists_tabs'].to_i} %>

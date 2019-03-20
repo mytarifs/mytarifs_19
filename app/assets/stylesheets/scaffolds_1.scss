@@ -1,0 +1,514 @@
+/*user code */
+.content {
+    border: 1px solid #d9d9d9;
+    padding: 10px 15px;
+}
+
+.popover-content {
+    background: $body-bg;
+    color: $gray;
+}
+
+.panel-heading.active {
+  background: darken($panel-default-heading-bg, 13.5%);
+}
+
+table {
+  font-size: 13px;
+}
+
+table thead {
+  background: $table-head-background-color;
+/*  color: #ffffff !important;*/
+  
+}
+
+.table > tbody > tr.active > td {
+  background-color: lighten(#28A1E7, 36.5%) !important;
+}
+.table thead tr th {
+  vertical-align: middle;
+  text-align: center;
+}
+.table tbody tr td {
+  vertical-align: middle;
+  text-align: center;
+}
+.table-supercondensed > tbody > tr > td {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+.equal-group, .equal-group > div[class*='col-']{  
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    flex: 1 1 auto;
+}
+.equal-group-column{  
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+.equal-item-no-flex {  
+    flex: 0 0;
+}
+.equal-item-flex {  
+    flex: 1 1 auto;
+}
+.icon_menu_img {
+  margin-right: 5px;
+}
+#loading-indicator {
+  position: fixed; 
+  left: 50%;
+  top: 30%;
+  z-index: 100000000;   
+}
+#loading-indicator-ajax {
+  position: fixed; 
+  left: 50%;
+  top: 30%;
+  z-index: 1000000;   
+}
+#vk_groups,
+#vk_groups iframe
+ {
+  width: 100% !important;
+}
+/* END USER CODE */
+
+.f16 .flag{
+  display:inline-block;
+  margin-left: 5px !important;
+  margin-right: 5px !important;
+  height:16px !important;
+  width:16px;vertical-align:text-top;line-height:16px;background:image_url("flags16.png") no-repeat;}
+.f16 ._England{background-position:0 -112px;}
+.f16 .en{background-position:0 -3664px;}
+.f16 .ru{background-position:0 -3104px;}
+
+.f32 .flag{
+  display:inline-block;
+  margin-left: 25px !important;
+  margin-right: 5px !important;
+  height:32px;width:32px;vertical-align:text-top;line-height:32px;background:image_url('flags32.png') no-repeat;}
+.f32 ._England{background-position:0 -224px;}
+.f32 .en{background-position:0 -7328px;}
+.f32 .ru{background-position:0 -6208px;}
+
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+hr {
+    max-width: 80px;
+    border-width: 3px;
+    opacity: 0.09;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+p {
+    font-size: 17px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+.icon-lg {
+    font-size: 50px;
+    line-height: 18px;
+}
+section {
+    padding: 10px 0 !important;
+}
+
+aside {
+    padding: 50px 0;
+}
+
+footer {
+    padding: 15px;
+}
+
+.no-padding {
+    padding: 0;
+}
+.navbar-header > .navbar-brand {
+    padding: 15px;
+}
+
+.navbar-default .nav > li>a,
+.navbar-default .nav>li>a:focus {
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+@media(min-width:768px) {
+    .navbar-default {
+        min-height: 60px;
+    }
+
+    .navbar-header > .navbar-brand {
+        padding: 19px;
+    }
+    .navbar-default .nav > li>a,
+    .navbar-default .nav>li>a:focus {
+        padding: 20px;
+        letter-spacing: 1.1px;
+    }
+    .navbar-default.affix .navbar-header .navbar-brand {
+        font-size: 15px;
+        padding: 20px;
+        letter-spacing: 1px;
+    }
+}
+
+header {
+    position: relative;
+    min-height: auto;
+    text-align: center;
+    width: 100%;
+    background-position: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
+header .header-content {
+    position: relative;
+    width: 100%;
+    padding: 5px 15px;
+    text-align: center;
+    z-index: 2;
+}
+
+header .header-content-smaller {
+    padding: 5px 15px;
+}
+
+header .header-content .inner h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+header .header-content .inner p {
+    margin-bottom: 50px;
+    font-size: 16px;
+    font-weight: 300;
+}
+
+@media(min-width:768px) {
+    .icon-lg {
+        font-size: 80px;
+    }
+    
+    header {
+        min-height: 100%;
+    }
+
+    header .header-content .inner {
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 1000px;
+    }
+
+    header .header-content .inner h1 {
+        font-size: 40px;
+    }
+
+    header .header-content .inner p {
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 80%;
+        font-size: 12px;
+    }
+    
+    section {
+        min-height: 300px;
+        padding: 20px 0;
+    }
+
+}
+
+textarea {
+    resize: none;
+}
+
+.margin-top-0 {
+    margin-top: 0;
+}
+
+.feature {
+    margin: 50px auto 0;
+    max-width: 400px;
+}
+
+.feature-wide {
+    margin: 20px auto 0;
+    max-width: 600px;
+}
+
+@media(min-width:992px) {
+    .feature {
+        margin: 20px auto 0;
+    }
+}
+
+.feature p {
+    margin-bottom: 0;
+}
+
+.call-to-action h2 {
+    margin: 0 auto 20px;
+}
+
+.btn-xl {
+    padding: 15px 30px;
+    font-size: 20px;
+}
+
+::-moz-selection {
+    text-shadow: none;
+}
+
+::selection {
+    text-shadow: none;
+}
+
+/*Landing*/
+.margin-top-0 {
+    margin-top: 0;
+}
+
+
+.bg-primary {
+    background-color: $bg-primary-background-color; 
+    color: $bg-primary-color;
+}
+.text-primary {
+    color: $text-primary-color; 
+}
+
+/* for buttons text be always in screen */
+.btn_text_always_on_screen {
+    white-space: pre-line !important;  
+}
+
+/* search form */
+.search_form {
+  height: 32px !important;
+  background-color: #F5F5F5 !important;
+}
+
+.dropdown-menu {
+    min-width: 100%;
+}
+
+/* DropDown on Hover and Activating Click Event on Parent Item */
+@media only screen and (min-width:769px) {
+/*.dropdown:hover>.dropdown-menu { to submenu to work */
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-submenu:hover>.dropdown-menu {
+    display: block !important;
+}
+
+/*.dropdown-submenu1>a:after {  to submenu to work */
+.dropdown-submenu>a:after {
+    display: block;
+    content: "\f105";
+    font-family: 'FontAwesome';
+    margin-top: -18px;
+    right: 15px;
+    position: absolute;
+    font-weight: 300;
+}
+}
+/*!
+ * Yamm!3 - Yet another megamenu for Bootstrap 3
+ * http://geedmo.github.com/yamm3
+ *
+ * @geedmo - Licensed under the MIT license
+ */
+
+//-----------------------------
+//  Yamm Styles
+//-----------------------------
+
+.yamm {
+
+  // reset positions
+  .nav, .collapse, .dropup, .dropdown {
+    position: static;
+  }
+
+  // propagate menu position under container for fw navbars
+  .container {
+    position: relative;
+  }
+
+  // by default aligns menu to left
+  .dropdown-menu {
+    left: auto;
+  }
+
+  // Content with padding
+  .yamm-content {
+    padding: 10px 10px;
+  }
+
+  // Fullwidth menu
+  .dropdown.yamm-fw .dropdown-menu {
+    left: 0; right: 0;
+  }
+  // li style
+  .yamm-li-style a{
+    color: #fff;
+    text-decoration: none;
+  }
+  .yamm-li-style li{
+    padding: 5px;
+    margin: 0px;
+  }
+  .yamm-li-style li:hover {
+    background-color: #006687;
+}
+
+}
+
+/* Standard Rails class for form errors */
+.field_with_errors {
+  @extend .has-error;
+}
+/* Size of breadcrumbs fonts*/
+.breadcrumb {
+    font-size: 13px;  
+}
+/* up arrow button */
+.back-to-top { 
+    background: none;     
+    margin: 0;   
+    padding: 0px 5px;  
+    position: fixed;     
+    bottom: 0;     
+    right: 20px;     
+    width: 60px;     
+    height: 60px;     
+    z-index: 100;     
+    display: none;     
+    text-decoration: none;     
+    color: $table-head-background-color;     
+}
+ 
+  
+ 
+.back-to-top i {
+  font-size: 60px;
+}
+/* add change of mouse pointer */
+div .my_collapsable {
+  cursor: pointer;
+}
+
+/* style of tarif_content */
+.tarif_content_body > ul > li {
+  font-size: 16px;
+}
+
+/* style of ratings_panel */
+.list-group {
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.nav-pills {
+  font-weight: normal;
+}
+
+/* Social buttons backgroun color @include button-variant($color, $color-bg, rgba(0,0,0,.2));*/
+.social_share_group_share {
+  height: 24px !important; 
+  padding-top: 2px; 
+  padding-bottom: 2px; 
+  font-size: 12px;
+}
+
+/* operator's images '*/
+.operator-mts, .operator-beeline, .operator-megafon, .operator-tele2 {
+  background-image: image-url('mobile_operator_sprite.png');
+  background-repeat: no-repeat;
+    height: 18px;
+    width: 23px;  
+    display: inline-block;
+}
+
+.operator-mts {
+  background-position: -7px -15px;
+}
+.operator-beeline {
+  background-position: -32px -15px;
+}
+.operator-megafon {
+  background-position: -57px -15px;
+}
+.operator-tele2 {
+  background-position: -107px -15px;
+}
+
+@mixin btn-social($color-bg, $color: #fff) {
+  background-color: $color-bg !important; 
+}
+
+.btn-adn           { @include btn-social(#d87a68); }
+.btn-bitbucket     { @include btn-social(#205081); }
+.btn-dropbox       { @include btn-social(#1087dd); }
+.btn-facebook      { @include btn-social(#3b5998); }
+.btn-flickr        { @include btn-social(#ff0084); }
+.btn-foursquare    { @include btn-social(#f94877); }
+.btn-github        { @include btn-social(#444444); }
+.btn-google        { @include btn-social(#dd4b39); }
+.btn-instagram     { @include btn-social(#3f729b); }
+.btn-linkedin      { @include btn-social(#007bb6); }
+.btn-microsoft     { @include btn-social(#2672ec); }
+.btn-odnoklassniki { @include btn-social(#f4731c); }
+.btn-openid        { @include btn-social(#f7931e); }
+.btn-pinterest     { @include btn-social(#cb2027); }
+.btn-reddit        { @include btn-social(#eff7ff, #000); }
+.btn-soundcloud    { @include btn-social(#ff5500); }
+.btn-tumblr        { @include btn-social(#2c4762); }
+.btn-twitter       { @include btn-social(#55acee); }
+.btn-vimeo         { @include btn-social(#1ab7ea); }
+.btn-vk            { @include btn-social(#587ea3); }
+.btn-yahoo         { @include btn-social(#720e9e); }
+
+/* yandex RSY styles for adaptive RTB */
+.yandex-adaptive_center {
+  display: inline-block;
+}
+@media screen and (max-width: 400px) {
+    .yandex-adaptive {
+        width:370px !important;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .yandex-adaptive {
+        width:750px !important;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .yandex-adaptive {
+        width:950px;
+    }
+}
+

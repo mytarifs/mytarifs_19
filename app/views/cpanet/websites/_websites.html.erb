@@ -1,0 +1,17 @@
+<%
+table.init do |t|
+  t.heads = ['ID', 'Name', 'Net', 'Status', 'Feature keys', 'Features'] 
+  
+  t.set_fields do |website| 
+  	
+	[
+		website.id,
+		website.name,
+		website.cpanet,
+		website.status,
+		website.features.try(:keys),
+		website.features,
+	]
+  end
+end	
+%>

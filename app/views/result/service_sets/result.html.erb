@@ -1,0 +1,45 @@
+<% result_service_sets_model_1 = result_service_sets_model %>
+
+<% title (result_service_sets_model_1.first.try(:run).try(:comparison_group) ? "Список лучших тарифов для рейтинга: \
+	#{result_service_sets_model_1.first.run.comparison_group.optimization.name}, \
+	корзина: #{result_service_sets_model_1.first.run.comparison_group.name} #{region_and_privacy_tag} #{pagination_page_name('service_sets_page')}" :
+	"Список лучших тарифов для подбора тарифов пользователя #{region_and_privacy_tag} #{pagination_page_name('service_sets_page')}") %>
+<% keywords "список лучших тарифов тарифных опций #{region_and_privacy_tag}" %>	
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <span class="h5">Список лучших тарифов представляет результат подбора тарифа и опций.
+            	Для каждого тарифа выбрали самый выгодный набор опций.
+				Список упорядочен по возрастанию стоимости.</span>
+            <hr>
+        </div>
+    </div>
+</header> 
+ 
+<div class="panel panel-default">
+	<div class="panel-heading"><span class="h4">Описание подбора тарифа</span></div>
+
+	<% if result_service_sets_model_1.first.run.comparison_group %>
+		<ul class="list-group" >
+			<li class="list-group-item"><strong>Название рейтинга: </strong><%= result_service_sets_model_1.first.run.comparison_group.optimization.name %></li>
+			<li class="list-group-item"><strong>Название корзины: </strong><%= result_service_sets_model_1.first.run.comparison_group.name %></li>
+		</ul>
+	<% else %>
+
+		<%= render :partial => 'result/runs/calculation_info', :locals => {:result_run => result_service_sets_model_1.first.run} %>
+
+	<% end if result_service_sets_model_1.first %>
+	<div class="panel-footer">
+		<%= link_to("Назад", service_sets_result_return_link_to, {:class => "btn btn-success", :type =>"button", :remote => true}) %>
+	</div>
+</div>
+
+<% region_page = session[:current_accordion_page].blank? ? 0 : session[:current_accordion_page]['region_accord_service_sets'].to_i %>
+<%= render(:partial => 'application/shared/regions', :layout => 'application/layouts/accordion', 
+     	:locals => {:panel_class => "panel-info", :name => 'region_accord_service_sets', :active => region_page, 
+     	:partial_to_render => 'result/shared/service_sets_render'})
+ %>
+

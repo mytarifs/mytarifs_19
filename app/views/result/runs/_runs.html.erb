@@ -1,0 +1,81 @@
+<%
+table.init do |t|
+#  t.caption = 'Listing users'
+  link_html = {:my_remote => true}
+  t.heads = if user_type == :admin
+  	['Название', 'Описание звонков', 'Календарный период', 'Тип подбора', 'Дата обновления','', '', '', '', '', 'ID', 'User']
+  else
+  	['Название', 'Описание звонков', 'Календарный период', 'Тип подбора', 'Дата обновления', '', '', '', '', '', '']
+  end 
+  
+  t.set_fields do |run| 
+  calculation_fields = if run.optimization_params.blank?
+  	[
+	  	"Подбор не выполнялся", 
+	  	link_to_if(Result::Run::OptimizationTypes[run.optimization_type_id], "Подобрать тариф", 
+	  		result_detailed_calculations_select_calls_path(hash_with_region_and_privacy({:id => run.slug})), 
+	  		link_html.merge({:title => "Нажмите для перехода к подбору тарифа"})), 
+	  	"", ""
+  	]
+  else
+  	if controller.is_result_run_calculating_now(run.id)
+  		["Подбор выполняется сейчас", "", ""]
+  	else
+		general_init_params = run.call_run.try(:init_params).try(:[], 'general') || {'privacy_id' => m_privacy_id, 'region_txt' => m_region}
+		m_privacy_to_use = general_init_params['privacy_id'] == 1 ? 'business' : 'personal'
+		m_region_to_use = general_init_params['region_txt']
+
+  		[
+		  	link_to("Подобрать тариф", result_detailed_calculations_select_calls_path( 
+		  		hash_with_region_and_privacy({
+			  		:id => run.id,
+			  		:call_run_select_filtr => {:call_run_id => run.call_run_id}, :accounting_period_select_filtr_filtr => {:accounting_period => run.accounting_period},
+			  		:optimization_select_filtr_filtr => {:optimization_type_id => run.optimization_type_id}}, 
+			  		m_privacy_to_use, m_region_to_use)), 
+	  			link_html.merge({:title => "Нажмите для перехода к подбору тарифа"}) ), 
+		    link_to("Рекомендация", 
+		    	result_service_sets_report_path(
+		    		hash_with_region_and_privacy({:result_run_id => run.slug, :service_set_id => controller.best_service_sets(run.id).first.try(:service_set_id)}, 
+		    		m_privacy_to_use, m_region_to_use ) ), 
+		    	link_html.merge({:title => "Нажмите для просмотр рекомендации по результатам подбора",
+		    		:onclick => set_target("rezultaty_podbora")}) ), 
+		    link_to("Полные результаты подбора", result_service_sets_result_path(hash_with_region_and_privacy({:result_run_id => run.id},
+		    	m_privacy_to_use, m_region_to_use)), 
+		    	link_html.merge({:title => "Нажмите для просмотр полных результатов подбора",
+		    		:onclick => set_target("rezultaty_podbora")}) ), 
+		    link_to("Сравнение результатов", result_compare_path(hash_with_region_and_privacy({:result_run_id => run.id}, 
+		    	m_privacy_to_use, m_region_to_use) ), 
+				link_html.merge({:title => "Нажмите для сравнение результатов подбора"}) ),   			
+  		]
+  	end
+  end
+
+  call_run_to_use = if run.comparison_group_id
+  	call_run_id = run.calculation_choices.try(:[], 'call_run_id').try(:to_i)
+  	Customer::CallRun.where(:id => call_run_id).first
+  else
+  	run.call_run
+  end
+  
+  call_run_link = call_run_to_use.nil? ? "" :
+  	link_to(call_run_to_use.try(:name), customer_call_run_path(hash_with_region_and_privacy({:id => call_run_to_use.try(:id)})), link_html.merge({:title => "Нажмите для просмотра"}))
+  [
+    link_to( run.name, result_run_path(hash_with_region_and_privacy({:id => run.id})), link_html.merge({:title => "Нажмите для просмотра"})), 
+#    run.description,
+    call_run_link,
+    
+    run.accounting_period,
+    run.optimization_type,
+    run.updated_at.try(:to_formatted_s, :short),
+    link_to( content_tag(:span, "", { :class => "fa fa-pencil-square-o fa-lg"}), edit_result_run_path(run), link_html.merge({:title => "Редактировать"})), 
+    link_to( content_tag(:span, "", { :class => "fa fa-times-circle fa-lg"}), run, method: :delete, data: { confirm: 'Вы уверены, что хотите удалить запись?'}, :title => "Удалить"),
+  ] + calculation_fields + (user_type != :admin ? [] : [
+  	run.id, 
+  	(run.user.name if run.user),
+#    run.run,
+#  	run.optimization_type_id,
+  	run.comparison_group_id, 
+  	])
+  end
+end
+%>

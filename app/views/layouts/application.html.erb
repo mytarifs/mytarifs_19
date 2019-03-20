@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">    
+
+	<%= set_pagination_page_canonical %>
+	<%= display_meta_tags  %>
+	<% #if controller.request.original_fullpath == root_with_region_and_privacy(m_privacy, m_region) %>
+		<%#= display_meta_tags  %>
+	<%# else %>
+		<%#= display_meta_tags site: 'www.mytarifs.ru', reverse: true %>
+	<%# end %>
+
+  	<%= csrf_meta_tags %>
+    <%= favicon_link_tag "favicon.ico" %>
+
+	<%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>	
+ 	<%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+	
+	<meta name='yandex-verification' content='63a3385e116f965d' />
+	<meta name="google-site-verification" content="sJIlzIsykYR71LplV7xjLCs36YhJZoC-kgVgescrGE8" />
+</head>
+<body>
+  <%= controller_name if false%>
+
+  <%= render :partial =>'/application/shared/vk_open_api_init' %>
+  <%= render '/layouts/layout_with_top_menu' %>
+
+	<i id='loading-indicator-ajax' class="fa fa-spinner fa-spin fa-4x" style="display:none;"></i>
+	<i id='loading-indicator'  class="fa fa-spinner fa-spin fa-4x" style="display:none;"></i>
+
+</body>
+</html>

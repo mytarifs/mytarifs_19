@@ -1,0 +1,60 @@
+<div class="row">
+
+<% optimization_link = if request.path_info =~ /podbor_tarifov/
+		result_detailed_calculations_new_path(hash_with_region_and_privacy)
+	else
+		comparison_fast_optimizations_path(hash_with_region_and_privacy)
+	end 
+%>
+<% if controller.show_login? %>
+	<div class="col-md-4 hidden-xs">
+		<%= render :partial => "application/shared/social_login" %>
+	</div>
+	<div class="col-md-4 hidden-xs">
+		<br class="visible-sm-inline-block" />
+    	<%= link_to("Подобрать выгодный тариф", optimization_link, 
+    		{:class => "btn btn-success  center-block",
+       		 :onclick => set_target("individ_podbor")}) %>
+	</div>
+	<div class="col-md-4 hidden-xs">
+		<br class="visible-sm-inline-block" />
+		<%= render :partial => 'application/shared/yandex_search_form' %>
+	</div>
+<% else %>
+	<div class="col-md-6 hidden-xs">
+		<br class="visible-sm-inline-block" />
+    	<%= link_to("Подобрать выгодный тариф", optimization_link, 
+    		{:class => "btn btn-success  center-block",
+       		 :onclick => set_target("individ_podbor")}) %>
+	</div>
+	<div class="col-md-6 hidden-xs">
+		<br class=" visible-sm-inline-block" />
+		<%= render :partial => 'application/shared/yandex_search_form' %>
+	</div>
+<% end %>
+</div>
+
+<% if request.original_fullpath != root_with_region_and_privacy(m_privacy, m_region) %>
+	<br />
+	<div class="row">
+		<div class="col-md-12 hidden-xs1">
+			<ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
+				<%= render_breadcrumbs :tag => :li, :separator => "" %>
+			</ol>        	
+		</div>
+	</div>
+<% end %>
+
+<%= show_cpanet_program_item_with_html(:layout, :test) if show_cpanet_adv %>
+
+<% if yield(:hide_title) != 'true'  %>
+	<h1><%= title %></h1>
+<% end %>
+
+<div class="content"> 
+
+	<%= render :partial => 'application/shared/alerts' %>
+	<%= render :partial => 'application/shared/calculation_status' %>
+	
+    <%= yield %>
+</div>

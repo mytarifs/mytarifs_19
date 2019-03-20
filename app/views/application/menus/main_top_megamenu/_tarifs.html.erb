@@ -1,0 +1,30 @@
+<ul class="dropdown-menu yamm-content  hidden-xs">
+	<li class="yamm-li-style">
+		<ul class="col-xs-0 col-sm-4 col-md-4 list-unstyled">
+            <li>
+            	<a class="h5"><i class="icon-lg1 fa fa-newspaper-o fa-2x1"></i><u> Все услуги</u></a><br /><br />
+            </li>
+			<li><%= link_to "Все тарифы", tarif_classes_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Безлимитные тарифы", unlimited_tarif_classes_path(hash_with_region_and_privacy) %></li>	
+			<li><%= link_to "Тарифы без абонентской платы", pay_as_go_tarif_classes_path(hash_with_region_and_privacy) %></li>			
+			<li><%= link_to "Тарифы для планшета", planshet_tarif_classes_path(hash_with_region_and_privacy) %></li>			
+		</ul>
+		<ul class="col-xs-0 col-sm-4 col-md-4 list-unstyled">
+            <li>
+            	<a class="h5"><i class="icon-lg1 fa fa-suitcase fa-2x1"></i><u> По операторам</u></a><br /><br />
+            </li>
+			<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+				<li><%= link_to operator.name, tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => operator})) %></li>
+			<% end %>
+		</ul>
+		<ul class="col-xs-0 col-sm-4 col-md-4 list-unstyled">
+            <li>
+            	<a class="h5"><i class="icon-lg1 fa fa-globe fa-2x1"></i><u> Роуминг и межгород</u></a><br /><br />
+            </li>
+			<li><%= link_to "Международный роуминг", international_rouming_tarif_classes_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Роуминг по России", country_rouming_tarif_classes_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Звонки в другие страны", international_calls_tarif_classes_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Звонки в другие регионы", country_calls_tarif_classes_path(hash_with_region_and_privacy) %></li>
+		</ul>
+	</li>	
+</ul>

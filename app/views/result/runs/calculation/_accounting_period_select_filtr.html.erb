@@ -1,0 +1,21 @@
+<%
+form_item.init do |fi|
+input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control btn_text_always_on_screen",
+	:action_name => result_detailed_calculations_accounting_period_select_path(hash_with_region_and_privacy({:id => params[:id]}))}
+label_html = {:class => "control-label "}
+link_to_html = {:class => "btn btn-success btn_text_always_on_screen", :type =>"button", :remote => false}
+  s = session_filtr_params(fi)	
+  link_to_result_run = s["accounting_period"].blank? ? "#" : result_detailed_calculations_optimization_select_path(hash_with_region_and_privacy({:id => params[:id]}))
+  
+  fi.set_fields do |filtr_name|
+    [
+      [
+	  	 collection_select(filtr_name, "accounting_period", accounting_periods(result_run.call_run_id), 
+	  	   :accounting_period, :accounting_period, {:include_blank => "выберите период расчета", :selected => s["accounting_period"]}, input_html ),
+
+		(s["accounting_period"].blank? ? "" : link_to('Перейти на следующий этап', link_to_result_run, link_to_html)),
+	  ],
+    ] 
+  end
+end
+%>

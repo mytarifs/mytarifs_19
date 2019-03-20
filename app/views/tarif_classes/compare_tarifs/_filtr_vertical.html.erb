@@ -1,0 +1,49 @@
+<%
+  form_item.init do |fi|
+
+	fi.action_on_submit = compare_tarifs_path(hash_with_region_and_privacy)
+	input_html = {:filtr_name => form_item.filtr_name, :class => " form-control "}
+	operator_input_html = input_html.merge({:class => "updatable hidden", :action_name => compare_tarifs_path(hash_with_region_and_privacy)})
+
+	button_on_class = "btn-warning"
+	button_off_class = "btn-default"
+	label_html = {:class => ""}
+	button_group_class = "btn-group btn-group-justified btn-group-sm"
+	button_base_class = "btn btn_text_always_on_screen "
+
+    s = session_filtr_params(fi)	
+    basic_tarifs = TarifClass.tarifs.where(:privacy_id => m_privacy_id).
+  	  service_is_published.where("tarif_classes.features is not null").where.not(:id =>  [803, 804]).order(:operator_id)
+    basic_tarifs = basic_tarifs.region_txt(m_region).original_tarif_class.extend_with_regions(m_region)
+    basic_tarifs = basic_tarifs.where(:id => TarifClass.unlimited_tarif_ids) if (s["unlimited_only_tarifs"] || "true") == 'true'
+
+  fi.set_fields do |filtr_name|
+
+	result = []
+
+  	3.times.each do |index|
+  		result << [
+			label(filtr_name, "operators[#{index}]", "Тариф №#{index}", label_html),
+			content_tag(:div, class: button_group_class) do
+				tarif_by_operator_buttons = []
+				collection_radio_buttons(filtr_name, "operators[#{index}]", Category::Operator.operators_with_tarifs, :id, :name) do |b|
+					button_class, checked = (b.value.try(:to_s) == s['operators'].try(:[], index.to_s) ? ["#{button_base_class}  #{button_on_class}", {"checked" => "checked"}] : ["#{button_base_class}  #{button_off_class}", {}])
+					tarif_by_operator_buttons << b.label(class: button_class, button_off_class: button_off_class, button_on_class: button_on_class) + 
+						b.radio_button(operator_input_html.merge(checked))
+				end
+				tarif_by_operator_buttons.join('').html_safe
+			end,
+			collection_select(filtr_name, "tarifs[#{index}]", basic_tarifs.where(:operator_id => s["operators"].try(:[], index.to_s).try(:to_i)), :id, :name, 
+		  		{:include_blank => "выберите тариф", :selected => s["tarifs"].try(:[], index.to_s).try(:to_i) }, input_html ).html_safe		  	
+  		]
+  	end
+
+	result << [
+		"",
+		submit_tag("Подобрать тарифы", class: "btn btn_text_always_on_screen btn-success")
+	]
+
+    result
+  end
+end
+%>

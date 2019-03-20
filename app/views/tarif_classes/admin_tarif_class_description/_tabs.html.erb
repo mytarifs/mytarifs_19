@@ -1,0 +1,27 @@
+<%
+
+category_groups_to_use = controller.category_groups
+
+content_in :tabs do |user| 
+  [
+    [
+     'Общее описание', 
+     render( :partial => 'tarif_classes/admin_tarif_class_description/full_tarif_class', :layout => 'application/layouts/model_show', 
+     	:locals => {:form_item => controller.tarif_class_form})    
+    ], 
+    [
+     'Админ',
+     content_tag(:h2) do     	
+     	link_to( 'Добавить category_group with submodels', 
+     		tarif_class_service_add_category_group_path(hash_with_region_and_privacy({:tarif_class_id => tarif_class.id})), 
+     		{:class => "btn btn-primary", :type =>"button", :remote => true}) +
+     	render(:partial => 'tarif_classes/admin_tarif_class_description/admin_category_groups_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     	:locals => {:form_item => admin_category_groups_filtr, :category_groups => category_groups_to_use}) +
+		content_tag(:br)
+     end +
+     render( :partial => 'tarif_classes/admin_tarif_class_description/category_groups', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => category_groups_to_use })
+    ],
+  ] 
+end
+%>

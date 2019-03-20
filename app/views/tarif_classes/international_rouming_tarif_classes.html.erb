@@ -1,0 +1,50 @@
+<% service_category = "international_rouming"; pagination_page_name =  pagination_page_name("#{service_category}_tarif_classes_page") %>
+<% caption = "Международный роуминг от сотовых операторов #{pagination_page_name} #{region_and_privacy_tag}" %>
+<% title "Международный роуминг #{region_and_privacy_tag} - MyTarifs.ru #{pagination_page_name}" %>
+<% description "Международный роуминг #{region_and_privacy_tag}. \
+				www.mytarifs.ru — помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг \
+				в области мобильной связи." %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class=""> <%= caption %></h1>
+            <span class="h5">Здесь вы можете выбрать и посмотреть подробное описание опций. 
+            	Найти нужную опцию можно с помощью фильтра</span>
+            <hr>
+        </div>
+        <%= render :partial => "application/shared/social_share_buttons" %>
+        <br />
+    </div>
+</header>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :under_h1) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<br />
+<div class="panel panel-success">
+	<div class="panel-body">
+		<div class="h4 text-center1 text-success">Выберите параметры отбора опций</div>
+		<%= render :partial => 'tarif_classes/by_service_category/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+			:locals => {:form_item => tarif_class_by_service_category_filtr(service_category), 
+				:action_name => international_rouming_tarif_classes_path(hash_with_region_and_privacy) }%>
+	</div>
+</div>
+
+
+<%= render :partial => 'tarif_classes', :layout => 'application/layouts/model_table', :locals => {:table => tarif_classes_by_service_category(service_category)}%>
+
+<br />
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :bottom) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<%= render :partial => "application/shared/social_share_buttons" %>
+
+<br />
+<%= render :partial => "application/shared/hypercomments" %>
+

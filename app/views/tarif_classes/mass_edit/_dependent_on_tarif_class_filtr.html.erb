@@ -1,0 +1,58 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => mass_edit_tarif_classes_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label "}
+  s = session[:filtr]['dependent_on_tarif_class_filtr']	
+
+
+  fields_dependency = {
+  	'other_tarif_priority' => ['lower', 'higher'], 'prerequisites' => [], 'forbidden_tarifs' => ['to_switch_on', 'to_serve']
+  }    
+  
+  values_for_sub_dependency = fields_dependency.try(:[], s['fields_dependency']) || []
+  s['sub_dependency_field'] = nil if values_for_sub_dependency.blank?
+ 
+  dependent_path = ([s['fields_dependency'], s['sub_dependency_field']] - [""]).compact
+  dependent_services = TarifClass.none
+  possible_dependent_values = TarifClass.none
+  
+  if !s['fields_dependency'].blank? and ((!values_for_sub_dependency.blank? and !s['sub_dependency_field'].blank?) or values_for_sub_dependency.blank?)
+  	dependent_services = chosen_tarifs.where("json_array_length(dependency#>'{ #{dependent_path.join(', ')} }') > 0").parts(((s["parts"] || []) - [''])) 
+  	dependent_ids = TarifClass.where(:id => s['dependent_service'].try(:to_i)).for_parsing('false').pluck("dependency#>'{ #{dependent_path.join(', ')} }'").flatten.map(&:to_i)
+  	possible_dependent_ids = (chosen_tarifs.pluck(:id) + dependent_ids).uniq
+  	
+  	dependent_on_service_filtr = s['fields_dependency'] == 'other_tarif_priority' ? :special_services : :all
+  	possible_dependent_values = TarifClass.try(dependent_on_service_filtr).where(:id => possible_dependent_ids).for_parsing('false').parts(((s["parts"] || []) - ['']))
+  end
+
+  fi.set_fields do |filtr_name|
+    [
+    	[
+      	label(filtr_name, "fields_dependency", "fields_dependency", label_html),
+      	select(filtr_name, "fields_dependency", fields_dependency.keys,
+	  	{:include_blank => true, :selected => (s["fields_dependency"])}, input_html.merge({:size => fields_dependency.keys.size + 1}) ) +
+
+      	label(filtr_name, "sub_dependency_field", "sub_dependency_field", label_html) +
+      	select(filtr_name, "sub_dependency_field", values_for_sub_dependency, 
+	  	{:include_blank => false, :selected => (s["sub_dependency_field"])}, input_html.merge({:size => values_for_sub_dependency.size }) ) +
+
+      	label(filtr_name, "parts", "parts".html_safe , label_html) +
+		select(filtr_name, "parts", Optimization::TarifListGenerator::Parts, 
+			{:include_blank => "выберить part", 
+			 :selected => s['parts'] || []}, input_html.merge({:multiple => true, :size => Optimization::TarifListGenerator::Parts.size + 1}) ),  	
+
+      	label(filtr_name, "dependent_service", "dependent_service", label_html),
+      	collection_select(filtr_name, "dependent_service", dependent_services, :id, :name, 
+	  	{:include_blank => true, :selected => s['dependent_service'] }, input_html.merge({:multiple => false, :size => dependent_services.size + 1}) ),
+
+      	label(filtr_name, "possible_dependent_values", "possible_dependent_values", label_html),
+      	collection_select(filtr_name, "possible_dependent_values", possible_dependent_values, :id, :name, 
+	  	{:include_blank => true, :selected =>  dependent_ids}, input_html.merge({:multiple => true, :size => possible_dependent_values.size + 1}) ),
+    	],
+    	[
+    		
+    	]
+    ].compact
+  end
+end
+%>

@@ -1,0 +1,111 @@
+<% title "Карта сайта" %>
+<% description "Карта сайта. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных операторов МТС, «Билайн», \
+				«Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг в \
+				области мобильной связи." %>
+<% keywords "карта сайта" %>	
+
+<ul class="">
+	<li>
+		<%= link_to('Главная страница', root_with_region_and_privacy(m_privacy, m_region), {:class => "", :remote => false}) %>		
+	</li>
+	<li>Рейтинги
+		<ul>
+			<li><%= link_to "Свод рейтингов", comparison_choose_your_tarif_from_ratings_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Рейтинги операторов и тарифов", comparison_optimizations_path(hash_with_region_and_privacy) %></li>
+			<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+				<li><%= link_to "Рейтинги тарифов для #{operator.name}", 
+					comparison_optimizations_by_operator_path(hash_with_region_and_privacy({:operator_id => operator.slug})) %></li>
+			<% end %>
+			<li><%= link_to "Рейтинг безлиимитных тарифов", comparison_unlimited_rating_path(hash_with_region_and_privacy({:name => 'reiting_bezlimitnyh_tarifov'})) %></li>
+			<li><%= link_to "Рейтинг безлиимитных тарифов для интернета", 
+				comparison_unlimited_rating_for_internet_path(hash_with_region_and_privacy({:name => 'reiting_bezlimitnyh_tarifov_i_optsii_dlya_interneta'})) %></li>
+		</ul>
+	</li>
+	<li>Сервисы по подбору тарифов
+		<ul>
+			<li><%= link_to "Оценка стоимости пользования тарифом", estimate_cost_tarif_class_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Калькулятор тарифов мобильной связи", comparison_fast_optimizations_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Калькулятор тарифов для планшета", comparison_fast_optimizations_for_planshet_path(hash_with_region_and_privacy({:name => 'dlya_plansheta'})) %></li>
+			<li><%= link_to "Детальный подбор тарифов и опций", result_detailed_calculations_new_path(hash_with_region_and_privacy) %></li>
+			<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+				<li><%= link_to "Тарифный калькулятор #{operator.name}", 
+					comparison_fast_optimizations_by_operator_path(hash_with_region_and_privacy({:operator_id => operator.slug})) %></li>
+			<% end %>
+			<li>Сравнение тарифов
+				<ul>
+					<li><%= link_to "Сравнение всех тарифов", compare_tarifs_path(hash_with_region_and_privacy) %></li>
+					<li><%= link_to "Сравнение тарифов для планшета", compare_tarifs_for_planshet_path(hash_with_region_and_privacy({:name => 'dlya_plansheta'})) %></li>
+					<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+						<li><%= link_to "Сравнение тарифов #{operator.name}", 
+							compare_tarifs_by_operator_path(hash_with_region_and_privacy({:operator_id => operator.slug})) %></li>
+					<% end %>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li><%= "Описание тарифов" %>
+		<ul class="">
+			<li><%= link_to "Все тарифы", tarif_classes_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Безлимитные тарифы", unlimited_tarif_classes_path(hash_with_region_and_privacy) %></li>			
+			<li><%= link_to "Тарифы без абонентской платы", pay_as_go_tarif_classes_path(hash_with_region_and_privacy) %></li>			
+			<li><%= link_to "Тарифы для планшета", planshet_tarif_classes_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Международный роуминг", international_rouming_tarif_classes_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Роуминг по России", country_rouming_tarif_classes_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to "Звонки в другие страны", international_calls_tarif_classes_path(hash_with_region_and_privacy) %></li>
+ 			<li><%= link_to "Звонки в другие регионы", country_calls_tarif_classes_path(hash_with_region_and_privacy) %></li>
+			<li>Тарифы по операторам
+				<ul>
+				<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+					<li><%= link_to operator.name, tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => operator.slug})) %></li>
+				<% end %>
+				</ul>				
+			</li>
+
+<!--
+	<% if false %>
+			<li><%= link_to "Безлимитные тарифы для интернета", unlimited_internet_tarif_classes_path %></li>			
+			<li><%= link_to "Тарифы без абонентской платы для планшетов", planshet_pay_as_go_tarif_classes_path %></li>			
+			<li><%= link_to "Безлимитные тарифы для планшетов", planshet_unlimited_tarif_classes_path %></li>			
+			<li><%= link_to "Интернет тарифы без абонентской платы для планшетов", planshet_pay_as_go_internet_tarif_classes_path %></li>			
+			<li><%= link_to "Безлимитные тарифы для интернета для планшетов", planshet_unlimited_internet_tarif_classes_path %></li>
+	<% end %>			
+!-->
+		</ul>		
+	</li>
+	<li>Статьи
+		<ul>
+			<li><%= link_to  "Статьи по мобильной связи", content_mobile_articles_path(hash_with_region_and_privacy) %></li>
+			<li><%= link_to  "Вопросы и ответы", content_questions_and_answers_path(hash_with_region_and_privacy) %></li>
+		</ul>
+	</li>
+	<li><%= t(:service_description) %>
+		<ul class="">
+			<li><%= link_to t(:home_detailed_description_path), home_detailed_description_path(hash_with_region_and_privacy) %></li>		
+			<li><%= link_to t(:home_news_path), home_news_path(hash_with_region_and_privacy) %></li>		
+			<li><%= link_to("Контакты", home_contacts_path(hash_with_region_and_privacy)) %></li>
+			<li><%= link_to t(:letter_to_admin), new_customer_demand_path(hash_with_region_and_privacy), {:rel => "nofollow"} %></li>		
+			<li><%= link_to("Карта сайта", home_sitemap_path(hash_with_region_and_privacy)) %></li>
+			<li><%= link_to t(:new_customer_payments_path), new_customer_payments_path(hash_with_region_and_privacy), {:rel => "nofollow"} %></li>		
+		</ul>		
+	</li>
+	<li><%= "Пользователь" %>
+		<ul class="">
+			<% if !current_user %>
+				<li><%= link_to t(:register), new_user_registration_path, {:rel => "nofollow"} %></li>
+				<li><%= link_to t(:login), login_path, {:rel => "nofollow"} %></li>
+			<% else %>
+				<li><%= link_to t(:account_info), user_path(controller.current_user), {:rel => "nofollow"} %></li>
+				<li><%= link_to t(:logout), logout_path, {:rel => "nofollow"} %></li>
+			<% end %>
+			<li><%= link_to  t(:customer_call_runs_path), customer_call_runs_path(hash_with_region_and_privacy), {:rel => "nofollow"} %>		
+				<ul class="">
+					<li><%= link_to "Моделирование звонков", customer_calls_set_calls_generation_params_path(hash_with_region_and_privacy) %></li>
+					<li><%= link_to "Загрузка детализаций", customer_history_parsers_prepare_for_upload_path(hash_with_region_and_privacy) %></li>
+					<li><%= link_to "Загруженные или смоделированные звонки", customer_calls_path(hash_with_region_and_privacy), {:rel => "nofollow"} %></li>		
+				</ul>
+			</li>
+		</ul>
+	</li>
+</ul>
+
+

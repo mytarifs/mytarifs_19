@@ -1,0 +1,15 @@
+<%
+table.init do |t|
+#	parsed_tarif_lists_filtr = session[:filtr]['parsed_tarif_lists_filtr'] || {}
+
+	column_names = table.model.map{|item| item.try(:keys)}.flatten.uniq - ['sort', 'uniq_key']
+	t.heads = column_names.map{|c| c.gsub('_', ' ')}
+	
+	t.set_fields do |tarif_list| 
+		column_names.map do |column_name| 
+			tarif_list.try(:[], column_name)
+		end
+	end
+
+end
+%>

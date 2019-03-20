@@ -1,0 +1,26 @@
+<%
+form_item.init do |fi|
+#  fi.caption = 'Show tarif class'
+  fi.set_fields do |tarif_class| 
+  	
+  	buy_http = advertise_url
+  	if buy_http
+  		button_class = "external-link btn btn-warning"
+
+	  	link_info = [
+		    link_to("Подключить на сайте оператора", "#", :class => button_class, "data-link" => buy_http, :target => "", :rel => "nofollow"),	
+	  	]
+  	else
+  		buy_http = tarif_class.full_http_from_http(m_region, :buy_http)
+  		button_class = "external-link"
+
+	  	link_info = [
+		    "",#(controller.tarif_reference_to_operator_site_text),	
+		    "",
+#		    (link_to("Купить на сайте оператора", "#", :class => button_class, "data-link" => buy_http, :target => "", :rel => "nofollow") if buy_http),
+	  	].compact.each_slice(2).to_a
+  	end  	
+  	
+  end
+end	
+%>

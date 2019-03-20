@@ -1,0 +1,127 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => mass_edit_tarif_classes_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label"}
+  collapsable_label_html = {:class => "control-label select-collapsable"}
+  collapsable_icon = content_tag(:span, "", {class: "fa fa-arrows-alt"})
+  
+  s = session[:filtr]['calculation_options_filtr']	
+  
+  tarifs = chosen_tarifs.tarifs
+  tarif = tarifs.find{|tarif| tarif.id == s['tarif_id'].try(:to_i) }
+  all_possible_tarif_options = TarifClass.none
+    
+  s['tarif_id'] = nil if tarif.blank?
+
+  part_fields = [[]]
+  parts = []
+  
+  if !s['tarif_id'].blank?  	
+  	tarif_id = tarif.id
+  	operator_id = tarif.operator_id
+  	privacy_id = tarif.privacy_id
+  	region_txt = tarif.region_txt|| 'moskva_i_oblast'
+  	all_possible_tarif_option_ids = Customer::Info::ServiceChoices.tarif_options(privacy_id, region_txt)[operator_id]
+  	all_possible_tarif_options = TarifClass.where(id: all_possible_tarif_option_ids).for_parsing('false').parts(((s["parts"] || []) - ['']))
+  	raise(StandardError, [
+  		tarif.attributes,
+  		privacy_id, region_txt,
+  		all_possible_tarif_options.to_sql,
+  		all_possible_tarif_option_ids
+  	]) if false
+  	
+  	tarif_options = (s["all_part_services"] - ['']).blank? ? all_possible_tarif_option_ids : (s["all_part_services"] - []).map(&:to_i)
+  	
+	options = {
+	  :services_by_operator => {
+		:operators => [operator_id],
+		:tarifs => {operator_id => [tarif_id]},
+        :common_services => Customer::Info::ServiceChoices.common_services(privacy_id, region_txt),
+        :tarif_options => {operator_id => tarif_options},
+		},
+	  :tarif_list_generator_params => {
+	  	:calculate_with_multiple_use => "true"
+	  }	
+	}
+	Optimization::TarifListGenerator.speed_tester
+
+	tarif_list_generator = Optimization::TarifListGenerator.new(options)
+	tarif_list_generator.calculate_tarif_sets_and_slices(operator_id, tarif_id)
+	tarif_set_services = tarif_list_generator.tarif_sets[tarif_id]
+	parts = tarif_set_services.keys.sort
+	
+	all_service_ids = tarif_set_services.values.map{|tp| tp.values.map{|services| services}.flatten.uniq }.flatten.uniq
+	service_desc = {}
+	TarifClass.where(id: all_service_ids).for_parsing('false').pluck("id, name").map{|tc| service_desc[tc[0]] = tc[1] }
+		
+	part_fields = (s['parts'].blank? ? parts : s['parts']).map do |part|
+	  next if tarif_set_services[part].blank?
+      info = [      	
+#      	tarif_options,
+#      	tarif_list_generator.tarif_options[operator_id] - [tarif_id], 		
+#      	tarif_list_generator.service_packs[tarif_id] - [tarif_id], 		
+#      	tarif_list_generator.support_services[part], 		
+#      	tarif_list_generator.service_packs[tarif_id] - [tarif_id], 		
+#      	tarif_list_generator.service_packs_by_parts[tarif_id][part] - [tarif_id], 		
+#      	tarif_list_generator.tarif_option_by_compatibility[tarif_id][part][s["service_packs_by_parts #{part}"]].blank?,
+#      	s["service_packs_by_parts #{part}"],
+#      	tarif_list_generator.tarif_option_by_compatibility[tarif_id][part],		
+#        tarif_list_generator.fobidden_combinations_by_service[tarif_id][part],
+#        tarif_list_generator.fobidden_combinations_by_service[tarif_id][part].to_a.first,
+#      	tarif_list_generator.tarif_option_combinations[tarif_id][part], 		
+        tarif_set_services[part].keys.size
+        ].to_s	
+	  
+	  [
+  	  label(form_item.filtr_name, part, "#{part} #{collapsable_icon} #{info}".html_safe , collapsable_label_html),
+	  select(form_item.filtr_name, part, tarif_set_services[part].keys,
+		{:include_blank => true, :selected => s[part]}, input_html.merge({:multiple => false, :size => [tarif_set_services[part].keys.size + 1, 20].min}) ) +
+
+	  content_tag(:ul, {class: "list-unstyled"}) do
+	  	s[part].blank? or tarif_set_services[part][s[part]].blank? ? "" : 
+	  	  tarif_set_services[part][s[part]].map{|service| content_tag(:li, {class: "text-left"}){ "#{service} #{service_desc[service]}" } }.join("").html_safe	  		
+	  end.html_safe +
+
+=begin
+  	  label(form_item.filtr_name, "service_packs_by_parts #{part}", "service_packs_by_parts #{part} #{collapsable_icon}".html_safe , collapsable_label_html) +
+	  select(form_item.filtr_name, "service_packs_by_parts #{part}", tarif_list_generator.service_packs_by_parts[tarif_id][part],
+		{:include_blank => true, :selected => s["service_packs_by_parts #{part}"]}, 
+		input_html.merge({:size => tarif_list_generator.service_packs_by_parts[tarif_id][part].size + 1 }) ) + 
+=end
+  	  label(form_item.filtr_name, "incompatibilties #{part}", "incompatibilties #{part} #{collapsable_icon}".html_safe , collapsable_label_html) +
+	  select(form_item.filtr_name, "incompatibilties #{part}", tarif_list_generator.tarif_option_by_compatibility[tarif_id][part].keys,
+		{:include_blank => true, :selected => s["incompatibilties #{part}"]}, 
+		input_html.merge({:size => tarif_list_generator.tarif_option_by_compatibility[tarif_id][part].keys.size + 1 }) ) + 
+
+	  (s["incompatibilties #{part}"].blank? ? "" :
+		  content_tag(:ul, {class: "list-unstyled"}) do
+		  	tarif_list_generator.tarif_option_by_compatibility[tarif_id][part][s["incompatibilties #{part}"]].blank? ? "" : 
+		  	  tarif_list_generator.tarif_option_by_compatibility[tarif_id][part][s["incompatibilties #{part}"]].
+		  	  	map{|service| content_tag(:li, {class: "text-left"}){ "#{service} #{service_desc[service]}" } }.join("").html_safe
+		  end	)  		
+	  ]
+	end
+  end
+
+  fi.set_fields do |filtr_name|
+    [
+    	([
+      	label(filtr_name, "tarif_id", "tarif_id #{collapsable_icon}".html_safe , collapsable_label_html),
+      	collection_select(filtr_name, "tarif_id", tarifs, :id, :name, 
+	  	{:include_blank => true, :selected => s['tarif_id'] }, input_html.merge({:multiple => false, :size => tarifs.size + 1}) ),
+
+      	label(filtr_name, "parts", "parts #{collapsable_icon}".html_safe , collapsable_label_html),
+		select(filtr_name, "parts", parts, 
+			{:include_blank => "выберить part", 
+			 :selected => s['parts'] || []}, input_html.merge({:multiple => true, :size => parts.size + 1}) ),    	
+
+      	label(filtr_name, "all_part_services", "all_part_services #{collapsable_icon}".html_safe , collapsable_label_html),
+		collection_select(filtr_name, "all_part_services", all_possible_tarif_options, :id, :name,
+			{:include_blank => "выберить all_part_services", :selected => s['all_part_services'] || []}, 
+			input_html.merge({:multiple => true, :size => all_possible_tarif_options.size + 1}) ),    	
+
+    	] + (part_fields[0] || [])),
+    ] + part_fields[1..-1].flatten.in_groups_of(12)
+  end
+end
+%>

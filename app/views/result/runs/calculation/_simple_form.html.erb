@@ -1,0 +1,87 @@
+<%
+
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control has-success1", 
+  		:action_name => result_detailed_calculations_choose_your_tarif_with_our_help_path(hash_with_region_and_privacy({:id => result_run.slug}))}
+  input_html_range = {:filtr_name => form_item.form_name, :class => "updatable form-control range", 
+  		:action_name => result_detailed_calculations_choose_your_tarif_with_our_help_path(hash_with_region_and_privacy({:id => result_run.slug}))}
+#  link_to_html = {:class => "btn btn-primary", :type => 'button', :'data-remote' => true, :turbolinks => true}
+#  submit_html = {:class => "btn btn-primary"}
+  label_html = {:class => "control-label "}
+  input_group_html = {:class => "input-group has-success1", :'aria-describedby' =>"helpBlock" }
+  hidden_element_html  = {:class => "hidden"}
+  input_group_addon_html = {:class => "input-group-addon btn-success1"}
+	
+  fi.action_on_submit = result_detailed_calculations_generate_calls_from_simple_form_path(hash_with_region_and_privacy({:id => result_run.slug}))	
+#  s_filtr = session_model_params(fi)
+  
+  	
+  fi.set_fields do |f| 
+  [
+  	[
+  	 :operator_id,
+  	 f.label("operator_id", "Выберите вашего оператора", label_html),
+  	 f.collection_select("operator_id", Category::Operator.operators_with_tarifs, :id, :name, 
+  	 	{:include_blank =>  false}, input_html ),   
+  	],
+	[
+  	 :region_id,
+  	 f.label("region_id", "Выберите ваш регион", hidden_element_html),
+  	 f.collection_select("region_id", Category.regions.where(:id => Category::Region::Const::Moskva), :id, :name, 
+  	   {:include_blank => false}, hidden_element_html )
+  	],   
+
+  	[
+  	 :number_of_day_calls,
+  	 f.label("number_of_day_calls", "Введите общее количество входящих и исходящих звонков в день", label_html),
+  	 content_tag(:div, input_group_html) do
+  	 	content_tag(:div, {:class => " "}) do
+		     f.range_field("number_of_day_calls", input_html.merge(
+		     {:min => 0, :max => 100, :step => 1}) )	
+  	 	end +
+	  	content_tag(:span, fi.model.number_of_day_calls, input_group_addon_html) +   
+	  	content_tag(:span, "шт в день", input_group_addon_html)   	    
+  	 end + content_tag(:span, "Можно выбрать от 0 до 100 шт", {:class => "help-block"}),
+  	],
+	[
+  	 :duration_of_calls,
+  	 f.label("duration_of_calls", "Введите среднюю продолжительность звонков, мин", label_html),
+  	 content_tag(:div, input_group_html) do
+  	 	content_tag(:div, {:class => " "}) do
+		     f.range_field("duration_of_calls", input_html_range.merge(
+		     {:min => 0, :max => 60, :step => 0.1 }) ) 
+  	 	end +
+	  	content_tag(:span, fi.model.duration_of_calls, input_group_addon_html) +   
+	  	content_tag(:span, "минут", input_group_addon_html)  
+  	 end + content_tag(:span, "Можно выбрать от 0 до 60 минут", {:class => "help-block"}),
+  	],   
+  	
+  	[
+  	 :number_of_sms_per_day,
+  	 f.label("number_of_sms_per_day", "Введите общее количество отправляемых и получаемых СМС в день, шт", label_html),
+  	 content_tag(:div, input_group_html) do
+  	 	content_tag(:div, {:class => " "}) do
+		     f.range_field("number_of_sms_per_day", input_html_range.merge(
+		     {:min => 0, :max => 100, :step => 1}) ) 
+  	 	end +
+	  	content_tag(:span, fi.model.number_of_sms_per_day, input_group_addon_html) +   
+	  	content_tag(:span, "шт в день", input_group_addon_html)  
+  	 end + content_tag(:span, "Можно выбрать от 0 до 100 шт", {:class => "help-block"}),
+  	],
+	[
+	 :internet_trafic_per_month,
+	 f.label("internet_trafic_per_month", "Введите потребляемый объем интернета в месяц, Гб", label_html),
+  	 content_tag(:div, input_group_html) do
+  	 	content_tag(:div, {:class => " "}) do
+		     f.range_field("internet_trafic_per_month", input_html_range.merge(
+		     {:min => 0, :max => 30, :step => 0.1}) ) 
+  	 	end +
+	  	content_tag(:span, fi.model.internet_trafic_per_month, input_group_addon_html) +   
+	  	content_tag(:span, "Гб в месяц", input_group_addon_html)  
+  	 end + content_tag(:span, "Можно выбрать от 0 до 30,0 Гб", {:class => "help-block"}),
+    ],   
+  ] 
+  end
+end
+%>
+

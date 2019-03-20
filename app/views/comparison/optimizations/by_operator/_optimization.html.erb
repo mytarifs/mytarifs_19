@@ -1,0 +1,14 @@
+<%
+form_item.init do |fi|
+  link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+
+  fi.set_fields do  |optimization| 
+    [  
+      [
+		link_to( "Перейти к списку рейтингов", comparison_optimizations_by_operator_path(hash_with_region_and_privacy({:operator_id => operator.slug})), link_to_html)      	
+      ],
+	]
+  end  
+end
+%>
+

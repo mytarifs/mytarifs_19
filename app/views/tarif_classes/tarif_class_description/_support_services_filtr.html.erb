@@ -1,0 +1,86 @@
+<%
+  form_item.init do |fi|
+
+	input_html = {:filtr_name => form_item.filtr_name, :class => " form-control ", :include_hidden1 => false}
+	updateable_input_html = input_html.merge({:class => "updatable hidden", :action_name => action_name})
+
+    clean_label_html = {:class => "btn btn-success btn_text_always_on_screen", :type => "button"}
+
+	button_on_class = "btn-warning"
+	button_off_class = "btn-default"
+	label_html = {:class => ""}
+	button_group_class = "btn-group btn-group-justified btn-group-sm"
+	button_base_class = "btn btn_text_always_on_screen "
+	
+    s = session_filtr_params(fi)	
+
+  fi.set_fields do |filtr_name|
+
+	result = []
+	used_in_filtr_services = []
+	
+	if !incombatibility_groups.blank?
+		support_services_desc = {}
+		support_services.each{|support_service| support_services_desc[support_service.id] = support_service.attributes}		
+		incombatibility_groups.sort_by{|incombatibility_group| -incombatibility_group.incompatible_ids.size}.each do |incombatibility_group|
+			result << [
+				"", 
+				content_tag(:div, class: button_group_class) do
+					additional_options = []
+					additional_option_ids = (incombatibility_group.incompatible_ids & support_services_desc.keys) - used_in_filtr_services
+					next if additional_option_ids.blank?
+					used_in_filtr_services += additional_option_ids - used_in_filtr_services
+
+					additional_option_ids = [[-1, "Без опций"]] + additional_option_ids.
+						sort_by{|r| support_services_desc[r]["name"]}.map{|r| [r, support_services_desc[r]["name"]]}
+
+					additional_options << collection_radio_buttons(filtr_name, "additional_options[#{incombatibility_group.key}]", additional_option_ids, :first, :second) do |b|
+						button_class, checked = b.value == (s['additional_options'].try(:[], incombatibility_group.key).try(:to_i) || -1) ? 
+							["#{button_base_class} #{button_on_class}", {"checked" => "checked"}] : 
+							["#{button_base_class} #{button_off_class}", {}]
+						b.label(class: button_class, button_off_class: button_off_class, button_on_class: button_on_class) + b.radio_button(updateable_input_html.merge(checked))
+					end
+					
+					additional_options.join('').html_safe
+				end
+			]
+		end
+
+	   result << [
+	   	label(filtr_name, "clean_filtr", "Очистить фильтр", clean_label_html),
+	   	check_box_tag("tarif_class_description_support_services_filtr[clean_filtr]", s['clean_filtr'], 
+	   		nil, updateable_input_html)
+	   ] if (support_services.map(&:id) - used_in_filtr_services).blank?
+		
+	end
+
+	if !(support_services.map(&:id) - used_in_filtr_services).blank?
+		result << [
+			"", 
+			content_tag(:div, class: button_group_class) do
+				additional_options = []
+				additional_options << support_services.sort_by{|ss| ss.name}.map do |support_service|
+					next if used_in_filtr_services.include?(support_service.id)					
+					service_id = support_service.id
+					button_class, checked = ((s["additional_options"].try(:[], service_id.to_s) || "false") == 'true'  ? 
+						["#{button_base_class}  #{button_on_class}", {"checked" => "checked"}] : 
+						["#{button_base_class}  #{button_off_class}", {}])
+			        label(filtr_name, "additional_options[#{service_id}]", "#{support_service.name}", {class: button_class, button_off_class: button_off_class, button_on_class: button_on_class}) +
+			 	 	check_box(filtr_name, "additional_options[#{service_id}]", updateable_input_html.merge(checked), true, false )
+				end
+				
+			   additional_options << [
+			   	label(filtr_name, "clean_filtr", "Очистить фильтр", clean_label_html) + 
+			   	check_box_tag("tarif_class_description_support_services_filtr[clean_filtr]", s['clean_filtr'], 
+			   		nil, updateable_input_html)
+			   ]
+	
+				additional_options.join('').html_safe
+			end,
+		]
+	end
+	
+    result
+  end
+end
+%>

@@ -1,0 +1,17 @@
+<%
+
+content_in :tabs do |user| 
+  [
+    [
+     'parsed_tarif_lists', 
+     render( :partial => 'tarif_classes/parsed_tarif_lists/index', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => parsed_tarif_lists })    
+    ], 
+    [
+     'tarif class parser',
+     render(:partial => 'tarif_classes/parsed_tarif_lists/parser', :layout => 'application/layouts/filtr_form_n_columns', 
+     	:locals => {:form_item => parsed_tarif_lists_tarif_class_parser_filtr})
+    ],
+  ] 
+end
+%>

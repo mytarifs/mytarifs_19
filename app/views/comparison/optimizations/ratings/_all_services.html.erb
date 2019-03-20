@@ -1,0 +1,35 @@
+<div class="row">
+    <div class="col-lg-4 col-md-4 text-center">
+        <div class="feature">
+        	<%= render :partial => 'comparison/optimizations/ratings/group_panel', :locals => {
+        		:heading => "Изредка", :group_result_description => group_result_description_by_original_group_id_privacy_and_region(15), 
+        	 	:popover_content => "80 мин звонков, 110 смс",
+        	 	:footer => link_to( "Детальные результаты", 
+        	 		comparison_optimization_path(hash_with_region_and_privacy({:id => group_result_description_by_original_group_id_privacy_and_region(15)[0][:comparison_optimization_slug]})), 
+        	 		{:class => "btn btn-primary", :target => "",
+        	 		 :onclick => set_target("vsemi_uslugami")	}) } if group_result_description_by_original_group_id_privacy_and_region(15) %>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 text-center">
+        <div class="feature">
+        	<%= render :partial => 'comparison/optimizations/ratings/group_panel', :locals => {
+        		:heading => "Умеренно", :group_result_description => group_result_description_by_original_group_id_privacy_and_region(16), 
+        	 	:popover_content => "400 мин звонков, 240 смс, 1Гб интернета",
+        	 	:footer => link_to( "Детальные результаты", 
+        	 		comparison_optimization_path(hash_with_region_and_privacy({:id =>group_result_description_by_original_group_id_privacy_and_region(16)[0][:comparison_optimization_slug]})), 
+        	 		{:class => "btn btn-primary", :target => "",
+        	 		 :onclick => set_target("vsemi_uslugami")}) } if group_result_description_by_original_group_id_privacy_and_region(16) %>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 text-center">
+        <div class="feature">
+        	<%= render :partial => 'comparison/optimizations/ratings/group_panel', :locals => {
+        		:heading => "Активно", :group_result_description => group_result_description_by_original_group_id_privacy_and_region(17), 
+        	 	:popover_content => "1200 мин звонков, 420 смс, 3Гб интернета",
+        	 	:footer => link_to( "Детальные результаты", 
+        	 		comparison_optimization_path(hash_with_region_and_privacy({:id => group_result_description_by_original_group_id_privacy_and_region(17)[0][:comparison_optimization_slug]})), 
+        	 		{:class => "btn btn-primary", :target => "",
+        	 		 :onclick => set_target("vsemi_uslugami")}) }  if group_result_description_by_original_group_id_privacy_and_region(17) %>
+        </div>
+    </div>
+</div>

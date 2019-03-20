@@ -1,0 +1,21 @@
+<% title t('.title') %>
+<% noindex 'googlebot' %>
+
+<% link_to_html = {:class => "btn btn-success", :type =>"button", :remote => true} %>
+<p>
+<%= render :partial => 'customer/call_runs/information' %>
+<%= link_to( t('customer.call_runs.call_stat.calculate_stat_link'), customer_calculate_call_stat_path(hash_with_region_and_privacy({:id => params[:id]})), 
+	link_to_html.merge({:rel => "nofollow"}))  if user_type == :admin %>
+<%= link_to( t('customer.call_runs.call_stat.call_runs_link'), customer_call_runs_path(hash_with_region_and_privacy), link_to_html) %>
+</p>
+<p>
+	
+</p>
+<%= render(:partial => 'customer/call_runs/call_stat/account_period_choicer', :layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => calls_stat_options} ) %> 
+<p>
+<%= render(:partial => 'application/shared/call_stat/calls_stat_options', :layout => 'application/layouts/filtr_form_inline', 
+		:locals => {:form_item => calls_stat_options, :action_name => customer_call_stat_path(hash_with_region_and_privacy({:id => params[:id]}))} ) %> 
+</p>
+<%= render(:partial => 'application/shared/call_stat/calls_stat', :layout => 'application/layouts/model_table', 
+		:locals => {:table => calls_stat, :action_name => customer_call_stat_path(hash_with_region_and_privacy({:id => params[:id]}))}) %>
+

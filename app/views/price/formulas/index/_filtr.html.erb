@@ -1,0 +1,23 @@
+<%
+form_item.init do |fi|
+  s = session_filtr_params(fi)	
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", 
+  	:action_name => price_list_price_formulas_path(hash_with_region_and_privacy({:price_list_id => params['price_list_id']}))}
+  label_html = {:class => "control-label "}
+
+  service_regions = Category.where(:id => TarifList.where(:tarif_class_id => price_list.try(:service_category_group).try(:tarif_class).try(:id)).pluck(:region_id).uniq)
+
+  fi.set_fields do |filtr_name|
+    [
+	  [
+	   	label(filtr_name, "regions", "regions", label_html),
+      	select(filtr_name, "regions_filtr_type", [['all regions', 'all'], ['any regions', 'any']], 
+	  	{:include_blank => false, :selected => (s["regions_filtr_type"] || 'all')}, input_html.merge({:size => 2}) ) +
+     	collection_select(filtr_name, "regions", service_regions, :id, :name, 
+	  	  {:include_blank => true, :selected => (s["regions"] || []) }, input_html.merge({:multiple => true, :size => service_regions.size + 1}) ),   
+
+	  ]
+    ] 
+  end
+end
+%>

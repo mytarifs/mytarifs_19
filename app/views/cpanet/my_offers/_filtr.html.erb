@@ -1,0 +1,73 @@
+<%
+form_item.init do |f|
+  f.set_fields do |filtr_name|
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => action_name}
+	label_html = {} #{:class => "control-label "}
+    s = session_filtr_params(f)        
+    
+    websites = s['cpanet'].blank? ? Cpanet::Website.where('true') : Cpanet::Website.where(:cpanet => s['cpanet'])
+    
+    my_offers = s['website_id'].blank? ? Cpanet::MyOffer.includes(:offer).where('true') : Cpanet::MyOffer.includes(:offer).where(:website_id => s['website_id'].try(:to_i))
+    my_offers = my_offers.joins(:website).where(:cpanet_websites => {:cpanet => s['cpanet']}) if !s['cpanet'].blank?
+    
+    my_offers_statuses = my_offers.pluck(:status).uniq
+    offers_statuses = Cpanet::Offer.where(:id => my_offers.pluck(:offer_id).uniq).pluck(:status).uniq
+    
+    my_offer = s['offer_id'].blank? ? my_offers.first : my_offers.where(:offer_id => s['offer_id'].try(:to_i)).first
+    my_offer_features_keys = my_offer.try(:features).try(:keys) || []
+    offer_features_keys = my_offer.try(:offer).try(:features).try(:keys) || []
+    
+    catalogs_heads_to_hide = ["has_deeplinks", "region", "yml_id", "all_keys", "file_url", "yml_name", "file_size", "has_deeplinks", ]
+     
+  [
+  	[
+  	label(filtr_name, "cpanet", "cpanet", label_html),
+  	select(filtr_name, "cpanet", cpanets, 
+  	{:include_blank => 'select cpanet', :selected => s["cpanet"]}, input_html.merge({:size => cpanets.size + 1}) ) +
+
+  	label(filtr_name, "website_id", "website_id", label_html) +
+  	collection_select(filtr_name, "website_id", websites, :id, :name,
+  	{:include_blank => 'select website_id', :selected => s["website_id"]}, input_html.merge({:size => websites.size + 1}) ),
+
+  	label(filtr_name, "my_offers_status", "my_offers_status", label_html),
+  	select(filtr_name, "my_offers_status", my_offers_statuses, 
+  	{:include_blank => 'select my_offers_status', :selected => s["my_offers_status"]}, input_html.merge({:multiple => true, :size => my_offers_statuses.size + 1}) ) +
+
+  	label(filtr_name, "offers_status", "offers_status", label_html) +
+  	select(filtr_name, "offers_status", offers_statuses, 
+  	{:include_blank => 'select offers_status', :selected => s["offers_status"]}, input_html.merge({:multiple => true, :size => offers_statuses.size + 1}) ),
+
+  	label(filtr_name, "offer_id", "offer_id", label_html),
+  	collection_select(filtr_name, "offer_id", my_offers, :offer_id, :offer_name,
+  	{:include_blank => 'select offer_id', :selected => s["offer_id"]}, input_html.merge({:size => my_offers.size + 1}) ) +
+
+  	label(filtr_name, "hide_fields", "hide_fields", label_html) +
+  	select(filtr_name, "hide_fields", ['features_keys', 'features', 'offer_features_keys', 'offer_features'], 
+  	{:include_blank => 'select hide_fields', :selected => s["hide_fields"]}, input_html.merge({:multiple => true, :size => 5}) ),
+
+  	label(filtr_name, "hide_catalogs_fields", "hide_catalogs_fields", label_html),
+  	select(filtr_name, "hide_catalogs_fields", catalogs_heads_to_hide, 
+  	{:include_blank => 'select hide_catalogs_fields', :selected => s["hide_catalogs_fields"]}, input_html.merge({:multiple => true, :size => catalogs_heads_to_hide.size + 1}) ) +
+
+  	label(filtr_name, "row_per_page", "Кол-во записей на странице", label_html) +
+  	select(filtr_name, "row_per_page", [10, 25, 50], 
+  	{:selected => (s["row_per_page"] || 25)}, input_html.merge({:size => 3}) ),
+
+  	label(filtr_name, "features_keys_to_show", "features_keys_to_show", label_html),
+  	select(filtr_name, "features_keys_to_show", my_offer_features_keys, 
+  	{:include_blank => 'select features_keys_to_show', :selected => s["features_keys_to_show"]}, 
+  		input_html.merge({:multiple => true, :size => [my_offer_features_keys.size, 10].min + 1}) ),
+
+  	label(filtr_name, "offer_features_keys_to_show", "offer_features_keys_to_show", label_html),
+  	select(filtr_name, "offer_features_keys_to_show", offer_features_keys, 
+  	{:include_blank => 'select offer_features_keys_to_show', :selected => s["offer_features_keys_to_show"]}, 
+  		input_html.merge({:multiple => true, :size => [offer_features_keys.size, 10].min + 1}) ),
+  	],
+  	[
+  		
+  	],
+  ]
+	    
+  end
+end
+%>

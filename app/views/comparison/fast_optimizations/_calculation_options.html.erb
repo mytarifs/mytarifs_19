@@ -1,0 +1,62 @@
+<%
+form_item.init do |f|
+#  f.caption = "Choice of service"	
+  f.set_fields do |filtr_name|
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => comparison_fast_optimizations_calculation_start_path}
+	label_html = {:class => "control-label "}
+	link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => false}
+	
+    s = session_filtr_params(f)
+    input_keys = FastOptimization::DataLoader::InputData.keys
+    chosen_input_key = s["input_key"] || input_keys[0]
+    
+    privacy_keys = FastOptimization::DataLoader::InputRegionData.keys
+    chosen_privacy_key = s["m_privacy_keys"] #|| privacy_keys[0]
+    
+    region_txt_keys = Category.mobile_regions_with_scope(['fast_optimization']).keys #FastOptimization::DataLoader::InputRegionData[chosen_privacy_key].keys
+    chosen_region_txt_key = s["region_txt_keys"] #|| region_txt_keys[0]
+    
+	calculation_methods = FastOptimization::DataLoader::CalculationMethods
+	chosen_calculation_method = s["method"] || calculation_methods[-1]
+	
+	calculation_options = {
+		:method => chosen_calculation_method, :input_key => chosen_input_key, 
+		:m_privacy_keys => chosen_privacy_key, :region_txt_keys => chosen_region_txt_key, :operators_to_calculate => s['operators_to_calculate'],
+	}
+  [
+  	[
+      	label(filtr_name, "input_key", "input_key", label_html),
+      	select(filtr_name, "input_key", input_keys, {:selected => chosen_input_key}, input_html ),
+
+      	label(filtr_name, "m_privacy_keys", "m_privacy_keys", label_html),
+      	select(filtr_name, "m_privacy_keys", privacy_keys, {:include_blank => "выберите m_privacy_keys", :selected => chosen_privacy_key}, 
+      		input_html.merge({:multiple => true, :size => privacy_keys.size + 1}) ),
+
+      	label(filtr_name, "region_txt_keys", "region_txt_keys", label_html),
+      	select(filtr_name, "region_txt_keys", region_txt_keys, {:include_blank => "выберите region_txt_keys", :selected => chosen_region_txt_key}, 
+      		input_html.merge({:multiple => true, :size => region_txt_keys.size + 1}) ),
+
+      	label(filtr_name, "operators_to_calculate", "operators_to_calculate", label_html),
+      	collection_select(filtr_name, "operators_to_calculate", Category::Operator.operators_with_tarifs, :id, :name, 
+	  	{:include_blank => "выберите operators_to_calculate", :selected => s["operators_to_calculate"] }, input_html.merge({:multiple => true, :size => 5}) ),
+  	],
+  	[
+      	label(filtr_name, "method", "Название метода для расчетов", label_html),
+      	select(filtr_name, "method", calculation_methods, {:selected => chosen_calculation_method}, input_html ),
+
+    	"",
+    	link_to( 'Выполнить метод', comparison_fast_optimizations_calculate_path(calculation_options), 
+    		link_to_html), 
+  	],
+    [
+    	"",
+    	"",
+
+    	"",
+    	link_to( 'Обновить', comparison_fast_optimizations_calculation_start_path, link_to_html), 
+    ],
+  ]
+	    
+  end
+end
+%>

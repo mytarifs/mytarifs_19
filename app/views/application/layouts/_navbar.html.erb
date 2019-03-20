@@ -1,0 +1,103 @@
+<%
+local_assigns[:show_as_megamenu] and show_as_megamenu ? (mega_ul = "yamm"; mega_li = "yamm-fw") : (mega_ul = ""; mega_li = "")
+
+name ||= 'tabs' 
+active = {:left => -1, :right => -1, :collapsed => -1} 
+
+@content_from_tabs = {:left => [], :right => [], :center => [], :collapsed => []}
+content_from(:tabs).each do |position, tab_list|
+	i = 0
+	tab_list.each do |caption, body, type, visibility_class| 
+    @content_from_tabs[position] << [caption, body, type, visibility_class]
+    active[position] = i if (body =~ /#{request.original_fullpath}/) and request.path != "/"
+    i += 1
+  end  
+end 
+
+%>
+
+<nav class="navbar navbar-inverse <%= mega_ul %>">
+	<div class="container-fluid">
+
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#<%= name %>" aria-expanded="false">
+		    	<span class="icon-bar"></span>
+		    	<span class="icon-bar"></span>
+		    	<span class="icon-bar"></span>
+		    	<span class="icon-bar"></span>
+	      </button>
+	      <% @content_from_tabs[:collapsed].each do |caption, body, type| %>
+	      	<%= caption %>
+	      <% end %>	      
+	    </div>
+	    
+		<% i = 0 %>
+		
+	   <div class="collapse navbar-collapse" id="<%= name %>">
+			<ul class="nav navbar-nav <%= mega_ul %> col-xl-0 col-sm-8 col-md-8 col-lg-8">
+				<% @content_from_tabs[:left].each do |caption, body, type, visibility_class| %>
+					<% case type %>
+					<% when 'dropdown-menu' %>
+				    	<li class="<%= visibility_class %> <%= mega_li %> dropdown <%= (i==active[:left]) ? 'active' : '' %>">
+				    		<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+				    				<%= caption %>				    			
+				    		</a>
+			    			<%= body %>
+				    	</li>
+					<% when 'link' %>
+						<li class="<%= visibility_class %> "><%= body %></li>						
+					<% else %>
+						<%= body %>
+					<% end %>
+					
+			    	<% i += 1 %>
+			    <% end %>
+			</ul>
+			
+			<% i = 0 %>
+			
+			<ul class="nav navbar-nav navbar-right col-xl-12 col-sm-4 col-md-4 col-lg-4">
+				<% @content_from_tabs[:right].each do |caption, body, type, visibility_class| %>
+					<% case type %>
+					<% when 'dropdown-menu' %>
+				    	<li class="dropdown  pull-right <%= visibility_class %> <%= (i==active[:right]) ? 'active' : 'not-active' %>">
+				    		<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">			    			
+				    				<%= caption %>				    			
+				    		</a>
+			    			<%= body %>
+				    	</li>
+					<% when 'link' %>
+						<li class="<%= visibility_class %> "><%= body %></li>						
+					<% else %>
+						<%= body %>
+					<% end %>
+					
+			    	<% i += 0 %>
+			    <% end %>
+			</ul>
+
+			<% i = 0 %>
+			
+			<ul class="nav navbar-nav navbar-center col-xl-12 col-sm-4 col-md-4 col-lg-4">
+				<% @content_from_tabs[:center].each do |caption, body, type, visibility_class| %>
+					<% case type %>
+					<% when 'dropdown-menu' %>
+				    	<li class="dropdown  pull-right <%= visibility_class %> <%= (i==active[:center]) ? 'active' : 'not-active' %>">
+				    		<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">			    			
+				    				<%= caption %>				    			
+				    		</a>
+			    			<%= body %>
+				    	</li>
+					<% when 'link' %>
+						<li class="<%= visibility_class %> "><%= body %></li>						
+					<% else %>
+						<%= body %>
+					<% end %>
+					
+			    	<% i += 0 %>
+			    <% end %>
+			</ul>
+		</div>		
+	</div>
+</nav>
+

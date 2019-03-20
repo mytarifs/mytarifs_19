@@ -1,0 +1,15 @@
+<% title "Список звонков" %>
+<% description "Список звонков. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных операторов МТС, «Билайн», \
+				«Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг в \
+				области мобильной связи." %>
+<% keywords "список звонков" %>	
+<% noindex 'googlebot' %>
+<p>
+<%= link_to( "Вернуться к списку загрузок", customer_call_runs_path(hash_with_region_and_privacy), {:class => "btn btn-success", :type =>"button", :remote => true}) %>	
+</p>
+
+<%= render :partial => 'filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+  :locals => {:form_item => controller.filtr}%>
+<br />
+<%= render :partial => 'calls', :layout => 'application/layouts/model_table', :locals => {:table => controller.customer_calls}%>
+

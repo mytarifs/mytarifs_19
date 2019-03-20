@@ -1,0 +1,39 @@
+<%
+form_item.init do |f|
+  f.set_fields do |filtr_name|
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => action_name}
+	label_html = {} #{:class => "control-label "}
+    s = session_filtr_params(f)        
+    
+    programs_statuses = Cpanet::MyOffer::Program.pluck(:status).uniq
+    
+    hide_fields = [
+  		:page, :page_param_filtr, :page_id_filtr, :source_type, :source_filtr, :place_type, :place, 
+  		:place_view_type, :place_view_params, :catalog,
+  		:catalog_category_path, :catalog_category_path_text, :catalog_category_id_name, :catalog_category_id_name_text,
+  		:catalog_offer_category_name, :catalog_offer_category_name_text, :catalog_offer_path, :catalog_offer_path_text,
+  		:catalog_offer_name, :catalog_offer_name_text, :catalog_offer_url_name, :catalog_offer_url_name_text,
+  		:catalog_category_values, :catalog_offer_values, :catalog_offers, :catalog_test_path
+    ].map(&:to_s)
+
+  [
+  	[
+  	label(filtr_name, "programs_statuses", "programs_statuses", label_html),
+  	select(filtr_name, "programs_statuses", programs_statuses, 
+  	{:include_blank => 'select programs_statuses', :selected => s["programs_statuses"]}, input_html.merge({:multiple => true, :size => programs_statuses.size + 1}) ),
+
+  	label(filtr_name, "hide_fields", "hide_fields", label_html),
+  	select(filtr_name, "hide_fields", hide_fields, 
+  	{:include_blank => 'select hide_fields', :selected => s["hide_fields"]}, input_html.merge({:multiple => true, :size => 10}) ) +
+
+  	label(filtr_name, "row_per_page", "Кол-во записей на странице", label_html),
+  	select(filtr_name, "row_per_page", [10, 25, 50], 
+  	{:selected => (s["row_per_page"] || 25)}, input_html.merge({:size => 3}) ),
+
+  	],
+
+  ]
+	    
+  end
+end
+%>

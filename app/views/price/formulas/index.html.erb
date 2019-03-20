@@ -1,0 +1,18 @@
+
+<%= link_to('GroupCategories', admin_tarif_class_path(hash_with_region_and_privacy({:id => price_list.service_category_group.tarif_class_id}) ), 
+		{:class => "btn btn-primary", :type =>"button", :remote1 => true}) + 
+	link_to( 'Edit ServiceCategoryGroup', edit_service_category_group_path(hash_with_region_and_privacy({:id => price_list.service_category_group.id}) ), 
+		{:class => "btn btn-primary", :type =>"button", :remote1 => true}) + 
+	link_to( 'Добавить new formula', price_list_price_add_formula_path(hash_with_region_and_privacy({:price_list_id => params['price_list_id']}) ), 
+		{:class => "btn btn-primary", :type =>"button", :remote => true}) 
+%>
+	
+<%= render(:partial => 'price/formulas/index/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+	:locals => {:form_item => price_index_filtr}) %>
+
+<%= render( :partial => 'price/formulas/index/formulas', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => controller.price_formulas }) %>
+
+<%= render :partial => 'price/formulas/index/form', :layout => 'application/layouts/model_form_for_broad_input_column', 
+	:locals => {:form_item => price_formula_form,
+		:url => price_list_price_formula_path(hash_with_region_and_privacy({:id => params[:id], :price_list_id => params[:price_list_id]})) } %>

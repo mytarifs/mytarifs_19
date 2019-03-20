@@ -1,0 +1,39 @@
+<%
+table.init do |t|
+  filtr = session[:filtr]['programs_filtr'] || {}
+    
+  heads_to_hide = [
+  	:page, :page_param_filtr, :page_id_filtr, :source_type, :source_filtr, :place_type, :place, 
+  		:place_view_type, :place_view_params, :catalog,
+  		:catalog_category_path, :catalog_category_path_text, :catalog_category_id_name, :catalog_category_id_name_text,
+  		:catalog_offer_category_name, :catalog_offer_category_name_text, :catalog_offer_path, :catalog_offer_path_text,
+  		:catalog_offer_name, :catalog_offer_name_text, :catalog_offer_url_name, :catalog_offer_url_name_text,
+  		:catalog_category_values, :catalog_offer_values, :catalog_offers, :catalog_test_path, 
+  ].map(&:to_s)
+  t.heads = ['ID', 'Name', 'Website', 'Offer', 'Program status', 'Offer status', 'Connection status', 'stat_id'] +
+  			(heads_to_hide - (filtr['hide_fields'] || [])) + [ '', '', '']
+  
+  t.set_fields do |program| 
+  	fields_to_hide = heads_to_hide.map do |head_to_hide|
+  		((filtr['hide_fields'] || []).include?(head_to_hide) ? nil : (program.try(head_to_hide.to_sym)) || '')
+  	end
+
+	fields_to_show = [
+		program.id,
+		link_to(program.name || 'Show' , cpanet_program_path(program), :my_remote => true),
+		(program.my_offer.try(:website).try(:name) || program.website_id),
+		(program.my_offer.try(:offer).try(:name) || program.my_offer.try(:name) || program.try(:offer).try(:id)),
+		(program.status || ''),
+		(program.my_offer.try(:status) || ''),
+		(program.my_offer.try(:offer).try(:status) || ''),
+		(program.try(:stat_id) || ''),
+	] + fields_to_hide +
+	[
+		link_to( "Edit", edit_cpanet_program_path(program), :my_remote => true),
+		link_to( "Items", cpanet_program_items_path(program), :my_remote => true),
+		((program.status == 'active') ? '' : link_to( 'Destroy', cpanet_program_path(program), method: :delete, data: { confirm: 'Are you sure?' } ) ),
+	]
+	fields_to_show.compact
+  end
+end	
+%>

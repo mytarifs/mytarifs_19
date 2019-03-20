@@ -1,0 +1,63 @@
+<%
+table.init do |t|
+#  t.caption = 'Список тарифов и опций'
+  t.heads = ['Service name', 'links', 'links are equal', 'tarif_class exist', 'exisitng services to skip parsing', 'exisitng services to force scraping', 
+  	'tarif_class for_parsing exist', 'services to_scrap', 
+  	'scrapped services', 'archived status', 'load status', 'scrap status', 'to scrap status'] + t.model.map{|item| item[:buttons].try(:size) || 0}.max.times.map{|i| '' }
+  tarif_list_filtr = session[:filtr]['tarif_list_region_filtr'] || {}
+  tarif_class_filtr = session[:filtr]['general_tarif_class_filtr'] || {}
+  service_list_parsing_filtr = session[:filtr]['service_list_parsing_filtr'] || {}
+  
+  parser = ServiceParser::Runner.init({:operator_id => tarif_class_filtr['operator_id'].try(:to_i), :original_page => ''}) 
+  privacy_id = ((tarif_class_filtr['privacy_id'] || []) - [''])[0].try(:to_i) 	
+  
+  t.set_fields do |item| 
+  url_links = []	
+  if parser
+	  i = 10
+	  [:tarif_class_url, :services_to_scrap_urls, :skip_scrap_services_url, :scrapped_services_url].map do |urls_type|
+	  	type_links = []
+	  	(item[urls_type] || []).each do |url|
+	  		i += 1
+	  		full_url = if tarif_list_filtr['region_id'].blank?
+	  			url
+	  		else
+	  			parser.add_domain(url, tarif_list_filtr['region_id'].try(:to_i), privacy_id)
+	  		end.try(:html_safe)
+	  		
+	  		type_links << link_to(i.to_s, full_url, {:target => "_blank"})
+	  	end
+	  	url_links << "[#{type_links.join(', ')}]"
+	  end
+  end
+  
+  buttons = []
+  (item[:buttons] || []).each do |button_item|
+  	button = Scraper::SearchServices.unscrapped_service_management_buttons(item[:services_to_scrap_value], item[:all_exisitng_services_value])[button_item]
+  	buttons << link_to(button[:name], scrap_tarif_lists_path(hash_with_region_and_privacy(button[:button_params])))
+  end
+
+  [
+	(item[:service_name] if (service_list_parsing_filtr['show_additional_fields_in_service_list'] || []).include?('service_name')),
+	(item[:services_to_scrap_base_tarif_classes] if (service_list_parsing_filtr['show_additional_fields_in_service_list'] || []).include?('services_to_scrap_base_tarif_classes')),
+	(item[:all_exisitng_services_value] if (service_list_parsing_filtr['show_additional_fields_in_service_list'] || []).include?('all_exisitng_services_value')),
+  ].compact +
+  [
+  	(item[:original_name].blank? ? item[:service_name].try(:[], 0..30) : item[:original_name]),
+	url_links.join(', ').html_safe,
+	item[:links_are_equal],
+  	item[:tarif_class_exist],
+  	item[:exisitng_services_to_skip_parsing],
+  	item[:exisitng_services_to_force_scraping],
+  	item[:tarif_class_for_parsing_exist],
+  	item[:services_to_scrap],
+  	item[:scrapped_services],
+  	item[:archived_status],
+  	item[:load_status],
+  	Scraper::SearchServices.search_unscrapped_services_status[item[:scrap_status]],
+  	Scraper::SearchServices.to_scrap_services_status[item[:to_scrap_status]],
+  ] + buttons 
+  end
+end
+%>
+

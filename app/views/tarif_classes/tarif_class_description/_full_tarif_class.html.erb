@@ -1,0 +1,55 @@
+<%
+form_item.init do |fi|
+#  fi.caption = 'Show tarif class'
+  fi.set_fields do |tarif_class| 
+  	raise(StandardError, [
+  		tarif_class.attributes
+  	]) if false
+
+  	 incompatibility = {}
+  	 
+  	 tarif_class.incompatibility.each do |key, value|
+ 		incompatibility[key] = TarifClass.where(:id => value).map(&:name)
+ 	 end if tarif_class.incompatibility
+  	 
+  	 prerequisites = if tarif_class.prerequisites
+  	 	TarifClass.where(:id => tarif_class.prerequisites).map(&:name).join(", ") 
+  	 end
+
+ 	general_info = [
+  		"", "", 
+#	  	("Оператор: #{tarif_class.operator.name}" if tarif_class.operator), "", 
+	  	((tarif_class.regions.blank? and tarif_class.region_txt.blank?) ? "Услуга доступна во всех регионах" : "Регион: #{Category::MobileRegions[m_region].try(:[], 'name')}"), "", 
+	  	[true, "true"].include?(tarif_class.is_archived) ? content_tag(:span, "Услуга является архивной и не доступна для подключения", :class => 'text-danger') : "В настоящее время услуга доступна для подключения",  		
+	  	("Кто может подключить: <strong>#{tarif_class.privacy.name.mb_chars.downcase.to_s}</strong>".html_safe  if tarif_class.privacy and ![true, "true"].include?(tarif_class.is_archived)), 
+#	  	("Тип сервиса: <strong>#{tarif_class.standard_service.name.mb_chars.downcase.to_s}</strong>".html_safe if tarif_class.standard_service),
+	  	("Система оплаты: <strong>#{tarif_class.payment_type.mb_chars.downcase.to_s}</strong>".html_safe if !tarif_class.payment_type.blank? and (tarif_class.standard_service_id == TarifClass::ServiceType[:tarif])),
+	  	("Тип телефонного номера: <strong>#{tarif_class.phone_number_type.join(' или ').mb_chars.downcase.to_s}</strong>".html_safe if !tarif_class.phone_number_type.blank?),
+  	].compact.each_slice(2).to_a
+
+  	bonus_info = [
+	  	("Тарифный план рекомендован оператором для использования в платншетах" if [true, "true"].include?(tarif_class.recommended_for_planshet)),
+	  	("Доступен набор услуг <strong>'Детский пакет'</strong>".html_safe if [true, "true"].include?(tarif_class.allowed_option_for_children)),
+	  	("Доступен контент: <strong>#{tarif_class.tv_video_content}</strong>".html_safe if !tarif_class.tv_video_content.blank?),
+	  	("Семейный доступ: <strong>#{tarif_class.contract_sharing_with_other_devices.mb_chars.downcase.to_s}</strong>".html_safe if !tarif_class.contract_sharing_with_other_devices.blank?),
+  	].compact.each_slice(2).to_a
+  	
+  	restriction_info = [
+	  	("Пользоваться Tele2 в Москве и Московской области можно, только если ваш телефон поддерживает 3G или 4G" if [true, "true"].include?(tarif_class.phone_must_have_3g_or_4g)),
+	  	("Тарифный план предназначен только для телефона/смартфона. При использовании в других устройствах доступ в интернет и к другим услугам связи ограничен" if [true, "true"].include?(tarif_class.only_mobile_phone)),
+	  	(tarif_class.limited_speed if !tarif_class.limited_speed.blank?),
+	  	(tarif_class.limited_time_of_day if !tarif_class.limited_time_of_day.blank?),
+	  	("На тарифном̆ плане ограничено предоставление услуг файлообменных сетей (скорость ограничивается до 128 Кбит/с)" if [true, "true"].include?(tarif_class.limited_trafic_to_file_nets)),
+	  	("Если телефон с сим-картой используется в качестве модема или точки доступа Wi-Fi, доступ в интернет ограничен. Для продолжения работы необходимо подключить услугу 'Раздача интернета'" if [true, "true"].include?(tarif_class.internet_sharing_with_other_devices)),
+	  	("Тариф доступен <strong>только для пенсионеров</strong>".html_safe if [true, "true"].include?(tarif_class.available_only_for_pencioner) ),
+	  	("#{'Услуга доступна при <strong>предварительном подключении ' + prerequisites}</strong>".html_safe if !prerequisites.blank?),
+  	].compact
+
+  	restriction_info = ["<strong>Ограничения на использования:</strong>".html_safe, ""] + restriction_info if !restriction_info.blank?
+  	restriction_info = restriction_info.each_slice(2).to_a
+  	
+  	
+	(general_info + bonus_info + restriction_info)
+  end
+end	
+%>

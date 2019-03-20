@@ -1,0 +1,14 @@
+<% title t('.title') %>
+
+<p>
+	<%= link_to(t('tarif_optimizators.admin.index.calculate_link'), 
+		tarif_optimizators_admin_recalculate_path(hash_with_region_and_privacy), {:class => "btn btn-primary", :type =>"button"}) %>
+	<%= link_to("Список результатов подбора", result_runs_path(hash_with_region_and_privacy), {:class => "btn btn-primary", :type =>"button", :rel => "nofollow"} )%>
+	<%= link_to(t('tarif_optimizators.admin.index.result_run_link'), 
+		result_service_sets_result_path(hash_with_region_and_privacy({:result_run_id => result_run_id})), {:class => "btn btn-primary", :type =>"button"}) %>
+	<%= link_to("Подобрать с помощью нового алгоритма", 
+		tarif_optimizators_admin_recalculate_new_path(hash_with_region_and_privacy), {:class => "btn btn-primary", :type =>"button"}) %>
+</p>
+
+<%= render :partial => 'tarif_optimizators/admin/input/input', 
+	:layout => 'application/layouts/tabs', :locals => {:name => 'tarif_optimization_admin_tabs', :active => session[:current_tabs_page]['tarif_optimization_admin_tabs'].to_i} %>

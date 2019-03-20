@@ -1,0 +1,24 @@
+<%
+	form_item.init do |fi|
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable checkbox input-lg checkbox-inline hidden", :style => "width: 30px;", 
+		:action_name => tarif_class_path(hash_with_region_and_privacy({:id => params[:id]}) )}
+	label_html = {:class => "btn btn-success", :type => "button"}
+    s = session_filtr_params(fi)	
+	
+	s["expand_all"] = 'false' if s["expand_all"].blank?
+
+  fi.set_fields do |filtr_name|
+    [
+    	[
+			 label(filtr_name, "expand_all", (s["expand_all"] == 'true' ? 
+			 	content_tag(:u, "Свернуть описание тарифа ") +
+			 	content_tag(:i, '', {:class => "fa fa-angle-up fa-lg", :"aria-hidden" => "true"}) : 
+			 	content_tag(:u, "Развернуть описание тарифа ") +
+			 	content_tag(:i, '', {:class => "fa fa-angle-down fa-lg", :"aria-hidden" => "true"}) ), label_html),
+			 
+			 check_box(filtr_name, "expand_all", (s["expand_all"] == 'true' ? {:checked => 'checked'} : {} ).merge(input_html), true, false ) 
+    	]
+    ] 
+  end
+end
+%>

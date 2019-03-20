@@ -1,0 +1,91 @@
+<% title "Выбери какой тариф лучше c нашей помощью #{region_and_privacy_tag}" %>
+<% content_for :hide_title, 'true' %>
+
+<section id="first" >
+	<header>
+	    <div class="header-content header-content-smaller">
+	        <div class="inner">
+	            <h1 class="cursive">Индивидуальный подбор тарифов и опций <%= "#{region_and_privacy_tag}" %>*</h1>
+	            <hr />
+	            <div class="h4">Мы готовы рассказать вам какой оператор, тариф и тарифные опции выгодны для вас.
+	            </div>
+	            <div class="h4"><strong>Сообщите</strong> нам, как вы пользуетесь мобильной связью одним из двух способов, представленными ниже. 
+	            </div>
+	            <div class="h4">Наша рекомендация будет в форме отчета,
+	            	пример которого можно посмотреть: <%= link_to("отчет по подбору тарифа и опций.", 
+	            	result_service_sets_report_path(hash_with_region_and_privacy({
+	            		:result_run_id => 17, 
+	            		:service_set_id => Result::ServiceSet.best_service_set(17, m_privacy, m_region).try(:service_set_id)}))) %>
+	            </div>
+	            <hr />
+	        </div>
+	        <%= render :partial => "application/shared/social_share_buttons" %>
+	    </div>
+	</header>
+
+	<br />
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="text-center">
+                <div class="feature111">
+                	<p>
+                		<%= render :partial => 'result/runs/calculation/upload_form' %>
+                	</p>                	
+		            <p>
+		            	Можно загрузить детализацию (историю) звонков для <strong>МТС</strong> в формате HTML,
+					<strong>Мегафон</strong> в формате HTML, <strong>Билайн</strong> в формате XLS или XLSX, 
+					<strong>Теле2</strong> в формате PDF.
+                	<%= link_to('Инструкция по получению детализации у вашего мобильного оператора', home_detailed_description_path(hash_with_region_and_privacy)) %> 
+					</p>
+		           	
+					<% session[:current_accordion_page]['home_steps_accord'] = 0 %>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="text-center">
+                <div class="feature111">
+        			<div class="h4">или</div>
+                </div>
+            </div>
+        </div>
+		<hr />
+		<hr />
+
+        <div class="row">
+            <div class="text-center">
+                <div class="feature1111">
+                	<span class="h2 margin-top-0 text-default">Смоделировать детализацию звонков</span>
+		            <p> Укажите параметры, которые лучше всего соответствуют вашему стилю пользования мобильной связью</p>
+					
+					<div class="row">
+						<div class="col-xs-1 col-sm-2 col-md-3"></div>
+				        <div class="col-xs-10 col-sm-8 col-md-6 center-block">
+		                	<%= render( :partial => 'result/runs/calculation/simple_form', 
+		                		:layout => 'application/layouts/model_form_for_with_error', 
+		                		:locals => {:form_item => controller.customer_call_simple_form, 
+		                			:url => result_detailed_calculations_choose_your_tarif_with_our_help_path(hash_with_region_and_privacy({:id => result_run.id})), 
+		                			:method => :get} ) %>
+				        </div>
+				        <div class="col-xs-1 col-sm-2 col-md-3"></div>
+					</div>
+					
+                	<br />
+					<%= link_to("Я выбрал параметры. Приступить к подбору", 
+						result_detailed_calculations_generate_calls_from_simple_form_path(hash_with_region_and_privacy({:id => result_run.id})), 
+						{:class => "btn btn-success btn-xl btn_text_always_on_screen", :type =>"button", :rel => "nofollow",
+               		 :onclick => set_target("ya_podobral")}) %>
+                	<br />
+                	<br />
+					<%= link_to("Я хочу попробовать более детальный подбор", result_detailed_calculations_new_path(hash_with_region_and_privacy), 
+						{:class => "btn btn-primary btn_text_always_on_screen", :type =>"button", :onclick => set_target("individ_podbor")}) %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<br />
+
+	<footer class="text-center">*В настоящее время только в регионах, которые вы можете выбрать в верхнем меню</footer>
+</section>

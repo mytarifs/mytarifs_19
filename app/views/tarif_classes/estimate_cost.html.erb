@@ -1,0 +1,41 @@
+<% title "Оценка стоимости использования мобильных тарифов от сервиса Mytarifs.ru #{region_and_privacy_tag}" %>
+<% description "Оценка стоимости использования мобильных тарифов от сервиса Mytarifs.ru #{region_and_privacy_tag}. \
+				www.mytarifs.ru — помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг \
+				в области мобильной связи." %>
+<% content_for :hide_title, 'true' %>
+<% 
+	tarif_ids = ((session_filtr_params(estimate_cost_tarifs_filtr).try(:[], 'tarifs').try(:values) || []) - [""]).map{|tarif_choices| tarif_choices.try(:to_i)}.compact
+	fast_optimization_results_to_show = fast_optimization_results(:best_result, tarif_ids.size, nil, tarif_ids) 
+%>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="">Оценка стоимости использования тарифов <%= "#{region_and_privacy_tag}" %></h1>
+            <span class="h5">Здесь вы можете выбрать тарифы и оценить их бюджет (стоимость пользования).</span>
+            <hr>
+        </div>
+        <%= render :partial => "application/shared/social_share_buttons" %>
+        <br />
+    </div>
+</header>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :under_h1) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<br />
+<%= render( :partial => 'tarif_classes/fast_optimization_results/index', :locals => {:fast_optimization_results_to_show => fast_optimization_results_to_show})  %>	
+
+<br />
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :bottom) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+
+<%= render :partial => "application/shared/social_share_buttons" %>
+
+<br />
+<%= render :partial => "application/shared/hypercomments" %>

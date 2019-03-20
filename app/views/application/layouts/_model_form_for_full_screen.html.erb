@@ -1,0 +1,47 @@
+<%
+
+form_html_options = {:id =>form_item.form_name, :class => "form-horizontal", :turbolinks => true, :as => form_item.form_name}
+form_html_options = form_html_options.merge(html) if local_assigns[:html]
+
+form_options = {:authenticity_token => true, :include_id => true}
+
+form_options = form_options.merge(options) if local_assigns[:options]
+form_options = form_options.merge(:html => form_html_options)
+form_options.merge!({:url => url, :as => as}) if local_assigns[:url] and url
+
+%>
+
+
+<% if form_item.caption %> 
+  <legend><%= form_item.caption %></legend>
+<% end %>
+
+   <% if form_item.model.errors.any? %>
+    <ul class="">
+        <div class="alert alert-error alert-block"><button type="button" class="close" data-dismiss="alert">&times;</button>
+	      <% form_item.model.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+    	</div>
+    </ul>
+  <% end %>
+  
+<%= form_for(form_item.model, form_options) do |form|%>
+	<% if form_options[:class] =~ /form-inline/ %>
+	  <% form_item.fields(form) do |label, field| %>
+	      <%= label %>
+	      <%= field %>
+	  <% end %>
+	<% else %>
+		<fieldset>
+		  <% form_item.fields(form) do |label, field| %>
+		  <div class="row">
+		      <p class="col-xs-12"><strong><%= label %></strong></p>
+		      <p class="col-xs-12"><%= field %></p>
+		  </div>
+		  <% end %>
+		</fieldset>
+	<% end %>
+<% end  if form_item.model %>
+
+

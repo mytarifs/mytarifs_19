@@ -1,0 +1,35 @@
+<div id="container" class="container-fluid">
+	<div class="row">
+		<div class="col-xs-12">
+			</div>	
+				<%= render(:partial => '/application/menus/region_and_privacy/tabs', :layout => 'application/layouts/navbar',
+					:locals => {:name => 'region_and_privacy_tabs', :active => session[:current_tabs_page]['region_and_privacy_tabs'].to_i, :show_as_megamenu => true } ) %>
+			<div>
+				
+			<div>
+				<%= render(:partial => '/application/menus/main_top_megamenu/tabs', :layout => 'application/layouts/navbar',
+					:locals => {:name => 'main_top_megamenu_tabs', :active => session[:current_tabs_page]['main_top_megamenu_tabs'].to_i, :show_as_megamenu => true } ) %>
+			</div>
+		</div>	
+	</div>
+	<div class="row" style="min-height: 500px;">
+        <div id="main_block_top_row_4" class="col-xs-12">
+        	<%= render 'layouts/ajax_load_block' %>        	
+        </div>
+	</div>
+	<footer>
+		<div class="row">
+	        <div class="col-xs-12">
+	        	<div class="navbar-static-bottom">
+	        		<%= render('/application/shared/footer') %>
+	        	</div>				
+	        </div>
+		</div>
+	</footer>
+	<br />
+    <div>
+		<%= render('/application/shared/yandex_metrika_informet') if false or ENV["RAILS_ENV"] == "production" %>
+		<%= render('/application/shared/google_universal_analytics') if false or ENV["RAILS_ENV"] == "production" %>
+    </div>
+</div>
+<%= render('/application/shared/up_arrow_button') %>

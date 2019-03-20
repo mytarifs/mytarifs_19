@@ -1,0 +1,66 @@
+<% caption = "Тарифы для планшета #{region_and_privacy_tag}" %>
+<% title "Тарифы для планшета #{region_and_privacy_tag} #{pagination_page_name('planshet_tarif_classes_page')} - MyTarifs.ru " %>
+<% description "Тарифы для планшета #{region_and_privacy_tag}. \
+				www.mytarifs.ru — помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг \
+				в области мобильной связи." %>
+<% keywords "тарифы на мобильный интернет сотовых операторов для планшетов" %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class=""> <%= caption %></h1>
+            <span class="h5">Здесь вы можете выбрать и посмотреть подробное описание тарифов и опций. 
+            	Найти нужный тариф можно с помощью фильтра</span>
+            <hr>
+        </div>
+        <%= render :partial => "application/shared/social_share_buttons" %>
+        <br />
+    </div>
+</header>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :under_h1) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<br />
+<div class="btn-group" role="group" aria-label="...">
+	<% operator_link_html = {:class => "btn", :type =>"button", :remote => false} %>
+	<%= link_to( image_tag('mts.png', alt: "МТС"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Mts)}) ), operator_link_html) %>
+	<%= link_to( image_tag('beeline.png', alt: "Билайн"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Beeline)}) ), operator_link_html) %>
+	<%= link_to( image_tag('megafon.png', alt: "Мегафон"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Megafon)}) ), operator_link_html) %>
+	<%= link_to( image_tag('tele2.png', alt: "Теле2"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Tele2)}) ), operator_link_html) %>
+</div>
+
+<br />
+<div class="panel panel-success">
+	<div class="panel-body">
+		<div class="h4 text-center1 text-success">Выберите параметры отбора тарифов и опций</div>
+		<%= render :partial => 'tarif_classes/planshet/tarif_class_filtr', 
+			:layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => planshet_tarif_class_filtr}%>
+	</div>
+</div>
+
+<%= render :partial => 'tarif_classes', :layout => 'application/layouts/model_table', :locals => {:table => planshet_tarif_classes}%>
+
+<p> С популяризацией гаджетов все больше наших соотечественников стало искать выгодные тарифы для планшета. Сегодня они есть практически у каждого оператора сотовой связи, но сам выбор тарифа не так уж и прост. В первую очередь, следует решить, как вы будете использовать планшет. Для чтения электронной почты и интернет-звонков подойдет пакет с небольшим объемом данных, если же вы нацелены смотреть видео и слушать музыку, то лучше присмотреться к безлимитным предложениям. </p>
+<p> Наиболее выгодные тарифы для планшета предлагают МТС, Билайн и Мегафон. Пакеты от этих операторов могут включать в себя до 30Гб и более предоплаченного трафика. Таким образом, пользователи получают практически неограниченный доступ к Сети и неплохо на этом экономят. В рамках пакетного трафика доступ осуществляется на неограниченной скорости. По исчерпанию лимита, скорость Интернета приостанавливается. </p>
+<p> В зависимости от конкретных задач, пользователи могут выбрать мобильные тарифы для планшета как с помесячной абонентской платой, так и с тарификацией по дням. В последнем случае, вы будете платить только тогда, когда выполняется подключение к Глобальной Сети. </p>
+<p> Обращаем ваше внимание, что на нашем сайте реализованы гибкие инструменты для подбора тарифа. При настройке специального фильтра, пользователи могут задать регион, в котором действует предложение, а также желаемый объем трафика. </p>
+
+<br />
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :bottom) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<%= render :partial => "application/shared/social_share_buttons" %>
+
+<br />
+<%= render :partial => "application/shared/hypercomments" %>
+

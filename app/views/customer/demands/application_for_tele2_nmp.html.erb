@@ -1,0 +1,82 @@
+<% title "Заявка на перенос номера в Теле2" %>
+<% description "Заявка на перенос номера в Теле2. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных \
+				операторов МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор \
+				средств для анализа услуг в области мобильной связи." %>
+<% content_for :hide_title, 'true' %>
+
+<%
+	input_html = {:class => "form-control  "}
+	link_to_html = {:class => "btn btn-link", :type => 'button'}
+	submit_html = {:class => "btn btn-success"}
+	label_html = {:class => "form-label"}
+	
+	form_name = "customer_demand"
+%>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="">Заявка на перенос номера в Теле2</h1>
+            <hr>
+            <div class="h4">Для оформления заявки просим Вас предоставить информацию, как к Вам можно обращаться, и ваш контактный телефонный номер</div>
+        </div>
+    </div>
+</header>
+
+
+<%= form_for(@demand, url: customer_demands_apply_for_tele2_nmp_path(hash_with_region_and_privacy), html: {:class => "" }) do |f| %>
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) if current_or_guest_user %>
+
+   <% if !@demand.errors.blank? %>
+	<div class="alert alert-warning alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert">
+			<span aria-hidden="true">&times;</span>
+			<span class="sr-only">Close</span>
+		</button>
+		<ul>
+			<% @demand.errors.full_messages.each do |msg| %>
+				<li><%= msg %></li>
+			<% end %>
+		</ul>
+	</div>
+  <% end %>
+ 
+  <div class="row text-center">
+  	  <div class="col-xs-0 col-sm-1 col-md-3"></div>
+	  <div class="col-xs-12 col-sm-10 col-md-6">
+	  	<div>
+  			<%= f.hidden_field(:type_id, ({:value => 345})) %>
+	  	</div>
+	  	<div>
+	  		<%= hidden_field(form_name, "info[title]", input_html.merge({:value => "Заявка на перенос номера в Теле2"}) ) %>
+	  	</div>
+	  	<div>
+	  		<%= hidden_field(form_name, "info[message]", input_html.merge({:value => "Прошу принять заявку на перенос номера в Теле2"}) ) %>
+	  	</div>
+	  	<br />
+	  	<div class="form_group text-center">
+		  	<%= label "info[name]", "Как к вам обращаться", label_html %>
+	  		<%= text_field(form_name, "info[name]", input_html.merge({:value => @demand.info.try(:[], 'name')}) ) %>
+	  	</div>
+	  	<br />
+	  	<div class="form_group text-center">
+		  	<%= label "info[phone_number]", " Ваш контактный телефонный номер", label_html %>
+	  		<%= text_field(form_name, "info[phone_number]", input_html.merge({:value => @demand.info.try(:[], 'phone_number')}) ) %>
+	  		<%= content_tag(:span, "Телефон укажите в формате 10 цифр - код региона плюс номер", {:class => "help-block"}) %>
+	  	</div>
+	  	<br />
+	  	<div class="checkbox">
+		  	<% checked = ["true", true].include?(@demand.info.try(:[], 'constent')) ? true : false %> 
+		  	<%= label(form_name, "info[constent]", {}) do %>
+	  			<%= check_box(form_name, "info[constent]", {}.merge({:type => "checkbox", :checked => checked}), "true", "false" ) %>
+	  			Я согласен с передачей моего телефонного номера и имени оператору сотовой связи Теле2
+	  		<% end %>
+	  	</div>
+	  	<div class="form_group text-center">
+	  		<br />
+  			<%= f.submit( "Подать заявку", submit_html.merge({:onclick => set_target("submit_form_for_mnp_from_tele2")}))  %>
+	  	</div>
+  	  </div>
+  	  <div class="col-xs-0 col-sm-1 col-md-3"></div>
+  </div>
+<% end %>

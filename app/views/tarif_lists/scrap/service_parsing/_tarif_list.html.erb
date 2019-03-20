@@ -1,0 +1,36 @@
+<%
+form_item.init do |fi|
+#  fi.caption = 'Show tarif class'
+  fi.set_fields do |tarif_list| 
+  	action_path = scrap_tarif_lists_path(hash_with_region_and_privacy)
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+  	service_parsing_filtr = session[:filtr]['service_parsing_filtr'] || {}
+  	tarif_list_filtr = session[:filtr]['tarif_list_region_filtr'] || {}
+  	
+  	parser = ServiceParser::Runner.init({
+  		:operator_id => tarif_list.tarif_class.try(:operator_id),
+  		:region_id => tarif_list.try(:region_id),
+  		:original_page => tarif_list.description,
+  		:tarif_class => tarif_list.try(:tarif_class),
+  		:parsing_class => tarif_list.try(:tarif_class).try(:parsing_class),
+  	}) if tarif_list.tarif_class.try(:operator_id)
+  	
+  	service_desc = if parser
+	  	show_choice = service_parsing_filtr['show_choice'].blank? ? :body : service_parsing_filtr['show_choice'].to_sym
+	  	tags_to_exclude_from_page = tarif_list_filtr['tags_to_exclude_from_page'] - ['']
+
+	  	base_desc = show_choice == :row_body ? 
+	  		(parser.row_body.try(:to_html) || "empty body") : 
+	  		parser.clean_body(tags_to_exclude_from_page).try(show_choice).try(:to_html).try(:html_safe) || parser.clean_body(tags_to_exclude_from_page).try(show_choice)
+
+		[
+			base_desc
+		].compact
+  	end
+  	
+  	service_desc
+
+  end
+end	
+%>

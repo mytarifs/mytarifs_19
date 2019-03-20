@@ -1,0 +1,156 @@
+<%
+
+form_item.init do |f|
+#  f.caption = "Calls generation params for home region"
+#  f.filtr_name = 'customer_calls_generation_params'
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", 
+		:action_name => result_detailed_calculations_select_calls_path(hash_with_region_and_privacy({:id => params[:id]}))}
+	input_html_range = {:filtr_name => form_item.filtr_name, :class => "updatable form-control range", 
+		:action_name => result_detailed_calculations_select_calls_path(hash_with_region_and_privacy({:id => params[:id]}))}
+	link_to_html = {:class => "btn btn-primary", :type => 'button', :'data-remote' => true, :turbolinks => true}
+	submit_html = {:class => "btn btn-primary"}
+	label_html = {:class => "control-label "}
+	hidden_element_html = {:class => "hidden"}
+
+  f.action_on_submit = result_detailed_calculations_generate_calls_path(hash_with_region_and_privacy({:id => params[:id]}))	
+  s_filtr = session_filtr_params(controller.customer_calls_generation_params_filtr[:home_region])
+  f.set_fields do |filtr_name| 
+    html_options = {:action_name => result_detailed_calculations_select_calls_path(hash_with_region_and_privacy({:id => params[:id]}))}
+  [
+  	[
+  	label(filtr_name, "", content_tag(:strong, 'Все показатели в данной вкладке заполняются при условии нахождения в домашнеи регионе'), label_html),
+  	""
+  	],
+
+  	[label(filtr_name, "phone_usage_type_id", 'Вариант использования связи', label_html),
+  	 collection_select(filtr_name, "phone_usage_type_id", Category.phone_usage_types_home_region, :id, :name,  {:include_blank => false, :selected => s_filtr["phone_usage_type_id"] }, 
+  	 	input_html ) + content_tag(:span, "Изменяя данный параметр, вы устанавливаете стандратные значения для параметров звонков, смс, ммс и инетрнета. \
+  	 	Эти значения вы потом сможете дополнительно откорректировать.", {:class => "help-block"}) + 
+  	 content_tag(:br),  	 
+  	],
+  	
+  	[],
+  	
+  	[label(filtr_name, "country_id", "Страна", hidden_element_html),
+  	 collection_select(filtr_name, "country_id", Category.where(:id=>1100), :id, :name,  {:include_blank => false, :selected => s_filtr["country_id"] }, hidden_element_html ),
+  	],
+	[
+  	 label(filtr_name, "[rouming_region_id]", "Ваш домашний регион", label_html),
+  	 collection_select(filtr_name, "rouming_region_id", Category.regions.where(:parent_id => s_filtr["country_id"]), :id, :name, 
+  	   {:include_blank => true, :selected => s_filtr["rouming_region_id"] }, input_html )
+  	],   
+  	
+  	[label(filtr_name, "number_of_day_calls", "Количество звонков в день", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "number_of_day_calls", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 100.0, :step => 1, :value => s_filtr["number_of_day_calls"] }) ) 
+  	 	end +
+	  	content_tag(:span, s_filtr["number_of_day_calls"], {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Общее количество входящих и исходящих звонков в день, штук", {:class => "help-block"}),
+  	],
+	[
+  	 label(filtr_name, "duration_of_calls", "Средняя продолжительность звонка, мин", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "duration_of_calls", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 60.0, :step => 0.1, :value => s_filtr["duration_of_calls"] }) ) 
+  	 	end +
+	  	content_tag(:span, s_filtr["duration_of_calls"], {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Средняя продолжительность всех входящих и исходящих звонков, минут", {:class => "help-block"}),
+  	],   
+  	
+  	[label(filtr_name, "share_of_incoming_calls", "Доля входящих звонков", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "share_of_incoming_calls", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 1.0, :step => 0.01, :value => s_filtr["share_of_incoming_calls"] }) ) 
+  	 	end +
+	  	content_tag(:span, number_to_percentage(s_filtr["share_of_incoming_calls"].to_f*100.0, :precision => 0), {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Доля входящих звонков от общего количества звонков.", {:class => "help-block"}),
+  	],
+	[
+  	 label(filtr_name, "share_of_incoming_calls_from_own_mobile", "Из них со своего оператора", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "share_of_incoming_calls_from_own_mobile", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 1.0, :step => 0.01, :value => s_filtr["share_of_incoming_calls_from_own_mobile"] }) ) 
+  	 	end +
+	  	content_tag(:span, number_to_percentage(s_filtr["share_of_incoming_calls_from_own_mobile"].to_f*100.0, :precision => 0), {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Доля входящих звонков с вашего мобильного оператора от общего количества входящих звонков.", {:class => "help-block"}),
+  	],   
+  	
+  	[label(filtr_name, "share_of_calls_to_other_mobile", "Доля звонков к другим операторам", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "share_of_calls_to_other_mobile", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 1.0, :step => 0.01, :value => s_filtr["share_of_calls_to_other_mobile"] }) ) 
+  	 	end +
+	  	content_tag(:span, number_to_percentage(s_filtr["share_of_calls_to_other_mobile"].to_f*100.0, :precision => 0), {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Доля звонков на других мобильных оператов от всех исходящих звонков", {:class => "help-block"}),
+  	],
+	[
+  	 label(filtr_name, "share_of_calls_to_fix_line", "Доля звонков на фиксированную линию", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "share_of_calls_to_fix_line", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 1.0, :step => 0.01, :value => s_filtr["share_of_calls_to_fix_line"] }) ) 
+  	 	end +
+	  	content_tag(:span, number_to_percentage(s_filtr["share_of_calls_to_fix_line"].to_f*100.0, :precision => 0), {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Доля звонков на фиксированную линию от всех исходящих звонков", {:class => "help-block"}),
+  	],   
+  	
+  	[label(filtr_name, "share_of_regional_calls", "Доля междугородних звонков", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "share_of_regional_calls", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 1.0, :step => 0.01, :value => s_filtr["share_of_regional_calls"] }) ) 
+  	 	end +
+	  	content_tag(:span, number_to_percentage(s_filtr["share_of_regional_calls"].to_f*100.0, :precision => 0), {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Доля междугородных звонков от общего количества всех звонков", {:class => "help-block"}),
+  	],
+	[
+  	 label(filtr_name, "share_of_international_calls", "Доля международных звонков", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "share_of_international_calls", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 1.0, :step => 0.01, :value => s_filtr["share_of_international_calls"] }) ) 
+  	 	end +
+	  	content_tag(:span, number_to_percentage(s_filtr["share_of_international_calls"].to_f*100.0, :precision => 0), {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Доля международных звонков от общего количества всех звонков", {:class => "help-block"}),
+  	],   
+  	
+  	[label(filtr_name, "number_of_sms_per_day", "Количество СМС в день, шт", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "number_of_sms_per_day", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 100, :step => 1, :value => s_filtr["number_of_sms_per_day"] }) ) 
+  	 	end +
+	  	content_tag(:span, s_filtr["number_of_sms_per_day"], {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Общее количество входящих и исходящих смс за день", {:class => "help-block"}),
+  	],
+	[
+  	label(filtr_name, "number_of_mms_per_day", "Количество ММС в день, шт", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "number_of_mms_per_day", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 100, :step => 1, :value => s_filtr["number_of_mms_per_day"] }) ) 
+  	 	end +
+	  	content_tag(:span, s_filtr["number_of_mms_per_day"], {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Общее количество входящих и исходящих ммс за день", {:class => "help-block"}),
+    ],   
+  	  	
+  	[label(filtr_name, "internet_trafic_per_month", "Трафик интернета в месяц, Гб", label_html),
+  	 content_tag(:div, {:class => "input-group"}) do
+  	 	content_tag(:div, {:class => " "}) do
+		     text_field(filtr_name, "internet_trafic_per_month", input_html_range.merge(
+		     {:type => 'range', :min => 0, :max => 30.0, :step => 0.1, :value => s_filtr["internet_trafic_per_month"] }) ) 
+  	 	end +
+	  	content_tag(:span, s_filtr["internet_trafic_per_month"], {:class => "input-group-addon"})  
+  	 end + content_tag(:span, "Объем входящего и исходящего трафика интернета в месяц, Гб.", {:class => "help-block"}),
+  	],
+  ] 
+  end
+end
+%>
+

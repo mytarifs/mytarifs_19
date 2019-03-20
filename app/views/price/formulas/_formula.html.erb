@@ -1,0 +1,23 @@
+<%
+form_item.init do |fi|
+  fi.set_fields do |formula| 
+  	s = session_model_params(fi)
+	[
+      [
+      	link_to('Edit', edit_price_list_price_formula_path(hash_with_region_and_privacy({:id => formula.id, :price_list_id => params[:price_list_id]})), 
+      		{:class => "btn btn-primary", :type =>"button", :remote => true}), 
+      	link_to('AdminTarifClass', admin_tarif_class_path(hash_with_region_and_privacy({:id => formula.service_category_group.tarif_class_id}) ), 
+      	{:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	  ],  
+	  ['standard_formula name', formula.standard_formula.try(:name)], 
+	  ['calculation_order', formula.calculation_order],
+	  ['params', formula["params"]],
+	  ['window_over', formula["window_over"]],
+	  ['standard_formula formula name', formula.standard_formula.try(:formula).try(:name)], 
+	  ['standard_formula price_unit', formula.standard_formula.try(:price_unit).try(:name)], 
+	  ['standard_formula volume', formula.standard_formula.try(:volume).try(:name)], 
+	  ['standard_formula volume_unit', formula.standard_formula.try(:volume_unit).try(:name)], 
+	]
+  end
+end	
+%>

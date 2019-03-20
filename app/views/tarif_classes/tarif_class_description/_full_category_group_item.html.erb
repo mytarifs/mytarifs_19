@@ -1,0 +1,54 @@
+<%
+	price_volume_heading = report_group == :included_in_tarif ? "Объем" : "Цена"
+	contract_or_internet_heading = report_group.to_s =~ /internet/ ? 'Тип интернета' : 'На номера'
+	headings = ["Услуга", "Роуминг", "Куда", "На кого", contract_or_internet_heading, price_volume_heading]
+	col_to_show = [false, false, false, false, false, false]
+	item_categories[:result].each_with_index do |full_category_group, row|
+		full_category_group.each_with_index do |full_category_group_item, col|
+			next if col_to_show[col]
+			col_to_show[col] = true if !full_category_group_item[0].blank? and full_category_group_item[0] != excuded_name
+		end if full_category_group
+	end if item_categories[:result] 
+	raise(StandardError, [
+		col_to_show,
+		item_categories[:result]		
+	]) if false
+%>
+
+<div class="table-responsive1">
+	<table class='table table-bordered table-hover table-condensed table-supercondensed text-center'>
+		<% if !hide_table_heads %>	
+			<thead>
+				<tr>
+				<% headings.each_with_index do |heading, col| %>
+					<% next if !col_to_show[col] %>
+					<th class="info"><%= heading %></th>
+				<% end %>
+				</tr>
+			</thead>
+		<% end %>
+		<tbody>
+		<% item_categories[:result].each_with_index do |full_category_group, row| %>
+			<tr>
+			<% full_category_group.each_with_index do |full_category_group_item, col| %>
+				<% next if !col_to_show[col] %>
+				<% if full_category_group_item[1] %>
+				<td rowspan="<%= full_category_group_item[1] %>" style="vertical-align: middle !important;">
+					<%= !item_categories[:geo_names][row][col].blank? ? geo_presenter(full_category_group_item[0], item_categories[:geo_names][row][col]).try(:html_safe) : full_category_group_item[0] %>
+				</td>	
+				<% end %>
+			<% end if full_category_group %>
+			</tr>
+		<% end if item_categories[:result] %>
+		<% item_categories[:asterics].each do |asteric_item| %>
+			<tr class="pull-left">
+				<td colspan="#{headings.size - col_to_show.size}">
+					<%= "#{asteric_item[:tag]} #{asteric_item[:comment]}" %>
+				</td>
+			</tr>
+		<% end if item_categories[:asterics]%>
+		</tbody>
+	</table>
+</div>
+
+

@@ -1,0 +1,17 @@
+<%
+
+content_in :tabs do |user| 
+  [
+    [
+     'websites filtr', 
+     render(:partial => 'cpanet/websites/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+		:locals => {:form_item => websites_filtr, :action_name => action_name})   
+    ], 
+    [
+     'synchronize_params',
+     render(:partial => 'cpanet/shared/synchronize_params', :layout => 'application/layouts/filtr_form_n_columns', 
+		:locals => {:form_item => synchronize_params_filtr, :action_name => action_name})    
+    ],
+  ] 
+end
+%>

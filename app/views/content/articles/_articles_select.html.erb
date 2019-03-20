@@ -1,0 +1,50 @@
+<%
+form_item.init do |f|
+  f.set_fields do |filtr_name|
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => content_articles_path(hash_with_region_and_privacy)}
+	label_html = {} #{:class => "control-label "}
+    s = session_filtr_params(f)
+	
+  [
+  	[
+	label(filtr_name, "type_id", "Тип публикации", label_html),
+	select(filtr_name, "type_id", Content::Article::Type.to_a, 
+		{:include_blank => "выберите тип публикации", :selected => s['type_id']  }, input_html.merge({:size => (Content::Article::Type.keys.size + 1)}) ),
+
+	label(filtr_name, "status_id", "Статус публикации", label_html),
+	select(filtr_name, "status_id", Content::Article::PublishStatus.to_a, 
+		{:include_blank => "выберите статус публикации", :selected => s['status_id']  }, input_html.merge({:size => (Content::Article::PublishStatus.keys.size + 1)}) ),
+
+	label(filtr_name, "content[is_noindex]", "Тип услуги", label_html),
+	select(filtr_name, "content[is_noindex]", [['Use noindex', 'true'], ['No noindex', 'false']], 
+		{:include_blank => "выберите is_noindex", :selected => s['content'].try(:[], 'is_noindex') || nil}, input_html.merge({:size => 3}) ),
+
+  	label(filtr_name, "row_per_page", "Кол-во записей на странице", label_html),
+  	select(filtr_name, "row_per_page", [10, 20, 50], {:selected => (s["row_per_page"] || 10)}, input_html.merge({:size => 4}) ),
+	],
+	[
+  	label(filtr_name, "key[operator_id]", "Оператор", label_html),
+  	collection_select(filtr_name, "key[operator_id]", Category::Operator.operators_with_tarifs, :id, :name, 
+  		{:include_blank => "выберите оператора", :selected => s["key"].try(:[], "operator_id") }, input_html.merge({:size => (Category::Operator.operators_with_tarifs.size + 1)}) ),
+
+	label(filtr_name, "region_txt", "region_txt", label_html),
+	select(filtr_name, "region_txt", [['no_region', 'no_region']] + Category.mobile_regions_with_scope.map{|r| [r[1]['name'], r[0]]}, 
+		{:include_blank => "выберите region_txt", :selected => s['region_txt'] || nil}, 
+		input_html.merge({:size => (Category.mobile_regions_with_scope.keys.size + 2)}) ),
+
+	label(filtr_name, "key[m_region]", "m_region", label_html),
+	select(filtr_name, "key[m_region]", [['no_region', 'no_region']] + Category.mobile_regions_with_scope(['tarif_description']).map{|r| [r[1]['name'], r[0]]}, 
+		{:include_blank => "выберите m_region", :selected => s['key'].try(:[], 'm_region') || nil}, 
+		input_html.merge({:size => (Category.mobile_regions_with_scope(['tarif_description']).keys.size + 2)}) ),
+
+	label(filtr_name, "standard_service_id", "Тип услуги", label_html),
+	select(filtr_name, "standard_service_id", TarifClass::ServiceType.to_a, 
+		{:include_blank => "выберите тип сервиса", :selected => s['standard_service_id'] || nil}, input_html.merge({:size => (TarifClass::ServiceType.keys.size + 1)}) ),
+
+  	],
+
+  ]
+	    
+  end
+end
+%>

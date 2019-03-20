@@ -1,0 +1,30 @@
+<%
+form_item.init do |fi|
+#  fi.caption = 'Show tarif class'
+  fi.set_fields do |item| 
+
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control "}
+	label_html = {:class => "form-label "}
+  	s = session_model_params(fi)
+
+	[
+      [
+      	link_to('Edit', edit_cpanet_programs_item_path(item), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+      	link_to('items', cpanet_program_items_path(item.program), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+      ],  
+      ['ID', item.id],
+      ['Name', item.name],
+      ['Program', item.program.try(:name)],
+      ['Status', item.status],
+      ['page_item', item.page_item],
+      ['page_item_name_for_check', item.page_item_name_for_check],
+      ['source', item.source],
+      ['content_name', item.content_name],
+      ['content_desc', item.content_desc],
+      ['stat_id', item.stat_id],
+      ['Features', item.features],
+	]
+  end
+end	
+%>
+

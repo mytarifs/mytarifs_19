@@ -1,0 +1,7 @@
+<% title t('.title') %>
+<% noindex 'googlebot' %>
+
+<p>
+	<%= link_to('Проверить поступил ли платеж', customer_payments_wait_for_payment_being_processed_path(hash_with_region_and_privacy), {:class => "btn btn-large", :type =>"button"}) %>
+</p>
+

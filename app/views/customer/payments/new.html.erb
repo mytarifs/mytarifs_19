@@ -1,0 +1,57 @@
+<% title "Способы оплаты | Выбор параметров платежа" %>
+<% description "Способы оплаты: выбор параметров платежа. www.mytarifs.ru — сервис по подбору тарифов и опций для \
+				мобильных операторов МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем \
+				широкий выбор средств для анализа услуг в области мобильной связи." %>
+<% keywords "выбор параметров платежа способы оплаты" %>	
+<% noindex 'googlebot' %>
+<%  
+	set_meta_tags(canonical: new_customer_payments_url(hash_with_region_and_privacy({}, 'personal', 'moskva_i_oblast') )) if 
+		new_customer_payments_path(hash_with_region_and_privacy({:trailing_slash => false}, 'personal', 'moskva_i_oblast') ) != request.path
+%>
+
+<%
+	input_html = {:class => "form-control  "}
+	link_to_html = {:class => "btn btn-link", :type => 'button'}
+	checkbox_to_html = {:class => " ", :type => 'radio'}
+	submit_html = {:class => "btn btn-primary"}
+	label_html = {:class11 => "control-label "}
+%>
+
+<%= form_for @payment_instruction, :url => customer_payments_path(hash_with_region_and_privacy), html: {:class => "" } do |f| %>
+
+   <% if !@payment_instruction.errors.blank? %>
+	<div class="alert alert-warning alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert">
+			<span aria-hidden="true">&times;</span>
+			<span class="sr-only">Close</span>
+		</button>
+		<%= @payment_instruction.errors[:sum].map(&:to_s).join("/n") %>
+	</div>
+  <% end %>
+ 
+  <div class="row">
+	  <div class="col-xs-6">
+	  	<%= f.label :sum, "Сумма, рублей", label_html %>
+  		<%= f.text_field( :sum, {autofocus: true }.merge(input_html) ) %>
+  	</div>
+  </div>
+
+  <span class="h3">Выберите способ оплаты</span>
+	
+	<%= f.label :paymentType, label_html do %>
+		<%= f.radio_button( :paymentType, 'PC', {}.merge(checkbox_to_html) ) %>
+		Яндекс.Деньгами
+	<% end %>
+
+	<%= f.label :paymentType, label_html do %>
+		<%= f.radio_button( :paymentType, 'AC', {}.merge(checkbox_to_html) ) %>
+		Банковской картой
+	<% end %>
+
+  <div class="row">
+	  <div class="col-xs-6">
+  		<%= f.submit "Перейти на сайт yandex.ru для оплаты", submit_html %>
+  	</div>
+  </div>
+
+<% end %>

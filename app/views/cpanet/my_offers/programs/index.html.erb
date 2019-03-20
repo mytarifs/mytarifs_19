@@ -1,0 +1,19 @@
+<% title "Programs" %>
+
+<%= 
+	link_to('New Program', new_cpanet_my_offer_program_path(params[:my_offer_id]), 
+		{:class => "btn btn-primary", :type =>"button"}) +
+	link_to('', '#', 
+		{:class => "btn disabled", :type =>"button"})  + 
+	link_to('MyOffers', cpanet_my_offers_path, 
+		{:class => "btn btn-primary", :type =>"button"})  
+
+%>
+
+<%= render(:partial => 'cpanet/my_offers/programs/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+		:locals => {:form_item => programs_filtr, :action_name => cpanet_my_offer_programs_path(params[:my_offer_id])}) %>
+
+<br />
+	
+<%= render( :partial => 'cpanet/my_offers/programs/programs', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => programs }) %>

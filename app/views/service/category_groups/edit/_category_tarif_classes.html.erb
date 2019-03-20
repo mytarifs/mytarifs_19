@@ -1,0 +1,19 @@
+<%
+table.init do |t|
+#  t.caption = 'Список тарифов и опций'
+  t.heads = ['id', 'Rouming', 'Service', 'Rest GID', 'Filtr', 'tarif_set must include tarif options', 'regions']
+  t.set_fields do |sctc| 
+  	
+  	global_categories = sctc.uniq_service_category.try(:split, "/") || []  	
+  [
+	sctc.id,
+	[sctc.service_category_one_time.try(:name), sctc.service_category_periodic.try(:name), global_categories[0]].compact[0],
+	global_categories[1],
+	global_categories[2..-1].try(:join, " / "),
+	sctc.filtr, 
+	sctc.conditions.try(:[], 'tarif_set_must_include_tarif_options'),
+	sctc.conditions.try(:[], 'regions'),
+  ]
+  end
+end
+%>

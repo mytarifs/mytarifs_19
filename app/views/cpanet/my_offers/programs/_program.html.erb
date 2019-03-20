@@ -1,0 +1,36 @@
+<%
+form_item.init do |fi|
+#  fi.caption = 'Show tarif class'
+  fi.set_fields do |program| 
+
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control "}
+	label_html = {:class => "form-label "}
+  	s = session_model_params(fi)
+  	
+  	feature_fields = []
+  	[:page, :page_param_filtr, :page_id_filtr, :source_type, :source_filtr, :place_type, :place, 
+  		:place_view_type, :place_view_params, :catalog,
+  		:catalog_category_path, :catalog_category_path_text, :catalog_category_id_name, :catalog_category_id_name_text,
+  		:catalog_offer_category_name, :catalog_offer_category_name_text, :catalog_offer_path, :catalog_offer_path_text,
+  		:catalog_offer_name, :catalog_offer_name_text, :catalog_offer_url_name, :catalog_offer_url_name_text,
+  		:catalog_category_values, :catalog_offer_values, :catalog_offers, :catalog_test_path, ].each do |feature_field|
+  		feature_fields << [feature_field.to_s, program.send(feature_field)]
+  	end
+
+	[
+      [
+      	link_to('Edit', edit_cpanet_program_path(program), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+      	link_to('Programs', cpanet_my_offer_programs_path(program.my_offer_id), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+      ],  
+      ['ID', program.id],
+      ['Name', program.name],
+      ['Website', program.my_offer.try(:website).try(:name)],
+      ['Offer', program.my_offer.try(:offer).try(:name)],
+      ['Status', program.status],
+      ['Stat_id', program.stat_id],
+	] + feature_fields
+  end
+end	
+%>
+
+:page, :page_param_filtr, :page_id_filtr, :source_type, :source_filtr, :place_type, :place, :place_view_type, :place_view_params

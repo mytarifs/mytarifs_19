@@ -1,0 +1,29 @@
+<% set_meta_tags site: "MyTarifs.ru", title: mobile_article.tag_title, reverse: true %>
+<% description mobile_article.tag_description %>
+<% keywords mobile_article.tag_keywords %>
+<% 
+	set_meta_tags(canonical: content_mobile_article_url(hash_with_region_and_privacy({:id => mobile_article.slug}, 'personal', 'moskva_i_oblast') )) if 
+		content_mobile_article_path(hash_with_region_and_privacy({:id => mobile_article.slug, :trailing_slash => false}, 'personal', 'moskva_i_oblast') ) != request.path
+ %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class=""><%= mobile_article.content_title %></h1>
+            <hr>
+        </div>
+    </div>
+    <%= render :partial => "application/shared/social_share_buttons" %>
+</header>
+
+<p>
+<%= link_to('Список статей', content_mobile_articles_path(hash_with_region_and_privacy), {:class => "btn btn-primary", :type =>"button", :remote => false}) %>
+</p>
+<div>
+	<%= image_tag(mobile_article.image_name, alt: mobile_article.image_title, class: "pull-left", style: "margin-right: 20px;") %>
+
+	<%= mobile_article.content_body.try(:html_safe) %>
+</div>
+
+<%= render :partial => "application/shared/hypercomments" %>

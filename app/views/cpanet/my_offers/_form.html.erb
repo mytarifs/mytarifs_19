@@ -1,0 +1,33 @@
+<%
+form_item.init do |fi|
+  fi.set_fields do |f|
+  	action_path = f.object.id ? edit_cpanet_my_offer_path(f.object) : new_cpanet_my_offer_path
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+	s = session_model_params(fi)
+	
+    [ 
+	   [
+      	link_to('MyOffers', cpanet_my_offers_path, {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => false})
+	   ],
+	   [
+	   	f.label(:id, 'ID', label_html), 
+	   	f.number_field(:id, input_html.merge({:value => s['name'], :disabled => true})),
+
+	   	f.label(:name, 'Название MyOffers', label_html), 
+	   	f.text_field(:name, input_html.merge({:value => s['name']})),
+
+	   	f.label(:status, "Статус MyOffers", label_html),
+     	f.select(:status, ['active', 'disabled'], 
+	  	  {:include_blank => "select status", :selected => s["status"] }, input_html.merge({:size => 3}) )   
+	   ], 
+	   [
+	   	f.label(:website_id, "website_id", label_html),
+     	f.collection_select(:website_id, Cpanet::Website.all, :id, :name_with_cpanet, 
+	  	  {:include_blank => "select website_id", :selected => s["website_id"] }, input_html.merge({:size => Cpanet::Website.all.size + 1}) )   
+	   ],	
+	].compact
+  end
+end
+%>

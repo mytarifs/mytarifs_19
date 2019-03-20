@@ -1,0 +1,61 @@
+<% title "Сравнение тарифов сотовых операторов МТС-Билайн-Мегафон-ТЕЛЕ2 #{region_and_privacy_tag}: быстро сравнить тарифы на сервисе MyTarifs.ru" %>
+<% description "Сравнение тарифов сотовых операторов МТС-Билайн-Мегафон-ТЕЛЕ2 #{region_and_privacy_tag}. \
+				www.mytarifs.ru — помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг \
+				в области мобильной связи." %>
+<% keywords "сравнение тарифов операторов" %>	
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="">Сравнение тарифов сотовых операторов МТС-Билайн-Мегафон-ТЕЛЕ2 <%= "#{region_and_privacy_tag}"%></h1>
+            <span class="h5">Здесь вы можете выбрать тарифы и сравнить их подробное описание.</span>	        
+        </div>
+        <%= render :partial => "application/shared/social_share_buttons" %>
+        <br />
+    </div>
+</header>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:compare_tarifs, :under_h1) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<br />
+<div class="panel panel-success">
+	<div class="panel-body">
+		<div class="h4 text-center1 text-success">Выберите тарифы</div>
+		<%= render :partial => 'tarif_classes/compare_tarifs/filtr_vertical', 
+			:layout => 'application/layouts/filtr_form_2_columns_with_1_label', 
+			:locals => {:form_item => compare_tarifs_filtr }%>
+	</div>
+</div>
+
+<% tarifs_description = controller.compare_tarifs %>
+
+<br />
+<div class="my_collapsable h3 text-center">Общее описание
+	<a my_collapsable="true" data-toggle="collapse" href="#general_description" aria-expanded="true" aria-controls="general_description">
+		<span class="<%= "true" ? "fa fa-angle-up fa-lg" : "fa fa-angle-down fa-lg" %>"></span>
+	</a>
+</div>
+<div class="table-responsive">
+	<div class="collapse in" id="general_description">
+		<%= render( :partial => 'tarif_classes/compare_tarifs/full_tarif_class', :locals => {:tarif_classes => tarifs_description}) %>
+	</div>
+</div>
+
+<div class="h3 text-center">Стоимость услуг</div>
+<%= render( :partial => 'tarif_classes/compare_tarifs/full_category_groups', :locals => {:tarif_classes => tarifs_description})  %>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:compare_tarifs, :bottom) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<br />
+
+<%= render :partial => "application/shared/social_share_buttons" %>
+
+<br />
+<%= render :partial => "application/shared/hypercomments" %>

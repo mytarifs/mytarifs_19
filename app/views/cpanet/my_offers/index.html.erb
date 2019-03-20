@@ -1,0 +1,35 @@
+<% title "MyOffers" %>
+
+<%= 
+	link_to('New MyOffer', new_cpanet_my_offer_path, 
+		{:class => "btn btn-primary", :type =>"button"}) +
+	link_to('', '#', 
+		{:class => "btn disabled", :type =>"button"})  + 
+	link_to('Synchronize MyOffers', cpanet_synchronize_my_offers_path, 
+		{:class => "btn btn-primary", :type =>"button"})  + 
+	link_to('', '#', 
+		{:class => "btn disabled", :type =>"button"})  + 
+	link_to('Synchronize Offers', cpanet_synchronize_offers_path, 
+		{:class => "btn btn-primary", :type =>"button"}) +
+	link_to('', '#', 
+		{:class => "btn disabled", :type =>"button"})  + 
+	link_to('Synchronize MyOfferCatalogs', cpanet_synchronize_catalogs_path, 
+		{:class => "btn btn-primary", :type =>"button"})  
+
+%>
+
+<br /><br />
+
+
+<%= render :partial => 'cpanet/my_offers/tabs', :layout => 'application/layouts/tabs', 
+	:locals => {:name => 'cpanet_my_offers_tabs', :active => session[:current_tabs_page]['cpanet_my_offers_tabs'].to_i,
+	:action_name => cpanet_my_offers_path} %>
+
+<br />
+	
+<%= render( :partial => 'cpanet/my_offers/my_offers', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => my_offers }) %>
+<br />
+	
+<%= render( :partial => 'cpanet/my_offers/my_offer_catalogs', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => my_offer_catalogs }) %>

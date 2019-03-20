@@ -1,0 +1,24 @@
+<% title "Items" %>
+
+<%= 
+	link_to('New Item', new_cpanet_program_item_path(params[:program_id]), 
+		{:class => "btn btn-primary", :type =>"button"}) +
+	link_to('', '#', 
+		{:class => "btn disabled", :type =>"button"})  + 
+	link_to('Programs', cpanet_my_offer_programs_path(program.my_offer), 
+		{:class => "btn btn-primary", :type =>"button"}) +
+	link_to('', '#', 
+		{:class => "btn disabled", :type =>"button"})  + 
+	link_to('Load deeplinks from catalog', cpanet_program_items_load_deeplinks_from_catalog_path(program), 
+		{:class => "btn btn-primary", :type =>"button"})  
+
+%>
+
+
+<%= render(:partial => 'cpanet/my_offers/programs/items/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+		:locals => {:form_item => items_filtr, :action_name => cpanet_program_items_path(params[:program_id])}) %>
+
+<br />
+	
+<%= render( :partial => 'cpanet/my_offers/programs/items/items', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => items }) %>

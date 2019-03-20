@@ -1,0 +1,242 @@
+<%
+form_item.init do |fi|
+
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", 
+  	:action_name => admin_tarif_class_path(hash_with_region_and_privacy({:id => tarif_class.id}))}
+  label_html = {:class => "control-label "}
+  s = session_filtr_params(fi)	
+  
+    calculation_orders = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    
+    service_regions = Category.where(:id => TarifList.where(:tarif_class_id => tarif_class.id).pluck(:region_id).uniq)
+    
+    service_category_group_ids = Service::CategoryGroup.where(:tarif_class_id => tarif_class.id).select(:id).order(:id)
+    
+    must_included_services_list = Service::CategoryTarifClass.where(:as_standard_category_group_id => service_category_group_ids).
+    	select("distinct (conditions->'tarif_set_must_include_tarif_options')::jsonb as tarif_set_must_include_tarif_options").
+    	map{|item| item['tarif_set_must_include_tarif_options']}.compact.flatten.uniq
+    	
+    must_included_services_list = TarifClass.where(:id => must_included_services_list) 
+    	
+	rouming = (s["uniq_service_category"].try(:[], "rouming") || [])
+	service = (s["uniq_service_category"].try(:[], "service") || [])
+	direction = (s["uniq_service_category"].try(:[], "direction") || [])
+	partner = (s["uniq_service_category"].try(:[], "partner") || [])
+	
+	roumings = (Optimization::Global::Base::Structure || {}); services = {}; directions = {}; partners = {}
+	rouming.each do |rouming_key|
+		services.deep_merge!((Optimization::Global::Base::Structure.try(:[], rouming_key.to_sym) || {}))
+		service.each do |service_key|
+			directions.deep_merge!((Optimization::Global::Base::Structure.try(:[], rouming_key.to_sym).try(:[], service_key.to_sym) || {}))
+			direction.each do |direction_key|
+				partners.deep_merge!((Optimization::Global::Base::Structure.try(:[], rouming_key.to_sym).try(:[], service_key.to_sym).try(:[], direction_key.to_sym) || {}))
+			end if !rouming.blank? and !service.blank? and !direction.blank? and !directions.blank?
+		end if !rouming.blank? and !service.blank?
+	end if !rouming.blank?
+	
+	gloabl_category_filtr_values = (Optimization::Global::Base::StructureFiltrs[s["gloabl_category_filtr"].try(:[], 'global_key').try(:to_sym)] || []) - ['']
+
+	service_ids_to_copy_to = TarifClass.for_parsing("false").original_tarif_class.
+		where(:standard_service_id => s['standard_service_id'].try(:to_i), :privacy_id => s['privacy_id'].try(:to_i)).
+		where(:operator_id => tarif_class.try(:operator_id)).order(:name)
+	
+  fi.set_fields do |filtr_name|
+    [
+	   [
+      	label(filtr_name, "show_filtr_for_category_filtr", "show_filtr_for_category_filtr", label_html),
+      	select(filtr_name, "show_filtr_for_category_filtr", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите show_filtr_for_category_filtr", :selected => (s["show_filtr_for_category_filtr"] || nil)}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "show_additional_service_category_group_filtrs", "show_additional_service_category_group_filtrs", label_html),
+      	select(filtr_name, "show_additional_service_category_group_filtrs", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите show_additional_service_category_group_filtrs", :selected => (s["show_additional_service_category_group_filtrs"] || nil)}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "show_regions_filtrs", "show_regions_filtrs", label_html),
+      	select(filtr_name, "show_regions_filtrs", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите show_regions_filtrs", :selected => (s["show_regions_filtrs"] || nil)}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "show_gloabal_category_filtr", "show_gloabal_category_filtr", label_html),
+      	select(filtr_name, "show_gloabal_category_filtr", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите show_gloabal_category_filtr", :selected => (s["show_gloabal_category_filtr"] || nil)}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "show_copy_options", "show_copy_options", label_html),
+      	select(filtr_name, "show_copy_options", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите show_copy_options", :selected => (s["show_copy_options"] || nil)}, input_html.merge({:size => 2}) ), 
+
+      	label(filtr_name, "show_parsed_status_filtr", "show_parsed_status_filtr", label_html),
+      	select(filtr_name, "show_parsed_status_filtr", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите show_parsed_status_filtr", :selected => (s["show_parsed_status_filtr"] || nil)}, input_html.merge({:size => 2}) ), 
+	   ],
+	   
+	   
+	   ([
+	   	label(filtr_name, "gloabl_category_filtr[global_key]", 'gloabl_category_filtr[global_key]', label_html),
+     	select(filtr_name, "gloabl_category_filtr[global_key]", Optimization::Global::Base::StructureFiltrs.keys, 
+	  	  {:include_blank => true, :selected => s["gloabl_category_filtr"].try(:[], 'global_key') }, 
+	  	  input_html.merge({:multiple => false, :size => Optimization::Global::Base::StructureFiltrs.keys.size + 1})),
+
+	   	label(filtr_name, "gloabl_category_filtr[condition]", 'gloabl_category_filtr[condition]', label_html),
+     	select(filtr_name, "gloabl_category_filtr[condition]", ['in', 'not_in'], 
+	  	  {:include_blank => false, :selected => s["gloabl_category_filtr"].try(:[], 'condition') }, 
+	  	  input_html.merge({:multiple => false, :size => 1})),
+
+	   	label(filtr_name, "gloabl_category_filtr[gloabl_category_id]", 'gloabl_category_filtr[gloabl_category_id]', label_html),
+     	select(filtr_name, "gloabl_category_filtr[gloabl_category_id]", gloabl_category_filtr_values, 
+	  	  {:include_blank => false, :selected => s["gloabl_category_filtr"].try(:[], 'gloabl_category_id') }, 
+	  	  input_html.merge({:multiple => false, :size => 10})),
+	   ] if s["show_filtr_for_category_filtr"] == 'true'),
+	   
+	   
+	   ([
+	   	label(filtr_name, "service_category_group_ids", "service_category_group_ids", label_html),
+     	collection_select(filtr_name, "service_category_group_ids", service_category_group_ids, :id, :id, 
+	  	  {:include_blank => true, :selected => (s["service_category_group_ids"] || []) }, 
+	  	  input_html.merge({:multiple => true, :size => [service_category_group_ids.size, 10].min + 1}) ),
+
+	   	label(filtr_name, "must_included_services", "must_included_services", label_html),
+      	select(filtr_name, "must_included_services_filtr_type", [['all services', 'all'], ['any services', 'any']], 
+	  	{:include_blank => false, :selected => (s["must_included_services_filtr_type"] || 'all')}, input_html.merge({:size => 2}) ),
+
+     	collection_select(filtr_name, "must_included_services", must_included_services_list, :id, :name, 
+	  	  {:include_blank => true, :selected => (s["must_included_services"] || []) }, 
+	  	  input_html.merge({:multiple => true, :size => [must_included_services_list.size, 7].min + 1}) ),   
+
+	   ] if s["show_additional_service_category_group_filtrs"] == 'true'),
+	   
+	   
+	   ([
+	   	label(filtr_name, "regions_filtr_type", "regions_filtr_type", label_html),
+      	select(filtr_name, "regions_filtr_type", [['all regions', 'all'], ['any regions', 'any']], 
+	  	{:include_blank => false, :selected => (s["regions_filtr_type"] || 'all')}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "to_what_apply_regions_filtr", "to_what_apply_regions_filtr", label_html),
+      	select(filtr_name, "to_what_apply_regions_filtr", ['to_category_only', 'to_formula_only'], 
+	  	{:include_blank => "to category and formula", :selected => (s["to_what_apply_regions_filtr"])}, input_html.merge({:size => 3}) ),
+
+	   	label(filtr_name, "regions", "regions", label_html),
+     	collection_select(filtr_name, "regions", service_regions, :id, :name, 
+	  	  {:include_blank => true, :selected => (s["regions"] || []) }, input_html.merge({:multiple => true, :size => service_regions.size + 1}) ),   
+	   ] if s["show_regions_filtrs"] == 'true'),
+	   
+	   
+	   ([
+	   	label(filtr_name, "calculation_order", "calculation_order", label_html),
+     	select(filtr_name, "calculation_order", calculation_orders, 
+	  	  {:include_blank => true, :selected => s['calculation_order'] }, 
+	  	  input_html.merge({:multiple => true, :size => [calculation_orders.size, 4].min + 1})) +
+
+      	label(filtr_name, "show_fixed_service_categories", "show_fixed_service_categories", label_html) +
+      	select(filtr_name, "show_fixed_service_categories", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите show_fixed_service_categories", :selected => (s["show_fixed_service_categories"] || nil)}, input_html.merge({:size => 2}) ), 
+
+      	label(filtr_name, "show_category_groups_with_added_parsed_params", "show_category_groups_with_added_parsed_params", label_html),
+      	select(filtr_name, "show_category_groups_with_added_parsed_params", [['show with params', 'true'], ['show without params', 'false']], 
+	  	{:include_blank => "show all", :selected => (s["show_category_groups_with_added_parsed_params"])}, input_html.merge({:size => 3}) ) +
+
+	   	label(filtr_name, "uniq_service_category[rouming]", "rouming", label_html) +
+     	select(filtr_name, "uniq_service_category[rouming]", roumings.map{|r| [r[0], r[0]]}, 
+	  	  {:include_blank => true, :selected => rouming }, 
+	  	  input_html.merge({:multiple => true, :size => roumings.keys.size + 1})),
+
+	   (!rouming.blank? ? label(filtr_name,"uniq_service_category[service]", "service", label_html) : nil),
+       (!rouming.blank? ? select(filtr_name, "uniq_service_category[service]", services.map{|r| [r[0], r[0]]}, 
+	  	  {:include_blank => true, :selected => service }, 
+	  	  input_html.merge({:multiple => true, :size => services.keys.size + 1}))   
+	    : nil),
+
+	   ((!rouming.blank? and !service.blank? and !services.blank? and !directions.blank?) ? label(filtr_name, "uniq_service_category[direction]", "direction", label_html) : nil),
+	   ((!rouming.blank? and !service.blank? and !services.blank? and !directions.blank?) ? select(filtr_name, "uniq_service_category[direction]", directions.map{|r| [r[0], r[0]]},
+	  	  {:include_blank => true, :selected => direction }, input_html.merge({:multiple => true, :size => directions.keys.size + 1})) : nil),
+
+	   ((!rouming.blank? and !service.blank? and !direction.blank? and !services.blank? and !directions.blank? and !partners.blank? and false) ? 
+	   	label(filtr_name, "uniq_service_category[partner]", "partner", label_html) : nil),
+	   ((!rouming.blank? and !service.blank? and !direction.blank? and !services.blank? and !directions.blank? and !partners.blank? and false) ? 
+     	select(filtr_name, "uniq_service_category[partner]", partners.map{|r| [r[0], r[0]]}, {:include_blank => true, :selected => partner }, 
+	  	  input_html.merge({:multiple => true, :size => partners.keys.size + 1})) : nil),
+	   ].compact if s["show_gloabal_category_filtr"] == 'true'),	
+	   
+
+	   ( [content_tag(:p), ] if s["show_copy_options"] == 'true'),
+	   ([
+      	label(filtr_name, "standard_service_id", "Тип услуги", label_html),
+      	collection_select(filtr_name, "standard_service_id", Category.where(:id => TarifClass::ServiceType.slice(:tarif, :common_service, :special_service).values), :id, :name, 
+	  	{:include_blank => "выберите тариф или опцию", :selected => s["standard_service_id"] }, input_html.merge({:size => 4}) ) +
+
+      	label(filtr_name, "privacy_id", "Для физических или юридических лиц", label_html) +
+      	collection_select(filtr_name, "privacy_id", Category.privacy, :id, :name, 
+	  	{:include_blank => "privacy", :selected => s["privacy_id"] }, input_html.merge({:size => 3})) +
+	   	
+      	label(filtr_name, "service_category_tarif_class_id_to_copy", "service_category_tarif_class_id_to_copy", label_html) +
+      	text_field(filtr_name, "service_category_tarif_class_id_to_copy", input_html.merge({:disabled => true, :value => category_groups.row_current_id})) +
+
+	   	content_tag(:p) +
+	   	label(filtr_name, "copy_service_category_group_to_another_service", "copy_service_category_group_to_another_service", {:class => "btn btn-success ", :type => "button"}) +
+	   	check_box_tag("admin_category_groups_filtr_filtr[copy_service_category_group_to_another_service]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+
+      	label(filtr_name, "service_id_to_copy_to", "service_id_to_copy_to", label_html),
+      	collection_select(filtr_name, "service_id_to_copy_to", service_ids_to_copy_to, :id, :name, 
+	  	{:include_blank => "service_id_to_copy_to", :selected => s["service_id_to_copy_to"] }, input_html.merge({:size => 13})) +
+	   	content_tag(:p) +
+	   	link_to( 'change_tarif_class', admin_tarif_class_path(hash_with_region_and_privacy({:id => (s["service_id_to_copy_to"].try(:to_i) || tarif_class.id)})), 
+	   		{:class => "btn btn-primary", :type =>"button", :remote => false}), 
+
+      	label(filtr_name, "confirm_replace_all_service_category_groups", "confirm_replace_all_service_category_groups", label_html),
+      	select(filtr_name, "confirm_replace_all_service_category_groups", [['Да', 'true'], ], 
+	  	{:include_blank => "confirm_replace_all_service_category_groups", :selected => (s["confirm_replace_all_service_category_groups"] || nil)}, input_html.merge({:size => 2}) ),
+
+	   	content_tag(:p) +
+	   	label(filtr_name, "replace_all_service_category_groups_in_another_service", "replace_all_service_category_groups_in_another_service", {:class => "btn btn-success ", :type => "button"}) +
+	   	check_box_tag("admin_category_groups_filtr_filtr[replace_all_service_category_groups_in_another_service]", "true", nil, input_html.merge({:class => "updatable hidden" })) +
+
+      	label(filtr_name, "confirm_replace_selected_service_category_groups", "confirm_replace_selected_service_category_groups", label_html) +
+      	select(filtr_name, "confirm_replace_selected_service_category_groups", [['Да', 'true'], ], 
+	  	{:include_blank => "confirm_replace_selected_service_category_groups", :selected => (s["confirm_replace_selected_service_category_groups"] || nil)}, input_html.merge({:size => 2}) ) +
+
+	   	content_tag(:p) +
+	   	label(filtr_name, "replace_selected_service_category_groups_in_another_service", "replace_selected_service_category_groups_in_another_service", {:class => "btn btn-success ", :type => "button"}) +
+	   	check_box_tag("admin_category_groups_filtr_filtr[replace_selected_service_category_groups_in_another_service]", "true", nil, input_html.merge({:class => "updatable hidden" })) +
+
+	   	content_tag(:p) +
+	   	label(filtr_name, "update_selected_service_category_groups_with_parsed_params", "update_selected_service_category_groups_with_parsed_params", {:class => "btn btn-success ", :type => "button"}) +
+	   	check_box_tag("admin_category_groups_filtr_filtr[update_selected_service_category_groups_with_parsed_params]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+	   ] if s["show_copy_options"] == 'true'),
+	   
+
+	   ( [content_tag(:p), ] if s["show_parsed_status_filtr"] == 'true'),
+	   ([
+	   	label(filtr_name, "parsed_status_filtr[formula_params][modified]", 'parsed_status_filtr[formula_params] modified', label_html),
+     	select(filtr_name, "parsed_status_filtr[formula_params][modified]", ['true', 'false', 'blank'], 
+	  	  {:include_blank => true, :selected => s["parsed_status_filtr"].try(:[], 'formula_params').try(:[], 'modified') },
+	  	  input_html.merge({:multiple => false, :size => 4})),
+	  	  
+	   	label(filtr_name, "parsed_status_filtr[formula_params][syncronised]", 'syncronised', label_html),
+     	select(filtr_name, "parsed_status_filtr[formula_params][syncronised]", ['true', 'false', 'failed'], 
+	  	  {:include_blank => true, :selected => s["parsed_status_filtr"].try(:[], 'formula_params').try(:[], 'syncronised') },
+	  	  input_html.merge({:multiple => false, :size => 4})),
+	  	  
+	   	label(filtr_name, "parsed_status_filtr[formula_params][updated_less_than]", 'updated_less_than days', label_html),
+     	select(filtr_name, "parsed_status_filtr[formula_params][updated_less_than]", [1, 30, 90], 
+	  	  {:include_blank => true, :selected => s["parsed_status_filtr"].try(:[], 'formula_params').try(:[], 'updated_less_than') }, 
+	  	  input_html.merge({:multiple => false, :size => 4})),
+	  	  
+	   	label(filtr_name, "parsed_status_filtr[sctc_params][modified]", 'parsed_status_filtr[sctc_params] modified', label_html),
+     	select(filtr_name, "parsed_status_filtr[sctc_params][modified]", ['true', 'false', 'blank'], 
+	  	  {:include_blank => true, :selected => s["parsed_status_filtr"].try(:[], 'sctc_params').try(:[], 'modified') },
+	  	  input_html.merge({:multiple => false, :size => 4})),
+	  	  
+	   	label(filtr_name, "parsed_status_filtr[sctc_params][syncronised]", 'syncronised', label_html),
+     	select(filtr_name, "parsed_status_filtr[sctc_params][syncronised]", ['true', 'false', 'failed'], 
+	  	  {:include_blank => true, :selected => s["parsed_status_filtr"].try(:[], 'sctc_params').try(:[], 'syncronised') },
+	  	  input_html.merge({:multiple => false, :size => 4})),
+	  	  
+	   	label(filtr_name, "parsed_status_filtr[sctc_params][updated_less_than]", 'updated_less_than days', label_html),
+     	select(filtr_name, "parsed_status_filtr[sctc_params][updated_less_than]", [1, 30, 90], 
+	  	  {:include_blank => true, :selected => s["parsed_status_filtr"].try(:[], 'sctc_params').try(:[], 'updated_less_than') }, 
+	  	  input_html.merge({:multiple => false, :size => 4})),
+	  	  
+	   ] if s["show_parsed_status_filtr"] == 'true'),
+	   	   	   
+    ].compact
+  end
+end
+%>

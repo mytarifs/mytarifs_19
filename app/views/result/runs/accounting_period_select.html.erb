@@ -1,0 +1,31 @@
+<% title "Задание периода детализации для детального подбора тарифа #{region_and_privacy_tag}" %>
+<% description "Задание периода детализации для детального подбора тарифа #{region_and_privacy_tag}. www.mytarifs.ru — сервис по подбору тарифов и опций для \
+				мобильных операторов МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий \
+				выбор средств для анализа услуг в области мобильной связи." %>
+<% keywords "Задание периода детализации для детального подбора тарифа #{region_and_privacy_tag}" %>	
+<% content_for :hide_title, 'true' %>
+<% noindex 'googlebot' %>
+
+<%= render :partial => 'result/runs/calculation/steps', :locals => {:current_step => 0} %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <hr />
+        </div>
+    </div>
+</header>
+
+<p>
+	В вашей детализации присутствует несколько месяцев. 	
+	Выберите период, который надо использовать для подбора тарифа.
+
+	<%= render( :partial => 'result/runs/calculation/accounting_period_select_filtr', :layout => 'application/layouts/filtr_form_inline', :locals => {:form_item => accounting_period_select_filtr}) %>
+</p>
+<p>
+	<%= link_to("Вернуться на этап выбора детализации звонков", result_detailed_calculations_select_calls_path(hash_with_region_and_privacy({:id => params[:id]})), 
+		{:class => "btn btn-primary btn_text_always_on_screen", :type =>"button", :remote => false, :rel => "nofollow"}) %>	
+</p>
+
+<%= render :partial => 'calculation_info', :locals => {:result_run => result_run} %>

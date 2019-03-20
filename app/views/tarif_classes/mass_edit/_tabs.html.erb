@@ -1,0 +1,37 @@
+<%
+
+content_in :tabs do |user| 
+  [
+    [
+     'calculation_options',
+     render(:partial => 'tarif_classes/mass_edit/calculation_options_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     	:locals => {:form_item => calculation_options_filtr, :chosen_tarifs => chosen_tarifs})	
+    ], 
+    [
+     'Incompatibility - existing values',
+     render(:partial => 'tarif_classes/mass_edit/incompatibility_tarif_class_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     	:locals => {:form_item => incompatibility_tarif_class_filtr, :chosen_tarifs => chosen_tarifs})	
+    ], 
+    [
+     'Incompatibility - new values',
+     render(:partial => 'tarif_classes/mass_edit/incompatibility_change_tarif_class_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     	:locals => {:form_item => incompatibility_change_tarif_class_filtr, :chosen_tarifs => chosen_tarifs})	
+    ], 
+    [
+     'Dependent_on',
+     render(:partial => 'tarif_classes/mass_edit/dependent_on_tarif_class_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     	:locals => {:form_item => dependent_on_tarif_class_filtr, :chosen_tarifs => chosen_tarifs})	
+    ], 
+    [
+     'All_dependent_on',
+     render(:partial => 'tarif_classes/mass_edit/all_dependent_on_tarif_class_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     	:locals => {:form_item => all_dependent_on_tarif_class_filtr, :chosen_tarifs => chosen_tarifs})	
+    ], 
+    [
+     'General features',
+     render(:partial => 'tarif_classes/mass_edit/general_features_tarif_class_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     	:locals => {:form_item => general_features_tarif_class_filtr, :chosen_tarifs => chosen_tarifs})	
+    ], 
+  ] 
+end 
+%>

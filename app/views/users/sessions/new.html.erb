@@ -1,0 +1,58 @@
+<% title "Вход на сайт" %>
+<% description "Вход на сайт. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных операторов МТС, «Билайн», \
+				«Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг в \
+				области мобильной связи." %>
+<% keywords "вход на сайт" %>	
+<% noindex 'googlebot' %>
+
+<%
+	input_html = {:class => "form-control  "}
+	link_to_html = {:class => "btn btn-primary", :type => 'button', :'data-remote' => true, :method => 'get', :turbolinks => true}
+	submit_html = {:class => "btn btn-primary btn-group-justified"}
+	label_html = {:class => "control-label "}
+%>
+
+<%= form_for(resource, as: resource_name, url: session_path(resource_name), html: {:class => "", :'data-remote' => false}) do |f| %>
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) if true or current_user %>
+
+   <% if !devise_error_messages!.blank? %>
+	<div class="alert alert-warning alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert">
+			<span aria-hidden="true">&times;</span>
+			<span class="sr-only">Close</span>
+		</button>
+		<%= devise_error_messages! %>
+	</div>
+  <% end %>
+
+  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+	  <%= f.label :email, label_html %>
+	  <%= f.email_field( :email, {autofocus: true}.merge(input_html) ) %>
+  <% end %>
+  
+  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+	  <%= f.label :password, label_html %>
+	  <%= f.password_field :password, {autocomplete: "off"}.merge(input_html) %>
+  <% end %>
+
+  <% if devise_mapping.rememberable? -%>
+	  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+	   	  <%= f.label :remember_me, label_html %>
+		  <%= f.check_box :remember_me, input_html %> 
+	  <% end %>
+  <% end -%>
+
+  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+  	  <%= f.submit "Войти", submit_html %>
+  <% end %>
+
+  <br />
+
+  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+  	  <%= render :partial => "application/shared/social_login" %>
+  <% end %>
+
+<% end %>
+
+
+<%= render "devise/shared/links" %>

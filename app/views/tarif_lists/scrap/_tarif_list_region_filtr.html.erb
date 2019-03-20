@@ -1,0 +1,81 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => scrap_tarif_lists_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label "}
+  s = session_filtr_params(fi)	
+  tarif_class_filtr = session[:filtr]['general_tarif_class_filtr'] || {}
+
+  parser = ServiceParser::Runner.init({
+	:operator_id => tarif_class_filtr['operator_id'].try(:to_i) || 1030,
+	:original_page => "",
+  })
+  
+  tarif_regions = Category.where(:id => TarifList.pluck(:region_id).uniq)
+  
+  base_tarif_class = base_tarif_class_from_general_tarif_class_filtr
+  base_tarif_class = base_tarif_class.for_parsing(tarif_class_filtr['for_parsing']) if !tarif_class_filtr['for_parsing'].blank?
+  base_tarif_lists = TarifList.joins(:tarif_class).where(:tarif_class_id => base_tarif_class.pluck(:id).uniq)
+  base_tarif_lists = base_tarif_lists.where(:region_id => s['region_id'].try(:to_i)) if !s['region_id'].blank?
+  	
+  possible_statuses = base_tarif_lists.select("distinct((tarif_lists.features->>'status')::text) as status_1").map{|r| r.status_1}.compact - ['']
+  
+  chosen_statuses = ((s['status'] || []) - ['']).map{|st| "'#{st}'"}.join(', ')
+  s['status'] = nil if chosen_statuses.blank?
+  base_tarif_lists = base_tarif_lists.where("(tarif_lists.features->>'status')::text in (#{chosen_statuses}) or (tarif_lists.features->>'status')::text is null") if !s['status'].blank?
+
+  tarif_classes = TarifClass.where(:id => base_tarif_lists.pluck(:tarif_class_id).uniq).order(:name)
+  tarif_classes = tarif_classes.where("(tarif_classes.features->'search_services_tag')::jsonb in (null, '{}')") if s['show_tarif_list_without_search_services_tag'] == 'true'
+  if s['show_tc_for_parsing_with_empty_current_to_scrap_services'] == 'true'
+  	tarif_classes = tarif_classes.joins(:tarif_lists).where("(tarif_lists.features->'current_to_scrap_services')::jsonb in (null, '{}')").
+  		where(:tarif_lists => {:id => base_tarif_lists.pluck(:id)}).select("distinct tarif_classes.name, tarif_classes.id")
+  end
+  
+  fi.set_fields do |filtr_name|
+    [
+	   [
+	   	label(filtr_name, "region_id", 'region_id', label_html),
+      	collection_select(filtr_name, "region_id", tarif_regions, :id, :name, 
+	  	{:include_blank => "выберите регион", :selected => s["region_id"] }, input_html.merge({:size => [15, tarif_regions.size + 1].min}) ) +
+
+      	label(filtr_name, "status", "status", label_html) +
+     	select(filtr_name, "status", possible_statuses, 
+	  	  {:include_blank => true, :selected => s["status"]}, input_html.merge({:multiple => true, :size => possible_statuses.size + 1})) +
+
+	   	label(filtr_name, "reload_page_from_operator", "reload_page_from_operator", {:class => "btn btn-success", :type => "button"}) +
+	   	check_box_tag("tarif_list_region_filtr[reload_page_from_operator]", "true", nil, input_html.merge({:class => "updatable hidden" })) +
+
+	   	label(filtr_name, "update_saved_services_to_scrap", "update_saved_services_to_scrap", {:class => "btn btn-success", :type => "button"}) +
+	   	check_box_tag("tarif_list_region_filtr[update_saved_services_to_scrap]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+
+      	label(filtr_name, "show_tarif_list_without_search_services_tag", "show_tarif_list without_search_services_tag", label_html),
+      	select(filtr_name, "show_tarif_list_without_search_services_tag", [['Да', 'true']], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_tarif_list_without_search_services_tag"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "show_body_page", "show_body_page", label_html) +
+      	select(filtr_name, "show_body_page", [['Да', 'true']], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_body_page"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "show_tc_for_parsing_with_empty_current_to_scrap_services", "show_tc_for_parsing_with_empty_current_to_scrap_services", label_html) +
+      	select(filtr_name, "show_tc_for_parsing_with_empty_current_to_scrap_services", [['Да', 'true']], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_tc_for_parsing_with_empty_current_to_scrap_services"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "include_only_services_from_scrap", "include_only_services_from_scrap", label_html) +
+      	select(filtr_name, "include_only_services_from_scrap", [['Да', 'true']], 
+	  	{:include_blank => "выберите статус", :selected => (s["include_only_services_from_scrap"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "source_for_search", "source_for_search", label_html) +
+      	select(filtr_name, "source_for_search", ['search_to_scrap_services', 'current_to_scrap_services', 'prev_to_scrap_services'], 
+	  	{:include_blank => 'unsaved_to_scrap_services', :selected => (s["source_for_search"])}, input_html.merge({:size => 4}) ),
+
+      	label(filtr_name, "tarif_class_id", "tarif_class_id", label_html),
+      	collection_select(filtr_name, "tarif_class_id", tarif_classes, :id, :name, 
+	  	{:include_blank => "tarif_class_id", :selected => s["tarif_class_id"] }, input_html.merge({:size => [15, tarif_classes.size + 1].min})),
+
+      	label(filtr_name, "tags_to_exclude_from_page", "tags_to_exclude_from_page", label_html),
+     	select(filtr_name, "tags_to_exclude_from_page", parser.possibele_tags_to_exclude_from_page, 
+	  	  {:include_blank => true, :selected => s["tags_to_exclude_from_page"]}, input_html.merge({:multiple => true, :size => parser.possibele_tags_to_exclude_from_page.size + 1}))
+	   ],
+    ].compact
+  end
+end
+%>

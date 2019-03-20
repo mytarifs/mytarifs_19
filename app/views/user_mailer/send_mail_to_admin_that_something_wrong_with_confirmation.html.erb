@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <p>
+      Something wrong with payment confirmation from yandex,
+      <br>
+    </p>
+    <div>
+    	  <%= @payment_confirmation.attributes if @payment_confirmation %>
+    </div>
+    <br />
+    <div>
+    	  <%= @payment_confirmation.errors.full_messages if @payment_confirmation %>
+    </div>
+    <br />
+    <div>
+    	  <p>Проверка ключа:</p><%= @payment_confirmation.check_hash if @payment_confirmation %>
+    </div>
+  </body>
+</html>

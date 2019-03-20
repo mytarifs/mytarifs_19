@@ -1,0 +1,25 @@
+<div class="btn-group btn-group-justified">
+  <span class="input-group-addon" id="social_login_group">Войти с помощью</span>
+  <div class="input-group-btn btn-group-justified" >
+
+	  <%= link_to( content_tag(:span, "", {:class => "fa fa-facebook-square fa-lg", :"aria-hidden" => "true"}),
+	  		"/auth/facebook/", {:class => "btn btn-primary", :"aria-describedby" => "social_login_group", :"data-turbolinks" => "false",
+				:onclick => set_target("social_login_facebook")}) %>
+	
+	  <%= link_to( content_tag(:span, "", {:class => "fa fa-vk fa-lg", :"aria-hidden" => "true"}), 
+			"/auth/vkontakte/", {:class => "btn btn-primary", :"aria-describedby" => "social_login_group", :"data-turbolinks" => "false",
+				:onclick => set_target("social_login_vk")}) %>
+	  
+
+  </div>
+	<div class="btn-group " aria-describedby="social_login_group">
+	  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	    <span >Через сайт</span>
+	    <span class="caret"></span>
+	  </button>
+	  <ul class="dropdown-menu ">
+		<li><%= link_to "Зарегистрироваться", new_user_registration_path, {:rel => "nofollow"} %></li>
+		<li><%= link_to("Войти", login_path, {:rel => "nofollow"}) %></li>
+	  </ul>
+	</div>
+</div>

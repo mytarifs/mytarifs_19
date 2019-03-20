@@ -1,0 +1,26 @@
+<% if false or Rails.env == 'production'%>
+	<div class="row">
+		<br />
+		<div class="h2 text-center">Комментарии</div>
+		<br />
+        <div class="h5 text-center">Здесь вы можете оставить ваш комментарий или задать нам вопрос.</div>
+        <div class="h5 text-center">Обновите страницу, если нет поля для добавления комментариев.</div>
+		<br />
+		<div id="hypercomments_widget"></div>
+	</div>
+	
+	
+	<script type="text/javascript">
+	_hcwp = window._hcwp || [];
+	_hcwp.push({widget:"Stream", widget_id: 75821});
+	(function() {
+	if("HC_LOAD_INIT" in window)return;
+	HC_LOAD_INIT = true;
+	var lang = (navigator.language || navigator.systemLanguage || navigator.userLanguage || "en").substr(0, 2).toLowerCase();
+	var hcc = document.createElement("script"); hcc.type = "text/javascript"; hcc.async = true;
+	hcc.src = ("https:" == document.location.protocol ? "https" : "http")+"://w.hypercomments.com/widget/hc/75821/"+lang+"/widget.js";
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(hcc, s.nextSibling);
+	})();
+	</script>
+<% end %>

@@ -1,0 +1,11 @@
+<ul class="dropdown-menu">
+	<li><%= link_to "Свод рейтингов", comparison_choose_your_tarif_from_ratings_path(hash_with_region_and_privacy) %></li>
+	<li><%= link_to "Рейтинг операторов и тарифов", comparison_optimizations_path(hash_with_region_and_privacy) %></li>
+	<li><%= link_to("Рейтинг безлимитных тарифов", comparison_unlimited_rating_path(hash_with_region_and_privacy({:name => 'reiting_bezlimitnyh_tarifov'}))) %></li>
+	<li><%= link_to("Рейтинг безлимитных тарифов для интернета", 
+		comparison_unlimited_rating_for_internet_path(hash_with_region_and_privacy({:name => 'reiting_bezlimitnyh_tarifov_i_optsii_dlya_interneta'}))) %></li>
+	<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+		<li><%= link_to "Рейтинги тарифов для #{operator.name}", comparison_optimizations_by_operator_path(hash_with_region_and_privacy({:operator_id => operator})) %></li>
+	<% end %>
+</ul>
+

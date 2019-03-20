@@ -1,0 +1,42 @@
+<% title comparison_description.tag_title %>
+<% description comparison_description.tag_description %>
+<% keywords comparison_description.tag_keywords %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><span class="small"><%= comparison_description.content_title %></span></h1>
+            <hr />
+            <ul >
+            <% comparison_optimization_form.model.description.split(". ").each do |desc_item| %>
+            	<li class="pull-left"><%= desc_item %></li><br />
+            <% end %>	
+            </ul>    
+            <hr />
+            <br />
+            <%= render :partial => "application/shared/social_share_buttons" %>
+<!--
+            <hr>
+            <div class="h4">Рейтинг не учитывает ваши особенности пользования мобильной связи. Поэтому мы предлагаем вам подобрать тариф и опции.</div>
+            <%= link_to "Начать подбор тарифа", customer_calls_set_calls_generation_params_path, {:class => "btn btn-primary btn-xl"} %>
+-->            
+        </div>
+    </div>
+</header>
+
+
+<%= render :partial => 'optimization', :layout => 'application/layouts/model_show', :locals => {:form_item => comparison_optimization_form} %>
+
+<% region_page = session[:current_accordion_page].blank? ? 0 : session[:current_accordion_page]['region_accord_groups_panels'].to_i %>
+<%= render(:partial => 'application/shared/regions', :layout => 'application/layouts/accordion', 
+     	:locals => {:panel_class => "panel-info", :name => 'region_accord_groups_panels', :active => region_page, 
+     	:partial_to_render => 'groups_panels_render'} )
+ %>
+
+<br />
+<div>
+	<%= comparison_description.content_body.try(:html_safe) %>
+</div>
+
+<%= render :partial => "application/shared/hypercomments" %>

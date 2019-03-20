@@ -1,0 +1,48 @@
+<%
+#style_table = [
+#	[/label/, {:class => ""}],
+#	[/(input|select|textarea).*?action/, {:filtr_name => form_item.filtr_name, :class => "updatable"}],
+#	[/(input|select).*?action/, {:class => "updatable "}],
+#	[/a.*?href.*?\/a/, {:class => "btn btn-primary", :type => 'button', :'data-remote' => true, :turbolinks => true}],
+#	[/input.*?type.*?submit/, {:class => "btn btn-primary"}],
+#]
+
+form_html_options = {:id =>form_item.filtr_name, :class => "", :turbolinks => true}
+form_html_options = form_html_options.merge(html) if local_assigns[:html]
+
+form_options = {:method => 'get', :remote => true, :authenticity_token => true}
+
+form_options = form_options.merge(options) if local_assigns[:options]
+form_options = form_options.merge(form_html_options)
+form_options.merge!({:url => url}) if local_assigns[:url] and url
+form_options.merge!({:as => as}) if local_assigns[:as] and as
+form_options.merge!({:method => method}) if local_assigns[:method] and method
+
+%>
+<%= session[:filtr] if false %>
+
+
+<% action_on_submit = form_options[:url] || form_item.action_on_submit %>
+<%= form_tag(action_on_submit, form_options) do %>
+	<% if form_item.caption %> 
+		<legend><%= form_item.caption %></legend>
+	<% end %>
+
+	<% form_item.fields(form_item.filtr_name) do |row_group| %>
+		<div class="row">
+		<% if row_group.size != 0  %>
+			<% size_of_columns = 12 / ([row_group.size, 2].max / 2) %>
+			<% row_group.in_groups_of(2) do |field_group| %>
+				<div class="col-xs-<%= size_of_columns %>">
+			      	<div class="form_group text-center">
+					<%= field_group[0] %>
+					<%= field_group[1] %>
+					</div>
+				</div>
+			<% end %>	
+		<% end %>	
+		</div>		
+	<% end %>	
+<% end %>
+
+

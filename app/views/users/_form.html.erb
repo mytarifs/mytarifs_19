@@ -1,0 +1,16 @@
+<%
+
+form_item.init do |fi|
+  action_path = fi.model.id ? edit_user_path(fi.model) : new_user_registration_path	
+  action = {:action_name => action_path }
+  fi.set_fields do |f|
+ 	  [
+	   [f.label( :email), f.text_field( :email, action.merge({:disabled => true}))],
+	   [f.label( :name), f.text_field( :name, action)], 
+	   [f.label( :password), f.password_field( :password, action)], 
+	   [f.label( :password_confirmation), f.password_field( :password_confirmation, action)],
+	   [f.label( " "), f.submit()],
+	  ]
+  end
+end
+%>

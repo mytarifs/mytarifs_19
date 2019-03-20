@@ -1,0 +1,36 @@
+<%
+	tarif_classes_headings = []
+	tarif_classes.each{|tarif_class_id, tarif_class| tarif_classes_headings << "#{tarif_class.operator.name}, #{tarif_class.name}"}
+	headings = ["Услуга", "Роуминг", "Куда / На какого оператора"] + tarif_classes_headings
+%>
+
+<table class='table table-bordered table-hover table-condensed table-supercondensed text-center'>
+	<thead>
+		<tr>
+		<% headings.each do |heading| %>
+			<th class="info"><%= heading %></th>
+		<% end %>
+		</tr>
+	</thead>
+	<tbody>
+	<% item_categories_by_filtr.each do |category_name, row| %>
+		<tr>
+			<td><%= category_name[0] %></td>
+			<td><%= category_name[1] %></td>
+			<td><%= category_name[2] %></td>
+			<% tarif_classes.keys.each do |tarif_class_id| %>
+				<td><%= row[tarif_class_id].try(:join, ", ") %></td>
+			<% end %>
+		</tr>
+	<% end if item_categories_by_filtr %>
+	<% asterics.each do |asteric_item| %>
+		<tr class="pull-left">
+			<td colspan="#{headings.size}">
+				<%= "#{asteric_item[:tag]} #{asteric_item[:comment]}" %>
+			</td>
+		</tr>
+	<% end %>
+	</tbody>
+</table>
+
+

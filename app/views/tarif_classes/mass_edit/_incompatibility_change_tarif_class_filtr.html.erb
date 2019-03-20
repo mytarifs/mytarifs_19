@@ -1,0 +1,97 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => mass_edit_tarif_classes_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label "}
+  s = session[:filtr]['incompatibility_change_tarif_class_filtr']	
+  tarifs_select_filtr = session[:filtr]['tarifs_to_update_select_filtr']
+  operator_id = tarifs_select_filtr['operator_id'] 
+  privacy_id = tarifs_select_filtr['privacy_id'] 
+
+  incompatibility_keys = chosen_tarifs.pluck("json_object_keys(dependency->'incompatibility')").uniq
+  s['incompatibility_key'] = nil if !incompatibility_keys.include?(s['incompatibility_key'])
+
+  incompatibility_values = []
+  tarifs_with_chosen_value = TarifClass.none  
+  
+  if !s['incompatibility_key'].blank?
+  	incompatibility_values = chosen_tarifs.pluck("dependency#>>'{incompatibility, #{s['incompatibility_key']} }'").uniq
+  	
+  	s['incompatibility_value'] = nil if !incompatibility_values.include?(s['incompatibility_value'])
+  	
+  	tarifs_with_chosen_value = if !s['incompatibility_value'].blank?
+  		chosen_tarifs.where("dependency#>>'{incompatibility, #{s['incompatibility_key']} }' = $$#{s['incompatibility_value']}$$")
+  	else
+  		chosen_tarifs.where("(dependency#>>'{incompatibility, #{s['incompatibility_key']} }')::text is null")
+  	end
+  else
+  	s['incompatibility_value'] = nil
+  end
+  
+  if s['incompatibility_value'].blank?
+  	['incompatibility_options', 'available_options', 'options_to_add', 'options_to_take_out', 'tarifs_with_chosen_value'].each{|key| s[key] = []}
+  end
+  
+  incompatibility_option_ids = s["incompatibility_value"].blank? ? [] : s["incompatibility_value"].scan(/\d+/).map(&:to_i)
+  incompatibility_options = TarifClass.where(:id => incompatibility_option_ids).for_parsing('false')
+  
+  available_options = TarifClass.special_services.where(:operator_id => operator_id).where(:privacy_id => privacy_id).
+  	where.not(:id => incompatibility_options).for_parsing('false').parts(((s["parts"] || []) - ['']))
+  available_options = available_options.region_txt(tarifs_select_filtr['region_txt']) if !tarifs_select_filtr['region_txt'].blank?
+  
+  options_to_add = TarifClass.where(:id => s['available_options'])
+  options_to_take_out = TarifClass.where(:id => s['incompatibility_options'])
+  
+  new_incompatibility_option_ids = incompatibility_option_ids + s['available_options'].map(&:to_i) - s['incompatibility_options'].map(&:to_i)
+  new_incompatibility_options = TarifClass.where(:id => new_incompatibility_option_ids).for_parsing('false')
+
+  fi.set_fields do |filtr_name|
+    [
+    	[
+      	label(filtr_name, "incompatibility_key", "incompatibility_key", label_html),
+      	select(filtr_name, "incompatibility_key", incompatibility_keys, 
+	  	{:include_blank => false, :selected => (s["incompatibility_key"])}, input_html.merge({:size => incompatibility_keys.size }) ) +
+
+	   	content_tag(:p) +
+	   	label(filtr_name, "change_incompatibility_value", "change_incompatibility_value", {:class => "btn btn-success", :type => "button"}) + 
+	   	check_box_tag("incompatibility_change_tarif_class_filtr[change_incompatibility_value]", "true", nil, 
+	   		input_html.merge({:class => "updatable hidden" })),
+
+      	label(filtr_name, "incompatibility_value", "incompatibility_value", label_html),
+      	select(filtr_name, "incompatibility_value", incompatibility_values.map{|v| [v, v.to_s]}, 
+	  	{:include_blank => false, :selected => (s["incompatibility_value"])}, input_html.merge({:size => [incompatibility_values.size, 2].max}) ),
+    		
+      	label(filtr_name, "tarifs_with_chosen_value", "tarifs_with_chosen_value", label_html),
+      	collection_select(filtr_name, "tarifs_with_chosen_value", tarifs_with_chosen_value, :id, :name, 
+	  	{:include_blank => true, :selected => s["tarifs_with_chosen_value"] }, input_html.merge({:multiple => true, :size => tarifs_with_chosen_value.size + 1}) ),
+    	],
+    	[
+      	label(filtr_name, "incompatibility_options", "incompatibility_options", label_html),
+      	collection_select(filtr_name, "incompatibility_options", incompatibility_options, :id, :name, 
+	  	{:include_blank => true, :selected => s["incompatibility_options"] }, input_html.merge({:multiple => true, :size => incompatibility_options.size + 1}) ),
+
+      	label(filtr_name, "parts", "parts".html_safe , label_html),
+		select(filtr_name, "parts", Optimization::TarifListGenerator::Parts, 
+			{:include_blank => "выберить part", 
+			 :selected => s['parts'] || []}, input_html.merge({:multiple => true, :size => Optimization::TarifListGenerator::Parts.size + 1}) ) +	
+
+      	label(filtr_name, "available_options", "available_options", label_html) +
+      	collection_select(filtr_name, "available_options", available_options, :id, :name, 
+	  	{:include_blank => true, :selected => s["available_options"] }, input_html.merge({:multiple => true, :size => available_options.size + 1}) ),
+
+      	label(filtr_name, "options_to_add", "options_to_add", label_html),
+      	collection_select(filtr_name, "options_to_add", options_to_add, :id, :name, 
+	  	{:include_blank => true, :selected => s["options_to_add"] }, input_html.merge({:multiple => true, :size => options_to_add.size + 1}) ) +
+
+	   	content_tag(:p) +
+      	label(filtr_name, "options_to_take_out", "options_to_take_out", label_html) +
+      	collection_select(filtr_name, "options_to_take_out", options_to_take_out, :id, :name, 
+	  	{:include_blank => true, :selected => s["options_to_take_out"] }, input_html.merge({:multiple => true, :size => options_to_take_out.size + 1}) ),
+
+      	label(filtr_name, "new_incompatibility_options", "new_incompatibility_options", label_html),
+      	collection_select(filtr_name, "new_incompatibility_options", new_incompatibility_options, :id, :name, 
+	  	{:include_blank => true, :selected => new_incompatibility_option_ids }, input_html.merge({:multiple => true, :size => new_incompatibility_options.size + 1}) ),
+    	]
+    ].compact 
+  end 
+end
+%>

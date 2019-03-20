@@ -1,0 +1,82 @@
+<div class="panel panel-default" >
+	<div class="panel-heading text-center">
+		<div class="my_collapsable h4">
+			<a my_collapsable="true" data-toggle="collapse" href="#<%=rating[0][:id_ref]%>" aria-expanded="true" aria-controls="<%=rating[0][:id_ref]%>">
+				<%= rating[0][:comparison_group_name] %><span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>
+	</div>
+	<div class="panel-body collapse in" id="<%= rating[0][:id_ref] %>">
+		<div class="table-responsive">
+			<div class="row">
+				<div class="col-xs-12 text-center">			
+					<table class='table table-bordered table-hover table-condensed text-center'>
+						<thead>
+							<tr>
+								<th class="info" rowspan="2">Стоимость</th>
+								<th class="info" rowspan="2">Оператор</th>
+								<th class="info" rowspan="2">Тариф</th>
+								<th class="info" rowspan="2">Опции</th>
+								<th class="info" colspan="3">Предоплаченные объемы услуг</th>
+								<th class="info" rowspan="2"></th>
+								<th class="info" colspan="3">Бесплатные исходящие звонки</th>
+							</tr>
+							<tr>
+								<th class="info">звонки, мин</th>
+								<th class="info">смс, шт</th>
+								<th class="info">интернет, Мб</th>
+								<th class="info">роуминг</th>
+								<th class="info">направление</th>
+								<th class="info">на какого оператора</th>
+							</tr>
+						</thead>
+						
+						<tbody>
+							<tr><td colspan="0"></td></tr>
+						<% rating.each do |group_rating| %>
+							<% next if group_rating[:group].blank? %>
+							<% group_item = group_rating[:group][0] %>
+							<% option_links = [] %>
+							<% group_item[:option_names].each_with_index do |option_name, index|
+								option_links << link_to(option_name, 
+								tarif_class_by_operator_path(hash_with_region_and_privacy({:operator_id => group_item[:operator_slug], :id => group_item[:option_slugs][index]})), :target => "")
+							end %> 
+							 <% free_call_span = group_item[:free_call_directions].blank? ? 1 : group_item[:free_call_directions].size %>
+							<tr>
+								<td rowspan="<%= free_call_span %>"><%= group_item[:price] %> </td>	
+								<td rowspan="<%= free_call_span %>"><%= group_item[:operator_name] %> </td>	
+								<td rowspan="<%= free_call_span %>"><%= link_to(group_item[:tarif_name], 
+									tarif_class_by_operator_path(hash_with_region_and_privacy({:operator_id => group_item[:operator_slug], :id => group_item[:tarif_slug]})), 
+									:target => "") %> </td>	
+								<td rowspan="<%= free_call_span %>"><%= option_links.blank? ? "Не надо подключать дополнительные опции" : option_links.join(", ").html_safe %> </td>	
+								<td rowspan="<%= free_call_span %>"><%= group_item[:max_duration_minute].try(:round, 0).try(:to_s, :delimited, precision: 0) if group_item[:max_duration_minute] %> </td>	
+								<td rowspan="<%= free_call_span %>"><%= group_item[:max_count_volume].try(:round, 0).try(:to_s, :delimited, precision: 0) if group_item[:max_count_volume] %> </td>	
+								<td rowspan="<%= free_call_span %>"><%= group_item[:max_sum_volume].try(:round, 0).try(:to_s, :delimited, precision: 0) if group_item[:max_sum_volume] %> </td>
+								<td rowspan="<%= free_call_span %>"></td>	
+								<td><%= group_item[:free_call_directions][0].try(:[], 0) if group_item[:free_call_directions] %> </td>	
+								<td><%= group_item[:free_call_directions][0].try(:[], 1) if group_item[:free_call_directions]  %> </td>	
+								<td><%= group_item[:free_call_directions][0].try(:[], 2) if group_item[:free_call_directions]  %> </td>	
+							</tr>
+							<% group_item[:free_call_directions][1..-1].each do |free_call_direction_item| %>
+							<tr>
+								<td><%= free_call_direction_item.try(:[], 0) %> </td>	
+								<td><%= free_call_direction_item.try(:[], 1) %> </td>	
+								<td><%= free_call_direction_item.try(:[], 2) %> </td>	
+							</tr>
+							<% end if group_item[:free_call_directions][1..-1] %>
+							<tr><td colspan="0"></td></tr>
+							
+						<% end %>
+						</tbody>
+					</table>			
+				</div>
+			</div>	
+		</div>
+	</div>
+		<div class="panel-footer collapse in"  id="<%= rating[0][:id_ref] %>"  >
+			<div class="btn-toolbar">
+				<%= link_to("Перейти к детальным результатам", result_service_sets_result_path(hash_with_region_and_privacy({:result_run_id => rating[0][:result_run_id]})), 
+					{:class => "btn btn-primary btn_text_always_on_screen"} ) %>
+			</div>
+		</div>
+</div>

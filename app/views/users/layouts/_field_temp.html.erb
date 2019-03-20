@@ -1,0 +1,7 @@
+<% def field_temp(show_body = true) %>
+	<% if show_body %>
+	  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+		  <% yield %>
+	  <% end %>
+	<% end %>
+<% end %>

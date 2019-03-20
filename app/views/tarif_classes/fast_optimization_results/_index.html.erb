@@ -1,0 +1,25 @@
+	<div class="panel panel-success">
+		<div id="fast_optimization_results_body_2" class="panel panel-default">
+			<div class="panel-body" >
+				<div class="h3 text-center text-success">Выберите тарифы</div>
+				
+				<%= render :partial => 'tarif_classes/fast_optimization_results/estimate_cost_tarifs_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+					:locals => {:form_item => estimate_cost_tarifs_filtr}%>
+
+				<div class="h3 text-success text-center">Выберите параметры пользования мобильной связью для оценки бюджета</div>
+			
+				<p>
+				<%= render( :partial => 'tarif_classes/fast_optimization_results/options', :layout => 'application/layouts/filtr_form_n_columns', 
+					:locals => {:form_item => fast_optimization_options_form, :fast_optimization_options => fast_optimization_options} ) %>
+				</p>
+
+				<div class="h3 bg-primary text-primary text-center">Оценка стоимости пользования для выбранных тарифов</div>
+				
+				<p>
+				<%= render( :partial => 'tarif_classes/fast_optimization_results/results', 
+					:locals => {:fast_optimization_results_to_show => fast_optimization_results_to_show} ) %>
+				</p>
+			</div>
+		</div>
+	</div>
+

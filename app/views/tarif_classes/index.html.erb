@@ -1,0 +1,66 @@
+<% caption = "Все тарифы мобильных операторов России #{region_and_privacy_tag}" %>
+<% title "#{caption} - описание #{pagination_page_name('tarif_classes_page')} | Mytarifs.ru" %>
+<% description "Все тарифы мобильных операторов России #{region_and_privacy_tag} - описание. \
+				www.mytarifs.ru — помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг \
+				в области мобильной связи." %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class=""> <%= caption %></h1>
+            <span class="h5">Здесь вы можете выбрать и посмотреть подробное описание тарифов и опций. 
+            	Найти нужный тариф можно с помощью фильтра</span>
+            <hr>
+        </div>
+        <%= render :partial => "application/shared/social_share_buttons" %>
+        <br />
+    </div>
+</header>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :under_h1) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<br />
+<div class="btn-group" role="group" aria-label="...">
+	<% operator_link_html = {:class => "btn", :type =>"button", :remote => false} %>
+	<%= link_to( image_tag('mts.png', alt: "МТС"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Mts)}) ), operator_link_html) %>
+	<%= link_to( image_tag('beeline.png', alt: "Билайн"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Beeline)}) ), operator_link_html) %>
+	<%= link_to( image_tag('megafon.png', alt: "Мегафон"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Megafon)}) ), operator_link_html) %>
+	<%= link_to( image_tag('tele2.png', alt: "Теле2"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Tele2)}) ), operator_link_html) %>
+</div>
+
+<br />
+<div class="panel panel-success">
+	<div class="panel-body">
+		<div class="h4 text-center1 text-success">Выберите параметры отбора тарифов и опций</div>
+		<%= render :partial => 'tarif_class_filtr', 
+		:layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => tarif_class_filtr}%>	</div>
+	</div>
+</div>
+
+<% if user_type == :admin %>
+	<p>
+	<%= link_to( 'Создать новый тариф', new_tarif_class_path, {:class => "btn btn-success", :type => 'button', :rel => "nofollow"})  %>
+	<%= link_to( 'Mass edit', mass_edit_tarif_classes_path, {:class => "btn btn-success", :type => 'button', :rel => "nofollow"})  %>
+	</p>
+<% end %>
+<%= render :partial => 'tarif_classes', :layout => 'application/layouts/model_table', :locals => {:table => tarif_classes}%>
+
+<br />
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :bottom) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<%= render :partial => "application/shared/social_share_buttons" %>
+
+<br />
+<%= render :partial => "application/shared/hypercomments" %>
+

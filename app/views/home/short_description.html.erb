@@ -1,0 +1,20 @@
+<% title "Подбор лучшего тарифа" %>
+<% 
+	set_meta_tags(canonical: home_short_description_url(hash_with_region_and_privacy({}, 'personal', 'moskva_i_oblast') )) if 
+		home_short_description_path(hash_with_region_and_privacy({:trailing_slash => false}, 'personal', 'moskva_i_oblast') ) != request.path
+ %>
+
+<span class="h3">Описание возможностей сайта</span>
+<p>На сайте мы поможем вам подобрать оптимальный тариф и тарифные опции. 
+   Ниже приведено описание возможностей сайта.
+</p>
+
+<% accordion_page = session[:current_accordion_page].blank? ? 222 : session[:current_accordion_page]['home_opportunities_accord'].to_i %>
+
+<%= render :partial => 'home/opportunities', :layout => 'application/layouts/accordion_landing', 
+           :locals => {:name => 'home_opportunities_accord', :active => accordion_page} %>
+
+<p>
+	<%= link_to('Зарегистрироваться', new_user_registration_path, {:class => "btn btn-success", :type =>"button", :rel => "nofollow"}) %> 
+	<%= link_to('Войти', login_path, {:class => "btn btn-primary", :type =>"button", :rel => "nofollow"}) %> 
+</p>

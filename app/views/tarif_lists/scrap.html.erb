@@ -1,0 +1,5 @@
+<% title "Scrap" %>
+
+<%= render(:partial => 'tarif_lists/scrap/general/tarif_class_filtr', :layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => general_tarif_class_filtr}) %>
+<br>
+<%= render :partial => 'tarif_lists/scrap/tabs', :layout => 'application/layouts/tabs', :locals => {:name => 'tarif_list_scrap_tabs', :active => session[:current_tabs_page]['tarif_list_scrap_tabs'].to_i} %>

@@ -1,0 +1,101 @@
+<%
+form_item.init do |fi|
+  fi.set_fields do |f|
+  	action_path = f.object.id ? edit_cpanet_programs_item_path(f.object) : new_cpanet_program_item_path(params[:program_id])
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+	s = session_model_params(fi)
+	
+	source_desc = []
+	case program.source_type
+	when 'input'
+		source_desc += [
+		   	f.label("features[content_name]", "content_name", label_html),
+		   	f.text_field("features[content_name]", input_html.merge({:value => s["features"].try(:[], 'content_name') })),
+
+		   	f.label("features[source]", "source", label_html),
+		   	f.text_field("features[source]", input_html.merge({:value => s["features"].try(:[], 'source') })),
+		]
+	else
+		source_desc = nil
+	end
+	
+	page_item_filtr = Cpanet::PageType.page_item_filtr(program.page, program.page_param_filtr, program.page_id_filtr)
+	id = s['id'].blank? ? nil : s['id'].try(:to_i)
+
+    [ 
+	   [ 
+      	link_to('items', cpanet_program_items_path(params[:program_id] || f.object.try(:program_id)), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => true})
+	   ],
+	   [
+	   	f.label(:id, 'ID', label_html), 
+	   	f.number_field(:id, input_html.merge({:value => id, :disabled => true}))
+	   ],
+	   [
+	   	f.label(:name, 'Название  части программы', label_html), 
+	   	f.text_field(:name, input_html.merge({:value => s['name']}))
+	   ],
+	   [
+	   	f.label(:status, "Статус части программы", label_html),
+     	f.select(:status, ['active', 'disabled'], 
+	  	  {:include_blank => "select status", :selected => s["status"] }, input_html.merge({:size => 3}) )   
+	   ],	
+	   [
+	   	f.label("features[page_item]", "page_item", label_html),
+     	f.select("features[page_item]", page_item_filtr, 
+	  	  {:include_blank => "select page_item", :selected => s["features"].try(:[], 'page_item') }, input_html.merge({:size => [page_item_filtr.size, 10].min + 1 }) )   
+	   ],	
+	   [
+	   	f.label("features[page_item_name_for_check]", "page_item_name_for_check", label_html),
+	   	f.text_field("features[page_item_name_for_check]", input_html.merge({:value => s["features"].try(:[], 'page_item_name_for_check') }))
+	   ],	
+	   [
+	   	f.label("features[source]", "source", label_html),
+	   	f.text_area("features[source]", input_html.merge({:value => s["features"].try(:[], 'source'), :rows => 35 }))
+	   ],	
+	   [
+	   	f.label("features[content_name]", "content_name", label_html),
+	   	f.text_field("features[content_name]", input_html.merge({:value => s["features"].try(:[], 'content_name') }))
+	   ],	
+	   [
+	   	f.label("features[content_desc]", "content_desc", label_html),
+	   	f.text_field("features[content_desc]", input_html.merge({:value => s["features"].try(:[], 'content_desc') }))
+	   ],	
+
+	   [
+	   	f.label("features[is_for_yandex_rsy]", "For yandex rsy", label_html),
+     	f.select("features[is_for_yandex_rsy]", ['yes'], 
+	  	  {:include_blank => "use for yandex rsy", :selected => s["features"].try(:[], 'is_for_yandex_rsy') }, input_html.merge({:size => 2}) )   
+	   ],	
+	   [
+	   	f.label("features[use_yandex_adaptive_css_class]", "use_yandex_adaptive_css_class", label_html),
+     	f.select("features[use_yandex_adaptive_css_class]", ['yes'], 
+	  	  {:include_blank => "use use_yandex_adaptive_css_class", :selected => s["features"].try(:[], 'use_yandex_adaptive_css_class') }, input_html.merge({:size => 2}) )   
+	   ],	
+	   [
+	   	f.label("features[rtb_id_small]", "rtb_id_small", label_html),
+	   	f.text_field("features[rtb_id_small]", input_html.merge({:value => s["features"].try(:[], 'rtb_id_small') }))
+	   ],	
+	   [
+	   	f.label("features[rtb_id_middle]", "rtb_id_middle", label_html),
+	   	f.text_field("features[rtb_id_middle]", input_html.merge({:value => s["features"].try(:[], 'rtb_id_middle') }))
+	   ],	
+	   [
+	   	f.label("features[rtb_id_big]", "rtb_id_big", label_html),
+	   	f.text_field("features[rtb_id_big]", input_html.merge({:value => s["features"].try(:[], 'rtb_id_big') }))
+	   ],	
+	   [
+	   	f.label("features[stat_id]", "stat_id", label_html),
+	   	f.text_field("features[stat_id]", input_html.merge({:value => s["features"].try(:[], 'stat_id') }))
+	   ],	
+	   [ 
+      	link_to('items', cpanet_program_items_path(params[:program_id] || f.object.try(:program_id)), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => true})
+	   ],
+#	   source_desc,
+	].compact
+  end
+end
+%>
+

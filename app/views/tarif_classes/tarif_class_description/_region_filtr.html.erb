@@ -1,0 +1,42 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => action_name}
+  label_html = {:class => "control-label "}
+
+  clean_input_html = input_html.merge({:class => "updatable hidden"})
+  clean_label_html = {:class => "btn btn-success btn_text_always_on_screen", :type => "button"}
+  
+  region_key_to_filter_rus = {
+	  'own_country_regions' => ["Регион нахождения", "регион нахождения"],
+	  'abroad_countries' => ["Страна нахождения", "страну нахождения"],
+	  'to_own_country_regions' => ["Регион направления звонка", "регион направления звонка"],
+	  'to_other_countries' => ["Страна направления звонка", "страну направления звонка"],
+	  'to_abroad_countries' => ["Страна направления звонка", "страну направления звонка"],      
+  }
+
+  s = session_filtr_params(fi)	
+
+  fi.set_fields do |filtr_name|
+  	filtr_fields = []
+  	(region_key_to_filter_rus.keys & all_region_keys_to_filter).each do |region_key_to_filter|
+  		select_values = Service::CategoryTarifClassPresenter::RegionFiltrs[region_key_to_filter.to_sym][:filtr_query].order(:id)
+  		filtr_fields += [
+			label(filtr_name, region_key_to_filter, region_key_to_filter_rus[region_key_to_filter][0], label_html),
+	      	collection_select(filtr_name, region_key_to_filter, select_values, :id, :name, 
+	  	    	{:include_blank => "выберите #{region_key_to_filter_rus[region_key_to_filter][1]}", :selected => s[region_key_to_filter] }, 
+		  	  	input_html.merge({:size => 1}) )
+  		]
+  	end
+
+    [
+	   filtr_fields +
+	   [
+	   	content_tag(:p),
+	   	label(filtr_name, "clean_filtr", "Очистить фильтр", clean_label_html) + 
+	   	check_box_tag("tarif_class_description_region_filtr[clean_filtr]", s['clean_filtr'], 
+	   		nil, clean_input_html)
+	   ], 
+    ]
+  end
+end
+%>

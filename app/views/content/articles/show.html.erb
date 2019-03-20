@@ -1,0 +1,5 @@
+<% title t('.title') %>
+<% noindex 'googlebot' %>
+
+<%= render :partial => 'article', :layout => 'application/layouts/model_show', :locals => {:form_item => controller.content_article_form} %>
+

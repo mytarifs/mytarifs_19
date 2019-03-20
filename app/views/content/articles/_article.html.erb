@@ -1,0 +1,31 @@
+<%
+form_item.init do |fi|
+#  fi.caption =  'Профиль'
+	link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+
+  fi.set_fields do  |article| 
+    [
+      ['ID', article.id], 
+      [
+		link_to("Редактировать" , edit_content_article_path(article), link_to_html),
+		link_to("Список статей" , content_articles_path(hash_with_region_and_privacy), link_to_html),      	
+      ],
+      ['Автор', (article.author.name if article.author)], 
+      ['Тип статьи', article.type_name], 
+      ['Статус публикации', article.publish_status_name], 
+      ['Название', article.title], 
+      ['Tarif_id', article.tarif_id],
+      ['Comparison_id', article.comparison_id],
+      ['Operator_id', article.operator_id],
+      ['Tags - title', article.tag_title], 
+      ['Tags - description', article.tag_description], 
+      ['Tags - keywords', article.tag_keywords], 
+      ['Содержание - Название', article.content_title], 
+      ['Содержание - Основной текст', article.content_body], 
+      ['Содержание - Название файла с изображение', article.image_name], 
+      ['Содержание - Название изображения', article.image_title], 
+      ['Содержание - Использовать noindex', article.is_noindex], 
+    ] 
+  end  
+end
+%>

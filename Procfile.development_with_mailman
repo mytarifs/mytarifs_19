@@ -1,0 +1,3 @@
+web: bundle exec rails s
+mailer:  ruby bin/mailman_server.rb
+mailman: bundle exec ruby bin/mailman_server.rb

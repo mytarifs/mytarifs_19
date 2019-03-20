@@ -1,0 +1,76 @@
+<% 
+report_structure = {
+	:fixed => {:name => "Разовые или постоянные платежи", :base => :fixed, :additional => [], :excuded_name => nil},
+	:included_in_tarif_calls => {:name => " Предоплаченные объемы звонков", :base => :included_in_tarif, :additional => [:calls], :excuded_name => "свой и домашний регион1"},
+	:included_in_tarif_sms => {:name => " Предоплаченные объемы смс", :base => :included_in_tarif, :additional => [:sms], :excuded_name => "свой и домашний регион1"},
+	:included_in_tarif_mms => {:name => " Предоплаченные объемы ммс", :base => :included_in_tarif, :additional => [:mms], :excuded_name => "свой и домашний регион1"},
+	:included_in_tarif_internet => {:name => " Предоплаченные объемы интернета", :base => :included_in_tarif, :additional => [:internet], :excuded_name => "свой и домашний регион1"},
+
+	:home_and_own_regions_rouming_calls => {:name => "Домашний регион, звонки", :base => :others, :additional => [:home_and_own_regions_rouming, :calls], :excuded_name => "свой и домашний регион"},
+	:home_and_own_regions_rouming_sms => {:name => "Домашний регион,  смс", :base => :others, :additional => [:home_and_own_regions_rouming, :sms], :excuded_name => "свой и домашний регион"},
+	:home_and_own_regions_rouming_mms => {:name => "Домашний регион, ммс", :base => :others, :additional => [:home_and_own_regions_rouming, :mms], :excuded_name => "свой и домашний регион"},
+	:home_and_own_regions_rouming_internet => {:name => "Домашний регион, интернет", :base => :others, :additional => [:home_and_own_regions_rouming, :internet], :excuded_name => "свой и домашний регион"},
+
+	:own_country_rouming_calls => {:name => "Путешествую по стране, звонки", :base => :others, :additional => [:own_country_rouming, :calls], :excuded_name => "своя страна"},
+	:own_country_rouming_sms => {:name => "Путешествую по стране,  смс", :base => :others, :additional => [:own_country_rouming, :sms], :excuded_name => "своя страна"},
+	:own_country_rouming_mms => {:name => "Путешествую по стране, ммс", :base => :others, :additional => [:own_country_rouming, :mms], :excuded_name => "своя страна"},
+	:own_country_rouming_internet => {:name => "Путешествую по стране, интернет", :base => :others, :additional => [:own_country_rouming, :internet], :excuded_name => "своя страна"},
+
+	:international_rouming_calls => {:name => "Международный роуминг, звонки", :base => :others, :additional => [:international_rouming, :calls], :excuded_name => "международный роуминг"},
+	:international_rouming_sms => {:name => "Международный роуминг,  смс", :base => :others, :additional => [:international_rouming, :sms], :excuded_name => "международный роуминг"},
+	:international_rouming_mms => {:name => "Международный роуминг, ммс", :base => :others, :additional => [:international_rouming, :mms], :excuded_name => "международный роуминг"},
+	:international_rouming_internet => {:name => "Международный роуминг, интернет", :base => :others, :additional => [:international_rouming, :internet], :excuded_name => "международный роуминг"},
+}
+item_categories = {}; asterics = {}
+report_structure.each do |filtr, details|
+	item_categories[filtr] ||= {}; formula_ids = []
+	region_txt = m_region
+
+	Service::CategoryGroupPresenter.category_groups_by_types(tarif_classes.keys, region_txt, details[:base], details[:additional]).each do |group_item|
+		group_item.service_category_tarif_classes.each do |sctc|
+
+	        global_categories = Optimization::Global::Base::CategoryHelper.global_categories_from_uniq_category(sctc.attributes)
+	        
+	        if global_categories[3] and !global_categories[3][1].blank?
+	          operator_names = Category.select(:id, :name).where(:id => global_categories[3][1].uniq).pluck(:name)
+	          global_categories[3][0] = global_categories[3][0] == "in" ? "на" : "кроме"
+	          global_categories[3] = global_categories[3][1].size == 1 ? "#{global_categories[3][0]} своего оператора" : "#{global_categories[3][0]} #{operator_names.join(', ')}" 
+	        end
+	        
+	        global_categories = global_categories.map{|category_name| Optimization::Global::Base::Dictionary.tr(category_name)}
+	        raise(StandardError, [
+	        	global_categories
+	        ]) if false and !global_categories.flatten.compact.blank?
+
+			category = [global_categories[1], global_categories[0], (global_categories[2..-1].compact - [details[:excuded_name]]).join(", ")]
+			item_categories[filtr][category] ||= {}
+			item_categories[filtr][category][group_item.tarif_class_id] ||= []
+			group_item.try(:price_lists).try(:first).try(:formulas).each do |formula|
+				item_categories[filtr][category][group_item.tarif_class_id] << price_presenter(formula, sctc)
+				formula_ids << formula.standard_formula_id
+			end	if group_item.try(:price_lists).try(:first).try(:formulas)
+		end
+	end
+	asterics[filtr] = show_asterics_for_formula_details(formula_ids.uniq) 
+end
+%>
+
+<% item_categories.each do |filtr, item_categories_by_filtr| %>
+	<% if filtr == :home_and_own_regions_rouming_calls %>
+		<div class="h3 text-center">Услуги не включенные в абонентскую плату</div>
+	<% end %>
+	<% next if item_categories_by_filtr.size == 0 %>
+<div class="my_collapsable h4 text-center">
+	<a my_collapsable="true" data-toggle="collapse" href="#<%=filtr%>" aria-expanded="true" aria-controls="<%=filtr%>">
+		<%= report_structure[filtr][:name] %> <span class="<%= "true" ? "fa fa-angle-up fa-lg" : "fa fa-angle-down fa-lg" %>"></span>
+	</a>
+</div>
+<div class="table-responsive">
+	<div class="row collapse in" id="<%=filtr%>">
+		<div class="col-xs-12">
+			<%= render partial: "tarif_classes/compare_tarifs/full_category_group_item", 
+				locals: {:item_categories_by_filtr => item_categories_by_filtr, :tarif_classes => tarif_classes, :asterics => asterics[filtr]} %>
+		</div>
+	</div>
+</div>
+<% end %>

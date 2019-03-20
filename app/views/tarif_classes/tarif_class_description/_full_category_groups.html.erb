@@ -1,0 +1,105 @@
+<% 
+	m_region_to_use = m_region
+	region_id_to_use = Category::MobileRegions[m_region_to_use].try(:[], 'region_ids'). try(:[], 0)
+	
+	services_with_support_service = TarifClass.where(privacy_id:  tarif_class.privacy_id).region_txt(m_region_to_use).
+		services_with_support_service(tarif_class.id, m_region_to_use)
+
+	raise(StandardError) if false
+	if services_with_support_service.size == 0
+		tarif_class_id_to_show = tarif_class.id; support_service_id = nil		
+	else
+		if session[:filtr]["services_with_support_service_filtr"].try(:[], "support_service_id").blank?
+			session[:filtr]["services_with_support_service_filtr"] ||= {}
+			session[:filtr]["services_with_support_service_filtr"]["support_service_id"] = services_with_support_service[0].id
+		end
+
+		tarif_class_id_to_show = session[:filtr]["services_with_support_service_filtr"]["support_service_id"].to_i
+		support_service_id = tarif_class.id		
+	end
+		
+	support_service_ids = TarifClass.support_services(m_region_to_use, [tarif_class_id_to_show]).special_services.map(&:id).uniq - [support_service_id].compact
+	support_services = TarifClass.where(id: support_service_ids)
+	incombatibility_groups = TarifClass.incombatibility_groups(support_service_ids)
+	incombatibility_group_names = incombatibility_groups.map(&:key)
+
+	filtred_regions = {} 
+	(session[:filtr].try(:[], 'tarif_class_description_region_filtr') || {}).except('clean_filtr').select{|key, value| filtred_regions[key] = value if !value.blank? }
+	all_region_keys_to_filter = all_region_keys_to_filter(tarif_class_id_to_show, support_service_id, m_region_to_use)
+
+	chosen_support_service_ids = (session[:filtr]["tarif_class_description_support_services_filtr"].try(:[], "additional_options") || {}).
+		map{|k, v| 
+			(incombatibility_groups.blank? or !incombatibility_group_names.include?(k)) ? (k.to_i if v == "true") : (v.to_i if v.to_i != -1) }.uniq.compact
+
+	chosen_support_service_ids << support_service_id if support_service_id
+	
+	item_categories = Service::CategoryGroupPresenter.item_categories(tarif_class_id_to_show, support_service_id, m_region_to_use, expand_all, filtred_regions, chosen_support_service_ids)
+	
+%> 
+
+	<% if services_with_support_service.size > 0 %>
+	<div class="panel panel-success">
+		<div class="panel-body">
+			<p class="text-success">Данная опция расширяет возможности уже подключенных тарифа или тарифной опции. Для просмотра результата выберите базовый тариф или опцию из списка.</p>
+			<%= render(:partial => 'tarif_classes/tarif_class_description/services_with_support_service_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+				:locals => {:form_item => services_with_support_service_filtr, 
+							:services_with_support_service => services_with_support_service, :action_name => action_name}) %>
+		</div>
+	</div>
+	<% end %>
+	
+	<% if !all_region_keys_to_filter.blank? %>
+	<div class="panel panel-success">
+		<div class="panel-body">
+			<p class="text-success">Выберите регион или страну для выбора роуминга или направления звонков.</p>
+			<%= render(:partial => 'tarif_classes/tarif_class_description/region_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+				:locals => {:form_item => tarif_class_description_region_filtr, 
+							:all_region_keys_to_filter => all_region_keys_to_filter, :action_name => action_name}) %>
+		</div>
+	</div>
+	<% end %>
+
+	<% if !support_services.blank? %>
+	<div class="panel panel-success">
+		<div class="panel-body">
+			<p class="text-success">Для тарифа или опции доступны дополнительные опции. Выберите нужные для просмотра.</p>
+			<%= render(:partial => 'tarif_classes/tarif_class_description/support_services_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+				:locals => {:form_item => tarif_class_description_support_services_filtr, :support_services => support_services, 
+							:incombatibility_groups => incombatibility_groups, :action_name => action_name}) %>
+		</div>
+	</div>
+	<% end %>
+
+<div class="h3 bg-primary text-primary text-center">Стоимость услуг</div>
+
+	<% item_categories.each do |report_group, details| %>
+
+		<% if details[:show_unpaid_services_section_title] %>
+			<div class="h3 bg-primary text-primary text-center">Услуги, не включенные в абонентскую плату</div>
+		<% end %>
+		
+		<% if expand_all == 'false' and  details[:expanded] == 'false' and details[:expand_all_button_is_not_yet_shown] %>
+			<div class="col-xs-12 text-right">
+				<%= render( :partial => 'tarif_classes/tarif_class_description/expand_all', :layout => 'application/layouts/filtr_form_inline', 
+					:locals => {:form_item => controller.expand_all_filtr}) %>		
+			</div>
+		<% end %>
+
+
+		<% if !details[:hide_item_heads] %>
+			<div class="clearfix"></div>
+			<div class="my_collapsable <%= (report_group.to_sym == :included_in_tarif) ? 'h3' : 'h4' %> bg-primary text-primary text-center">
+				<a my_collapsable="true" data-toggle="collapse" href="#<%=report_group.to_sym%>" aria-expanded=<%=details[:expanded] %> aria-controls="<%=report_group.to_sym%>">		
+					<%= details[:name] %> <span class="<%= details[:expanded] == "true" ? "fa fa-angle-up fa-lg" : "fa fa-angle-down fa-lg" %>"></span>
+				</a>
+			</div>
+		<% end %>
+
+		<div class="row <%=details[:expanded_class] %>" id="<%=report_group.to_sym%>">
+			<div class="col-xs-12">
+				<%= render partial: "tarif_classes/tarif_class_description/full_category_group_item", 
+					locals: {:report_group => report_group, :item_categories => details, :excuded_name => details[:excuded_name], :hide_table_heads => details[:hide_table_heads] }%>
+			</div>
+		</div>
+
+	<% end %>

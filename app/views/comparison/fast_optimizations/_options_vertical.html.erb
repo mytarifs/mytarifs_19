@@ -1,0 +1,42 @@
+<%
+form_item.init do |f|
+#  f.caption = "Choice of service"	
+  f.set_fields do |filtr_name|
+#	input_html = {:filtr_name => form_item.filtr_name, :action_name => action_name_path}
+#	button_input_html = input_html.merge({:class => "form-control updatable hidden"})
+	input_html = {:filtr_name => form_item.filtr_name}
+	button_input_html = input_html.merge({:class => "hidden"})
+
+	button_on_class = "btn-warning"
+	button_off_class = "btn-default"
+	label_html = {:class => ""}
+	button_group_class = "btn-group btn-group-justified btn-group-sm"
+	button_base_class = "btn btn_text_always_on_screen "
+	
+
+    s = session_filtr_params(f)
+
+	tarif_condition = s['operator_id'].blank? ? Category::Operator::Const::OperatorsForOptimization : s['operator_id']
+	
+	result = []
+	result += fast_optimization_options.keys.map do |part|
+		initial_value = s.try(:[], part).blank? ? fast_optimization_options[part][:options].try(:to_a).try(:[], 0).try(:[], 0).try(:to_s) : s.try(:[], part)
+		[
+			label(filtr_name, part, fast_optimization_options[part][:name], label_html),
+			content_tag(:div, class: button_group_class) do
+				collection_radio_buttons(filtr_name, part, fast_optimization_options[part][:options].to_a.map{|r| [r[0].to_s, r[1].to_s]}, :first, :second) do |b|
+					button_class, checked = (b.value.try(:to_s) == initial_value ? ["#{button_base_class}  #{button_on_class}", {"checked" => "checked"}] : ["#{button_base_class}  #{button_off_class}", {}])
+					b.label(class: button_class, button_off_class: button_off_class, button_on_class: button_on_class) + b.radio_button(button_input_html.merge(checked))
+				end
+			end,
+		]
+	end
+	
+	result << [
+		"",
+		submit_tag("Подобрать тарифы", class: "btn btn_text_always_on_screen btn-success")
+	]
+
+  end
+end
+%>

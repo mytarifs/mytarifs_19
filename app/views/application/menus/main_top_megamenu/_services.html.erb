@@ -1,0 +1,75 @@
+<%
+special_services = [
+	link_to("Детальный подбор тарифа", result_detailed_calculations_new_path(hash_with_region_and_privacy)),
+	link_to("Оценка затрат для выбранного тарифа", estimate_cost_tarif_class_path(hash_with_region_and_privacy)),
+	link_to("Инструкция по подбору", home_detailed_description_path(hash_with_region_and_privacy)),
+]
+
+
+ratings = [
+	link_to('Свод рейтингов', comparison_choose_your_tarif_from_ratings_path(hash_with_region_and_privacy)),
+	link_to('Рейтинги тарифов мобильной связи', comparison_optimizations_path(hash_with_region_and_privacy)),
+	link_to("Рейтинг безлимитных тарифов", comparison_unlimited_rating_path(hash_with_region_and_privacy({:name => 'reiting_bezlimitnyh_tarifov'}))),
+	link_to("Рейтинг безлимитных тарифов для интернета", 
+		comparison_unlimited_rating_for_internet_path(hash_with_region_and_privacy({:name => 'reiting_bezlimitnyh_tarifov_i_optsii_dlya_interneta'}))),
+]
+
+calculators = [
+	link_to('Калькулятор тарифов мобильной связи', comparison_fast_optimizations_path(hash_with_region_and_privacy)),
+	link_to("Калькулятор тарифов для планшета", 
+		comparison_fast_optimizations_for_planshet_path(hash_with_region_and_privacy({:name => 'dlya_plansheta'})))
+]
+comparisons = [
+	link_to('Сравнение тарифов', compare_tarifs_path(hash_with_region_and_privacy)),
+	link_to("Сравнение тарифов для планшета", compare_tarifs_for_planshet_path(hash_with_region_and_privacy({:name => 'dlya_plansheta'})))
+]
+
+ratings_by_operator = []; calculators_by_operator = []; comparisons_by_operator = []
+Category::Operator.operators_with_tarifs.map do |operator|
+	ratings_by_operator << link_to("Рейтинги тарифов для #{operator.name}", 
+		comparison_optimizations_by_operator_path(hash_with_region_and_privacy({:operator_id => operator})))
+	calculators_by_operator << link_to("Тарифный калькулятор #{operator.name}", 
+		comparison_fast_optimizations_by_operator_path(hash_with_region_and_privacy({:operator_id => operator})))
+	comparisons_by_operator << link_to("Сравнение тарифов #{operator.name}", 
+		compare_tarifs_by_operator_path(hash_with_region_and_privacy({:operator_id => operator})))
+end
+
+%>
+
+
+<ul class="dropdown-menu yamm-content  hidden-xs">
+	<li class="yamm-li-style">
+		<ul class="col-xs-0 col-sm-3 col-md-3 list-unstyled">
+            <li>
+            	<a class="h5"><i class="icon-lg1 fa fa-money fa-2x1"></i><u> Индивидуальное</u></a><br /><br />
+            </li>
+			<% special_services.each do |link| %>
+				<li class="btn_text_always_on_screen1"><%= link.html_safe %></li>
+			<% end %>
+		</ul>
+		<ul class="col-xs-0 col-sm-3 col-md-3 list-unstyled">
+            <li>
+            	<a class="h5"><i class="icon-lg1 fa fa-sort-amount-desc fa-2x1"></i><u> Рейтинги</u></a><br /><br />
+            </li>
+			<% (ratings + ratings_by_operator).each do |link| %>
+				<li class="btn_text_always_on_screen1 list-unstyled"><%= link.html_safe %></li>
+			<% end %>
+		</ul>
+		<ul class="col-xs-0 col-sm-3 col-md-3 list-unstyled">
+            <li>
+            	<a class="h5"><i class="icon-lg1 fa fa-calculator fa-2x1"></i><u> Калькуляторы</u></a><br /><br />
+            </li>
+			<% (calculators + calculators_by_operator).each do |link| %>
+				<li class="btn_text_always_on_screen1"><%= link.html_safe %></li>
+			<% end %>
+		</ul>
+		<ul class="col-xs-0 col-sm-3 col-md-3 list-unstyled">
+            <li>
+            	<a class="h5"><i class="icon-lg1 fa fa-list-ul fa-2x1"></i><u> Сравнение тарифов</u></a><br /><br />
+            </li>
+			<% (comparisons + comparisons_by_operator).each do |link| %>
+				<li class="btn_text_always_on_screen1"><%= link.html_safe %></li>
+			<% end %>
+		</ul>
+	</li>	
+</ul>

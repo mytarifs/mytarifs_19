@@ -1,0 +1,46 @@
+<div class="panel panel-default" >
+	<div class="panel-heading text-center">
+		<div class="my_collapsable h4">
+			<a my_collapsable="true" data-toggle="collapse" href="#<%=rating[0][:id_ref]%>" aria-expanded="true" aria-controls="<%=rating[0][:id_ref]%>">
+				<%= rating[0][:comparison_optimization_name] %><span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>
+	</div>
+	<div class="panel-body collapse in" id="<%= rating[0][:id_ref] %>">
+		<table class='table table-bordered table-hover table-condensed text-center'>
+			<thead> 
+				<tr>
+				<% ["Корзина", "Стоимость", "Тариф", "Опции"].each do |heading| %>
+					<th class="info"><%= heading.to_s %></th>
+				<% end %>
+				</tr>
+			</thead>
+			
+			<tbody>
+			<% rating.each do |comparison_result| %>
+				<% 
+					next if comparison_result[:group][0].nil?
+					group_result = comparison_result[:group][0] 
+					option_links = [] 
+		  			group_result[:option_slugs].each_with_index do |option_slug, index|
+		  				option_links << link_to("#{group_result[:option_names][index]}", tarif_class_path(hash_with_region_and_privacy({:id => option_slug})), {:target => ""})
+		  			end
+				%>
+				<tr>
+					<td><%= comparison_result[:comparison_group_name] %> </td>	
+					<td><%= group_result[:price] %> </td>	
+					<td><%= link_to(group_result[:tarif_name], tarif_class_path(hash_with_region_and_privacy({:id => group_result[:tarif_slug]})), :target => "") %> </td>	
+					<td><%= option_links.blank? ? "Не надо подключать дополнительные опции" : option_links.join(", ").html_safe %> </td>	
+				</tr>
+			<% end if rating %>
+			</tbody>
+		</table>
+	</div>
+		<div class="panel-footer collapse in"  id="<%= rating[0][:id_ref] %>"  >
+			<div class="btn-toolbar">
+				<%= link_to("Перейти к детальным результатам", 
+					comparison_optimization_by_operator_path(hash_with_region_and_privacy({:operator_id => @operator.slug, :id => rating[0][:comparison_optimization_slug]})), 
+					{:class => "btn btn-primary"} ) %>
+			</div>
+		</div>
+</div>

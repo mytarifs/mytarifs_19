@@ -1,0 +1,100 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => parsed_tarif_lists_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label "}
+  s = session[:filtr]['parsed_tarif_lists_filtr'] || {}	
+  tarif_class_filtr = session[:filtr]['parsed_tarif_lists_tarif_class_filtr'] || {}
+
+  tarif_regions = Category.where(:id => TarifList.pluck(:region_id).uniq)
+  
+  base_tarif_lists = TarifList.includes(:tarif_class, :region).joins(:tarif_class).where(:tarif_class_id => tarif_class_filtr['tarif_class_id'].try(:to_i))
+  	
+  possible_statuses = TarifList.where(:id => base_tarif_lists.pluck("id")).select("distinct((tarif_lists.features->>'status')::text) as status_1").map{|r| r.status_1}.compact - ['']
+  
+  chosen_statuses = (((s['status'] || []) - ['']) || []).map{|st| "'#{st}'"}.join(', ')
+  s['status'] = nil if chosen_statuses.blank?
+  base_tarif_lists = base_tarif_lists.where("(tarif_lists.features->>'status')::text in (#{chosen_statuses}) or (tarif_lists.features->>'status')::text is null") if !s['status'].blank?
+  
+  first_level_fields_to_show = (saved_parsed_tarif_lists.first || [1, {}])[1].try(:keys)
+  service_desc_fields_to_show = {'0' => [], '1' => [], '2' => [], '3' => [], '4' => []} 
+  (saved_parsed_tarif_lists || {}).values.map do |v| 
+  	global_categories = v.try(:[], 'service_desc').try(:keys)
+  	global_categories.each do |original_global_category|
+  		global_category = original_global_category.is_a?(String) ? eval(original_global_category) : original_global_category
+	  	service_desc_fields_to_show['0'] += ([global_category[0]] - service_desc_fields_to_show['0'])
+	  	service_desc_fields_to_show['1'] += ([global_category[1]] - service_desc_fields_to_show['1'])
+	  	service_desc_fields_to_show['2'] += ([global_category[2]] - service_desc_fields_to_show['2'])
+	  	service_desc_fields_to_show['3'] += ([global_category[3]] - service_desc_fields_to_show['3'])
+	  	service_desc_fields_to_show['4'] += ([global_category[4]] - service_desc_fields_to_show['4'])
+  	end
+  end
+  
+  fi.set_fields do |filtr_name|
+	  service_desc_fields_to_show_filtr = [
+      	label(filtr_name, "hide_service_desc_name", "hide_service_desc_name", label_html) +
+      	select(filtr_name, "hide_service_desc_name", [['service_desc_group_name'], ['service_desc_sub_group_name'], ['field_name'],], 
+	  	{:include_blank => "выберите статус", :selected => (s["hide_service_desc_name"])}, input_html.merge({:multiple => true, :size => 4}) ) +
+
+      	label(filtr_name, "source_for_parsed_service", "source_for_parsed_service", label_html) +
+      	select(filtr_name, "source_for_parsed_service", ['current_saved_parsed_service', 'prev_saved_parsed_service'], 
+	  	{:include_blank => 'unsaved_parsed_service', :selected => (s["source_for_parsed_service"])}, input_html.merge({:size => 3}) ) +
+
+	   	label(filtr_name, "save_parsed_service_for_filtered_tarif_list", "save_parsed_service_for_filtered_tarif_list", {:class => "btn btn-success ", :type => "button"}) +
+	   	check_box_tag("parsed_tarif_lists_filtr[save_parsed_service_for_filtered_tarif_list]", "true", nil, input_html.merge({:class => "updatable hidden" }))
+	   	
+	  ]
+	  service_desc_fields_to_show_filtr += service_desc_fields_to_show.keys.map do |global_index|
+	  	label(filtr_name, "service_desc_fields_to_show[#{global_index}]", "service_desc_fields_to_show[#{global_index}]", label_html) +
+	  	select(filtr_name, "service_desc_fields_to_show[#{global_index}]", service_desc_fields_to_show.try(:[], global_index), 
+	  	{:include_blank => "выберите статус", :selected => (s["service_desc_fields_to_show"].try(:[], global_index))}, 
+	  	input_html.merge({:multiple => true, :size => service_desc_fields_to_show.try(:[], global_index).try(:size) + 1}) )
+	  end#.join('').html_safe
+	  
+    [
+	   [
+	   	label(filtr_name, "region_id", 'region_id', label_html),
+      	collection_select(filtr_name, "region_id", tarif_regions, :id, :name, 
+	  	{:include_blank => "выберите регион", :selected => s["region_id"] }, input_html.merge({:multiple => true, :size => [15, tarif_regions.size + 1].min}) ),
+
+      	label(filtr_name, "status", "status", label_html),
+     	select(filtr_name, "status", possible_statuses, 
+	  	  {:include_blank => true, :selected => s["status"]}, input_html.merge({:multiple => true, :size => possible_statuses.size + 1})) +
+
+      	label(filtr_name, "show_null_status", "show_null_status", label_html) +
+      	select(filtr_name, "show_null_status", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_null_status"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "show_empty_tarif_list_for_parsing_ids", "show_empty_tarif_list_for_parsing_ids", label_html) +
+      	select(filtr_name, "show_empty_tarif_list_for_parsing_ids", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_empty_tarif_list_for_parsing_ids"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "show_only_empty_h1", "show_only_empty_h1", label_html) +
+      	select(filtr_name, "show_only_empty_h1", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_only_empty_h1"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "show_regions_as_columns", "show_regions_as_columns", label_html) +
+      	select(filtr_name, "show_regions_as_columns", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_regions_as_columns"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "hide_blank_param_values", "hide_blank_param_values", label_html) +
+      	select(filtr_name, "hide_blank_param_values", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["hide_blank_param_values"])}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "first_level_fields_to_show", "first_level_fields_to_show", label_html),
+      	select(filtr_name, "first_level_fields_to_show", first_level_fields_to_show, 
+	  	{:include_blank => "выберите статус", :selected => (s["first_level_fields_to_show"])}, 
+	  	input_html.merge({:multiple => true, :size => first_level_fields_to_show.try(:size) + 1}) ) +
+
+      	label(filtr_name, "row_per_page", "Кол-во записей на странице", label_html) +
+      	select(filtr_name, "row_per_page", [10, 25, 100, 500], 
+	  	{:selected => (s["row_per_page"] || 25)}, input_html.merge({:size => 4}) ) +
+
+      	label(filtr_name, "max_value_string_size", "max_value_string_size", label_html) +
+      	select(filtr_name, "max_value_string_size", [10, 30, 100], 
+	  	{:include_blank => "выберите size", :selected => (s["max_value_string_size"] || nil)}, input_html.merge({:size => 4}) ),
+
+	   ] + service_desc_fields_to_show_filtr
+    ].compact
+  end
+end
+%>

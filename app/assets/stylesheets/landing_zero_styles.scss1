@@ -1,0 +1,515 @@
+/*
+Landing Zero theme - A free landing page theme from BootstrapZerobg-primary
+http://www.bootstrapzero.com
+*/
+
+$body-bg:               #F9FDFF !default;
+$gray-base:              #000 !default;
+$gray:                   lighten($gray-base, 33.5%) !default;
+
+$bg-primary-background-color: darken($body-bg, 6.5%) !default; //#333;
+$bg-primary-color: darken($gray-base, 20.0%) !default; //#eee
+
+$bg-dark-background-color: darken($body-bg, 13.5%) !default; //#222
+$bg-dark-color: darken($gray-base, 13.5%) !default; //#eee
+
+$body-background-color: $body-bg; //#e4e4e4; //#282828;
+$body-color: #2d2d2d; //#d3d3d3;
+$body-webkit-tap-highlight-color: $bg-dark-background-color;
+
+$hr-border-color: $gray-base; // #fff
+
+$a-color: #317eb0; //#9c27b0;
+$a-focus-color: #317ec1; //#9c27c1;
+
+$text-faded-color: rgba(11,11,11,0.7); // rgba(245,245,245,0.7);
+$text-dark-color: #eee; // #111;
+$text-primary-color: $a-color;
+
+$modal-content-background-color: $body-bg; // #1d1d1d;
+
+$navbar-default-background-color: $bg-dark-background-color;
+$navbar-default-focus-background-color: #e8e8e8; // #181818;
+$navbar-default-border-color: rgba(221,221,221,.05); //rgba(35,35,35,.05);
+$navbar-default-nav-li-a-color: $bg-dark-color;
+$navbar-default-nav-li-a-media-768-color: rgba(1,1,1,0.8); //rgba(255,255,255,0.8);
+$navbar-default-nav-li-a-hover-color: $a-color;
+$navbar-default-nav-li-a-hover-media-768-color: #020202; //#fefefe;
+$navbar-default-nav-li-active-a-color: $a-color;
+$navbar-default-header-brand-focus-media-768-color: #0c0c0c; //#f4f4f4;
+
+$navbar-header-color: $a-color;
+$navbar-header-focus-color: #8b27b0;
+$navbar-header-brand-media-768-color: rgba(1,1,1,0.7); //rgba(255,255,255,0.7);
+
+$navbar-default_affix-media-768-background-color: darken($body-bg, 20.0%) !default;
+$navbar-default_affix-media-768-border-color: rgba(222,222,222,.05); // rgba(34,34,34,.05);
+$navbar-default_affix-media-768-color: $a-color;
+$navbar-default_affix-focus-media-768-color: $navbar-header-focus-color;
+$navbar-default_affix-nav-li-a-media-768-color: #232323; //#ddd;
+$navbar-default_affix-nav-li-a-focus-media-768-color: $a-color;
+
+$header-background-color: $body-background-color; //#c9c9c9;
+$header-color: $hr-border-color;
+$header-content-inner-color: $navbar-header-brand-media-768-color;
+
+$footer-background-color: $body-bg; //#2d2d2d;
+
+$btn-default-background-color: $hr-border-color;
+$btn-default-border-color: $hr-border-color;
+$btn-default-color: $bg-dark-background-color;
+$btn-default-active-background-color: #0e0e0e; // #f2f2f2;
+$btn-default-focus-border-color: #131313; // #ededed;
+$btn-default-focus-color: $bg-dark-background-color;
+$btn-default-fieldset-disabled-background-color: $btn-default-background-color;
+$btn-default-fieldset-disabled-border-color: $hr-border-color;
+$btn-default-badge-background-color: $bg-dark-background-color;
+$btn-default-badge-color: $hr-border-color;
+
+$btn-primary-border-color: #101010; //#f0f0f0;
+$btn-primary-color: $gray-base; // no definition here
+
+$selection-background-color: $bg-dark-background-color;
+$selection-color: $hr-border-color;
+
+$moz-selection-background-color: $bg-dark-background-color;
+$moz-selection-color: $hr-border-color;
+
+$img-selection-color: $hr-border-color;
+$img-moz-selection-color: $hr-border-color;
+
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    font-family: 'Questrial','Helvetica Neue',Arial,sans-serif;
+    background-color: $body-background-color;
+    color: $body-color;
+    webkit-tap-highlight-color: $body-webkit-tap-highlight-color; 
+}
+
+hr {
+    max-width: 80px;
+    border-width: 3px;
+    opacity: 0.09;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+hr.light {
+    border-color: $hr-border-color; 
+}
+
+a {
+    color: $a-color; 
+    -webkit-transition: all .35s;
+    -moz-transition: all .35s;
+    transition: all .35s;
+}
+
+a:hover,
+a:focus {
+    color: $a-focus-color; 
+    outline: 0;
+}
+
+h1,h2,h3,h4,h5,h6 {
+    font-family: 'Questrial','Helvetica Neue',Arial,sans-serif;
+}
+
+p {
+    font-size: 17px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.text-muted {
+	color: #444;
+}
+
+.wide-space {
+    letter-spacing: 1.6px;
+}
+
+.icon-lg {
+    font-size: 50px;
+    line-height: 18px;
+}
+
+.bg-primary {
+    background-color: $bg-primary-background-color; 
+    color: $bg-primary-color;
+}
+
+.bg-dark {
+    color: $bg-dark-color; 
+    background-color: $bg-dark-background-color; 
+}
+
+.cursive {
+    font-family: 'Dancing Script', cursive;
+    text-transform: none;
+}
+
+.text-faded {
+    color: $text-faded-color; 
+}
+
+.text-dark {
+    color: $text-dark-color; 
+}
+
+.text-primary {
+    color: $text-primary-color; 
+}
+
+.modal-content {
+    background-color: $modal-content-background-color; 
+}
+
+section {
+    padding: 70px 0;
+}
+
+aside {
+    padding: 50px 0;
+}
+
+footer {
+    padding: 15px;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.navbar-default {
+    border-color: $navbar-default-border-color; 
+    font-family: 'Questrial','Helvetica Neue',Arial,sans-serif;
+    background-color: $navbar-default-background-color; 
+    -webkit-transition: all .4s;
+    -moz-transition: all .4s;
+    transition: all .4s;
+}
+
+.navbar-header > .navbar-brand {
+    font-family: 'Questrial','Helvetica Neue',Arial,sans-serif;
+    color: $navbar-header-color; 
+    padding: 15px;
+    -webkit-transition: padding .2s ease-in;
+    -moz-transition: padding .2s ease-in;
+    transition: padding .2s ease-in;
+}
+
+.navbar-header > .navbar-brand:hover,
+.navbar-header > .navbar-brand:focus {
+    color: $navbar-header-focus-color; 
+}
+
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
+    background-color: $navbar-default-focus-background-color; 
+}
+.navbar-default .navbar-toggle, .navbar-default .navbar-collapse {
+    border-color: transparent;
+}
+
+.navbar-default .nav > li>a,
+.navbar-default .nav>li>a:focus {
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 700;
+    color: $navbar-default-nav-li-a-color; 
+}
+
+.navbar-default .nav>li>a:hover,
+.navbar-default .nav>li>a:focus:hover {
+    color: $navbar-default-nav-li-a-hover-color; 
+}
+
+.navbar-default .nav > li.active>a,
+.navbar-default .nav>li.active>a:focus {
+    color: $navbar-default-nav-li-active-a-color !important;
+    background-color: transparent;
+}
+
+.navbar-default .nav > li.active>a:hover,
+.navbar-default .nav>li.active>a:focus:hover {
+    background-color: transparent;
+}
+
+
+@media(min-width:768px) {
+    .navbar-default {
+        border-color: transparent;
+        background-color: transparent;
+        min-height: 60px;
+    }
+
+    .navbar-header > .navbar-brand {
+        color: $navbar-header-brand-media-768-color; 
+        padding: 19px;
+    }
+
+    .navbar-default .navbar-header .navbar-brand:hover,
+    .navbar-default .navbar-header .navbar-brand:focus {
+        color: $navbar-default-header-brand-focus-media-768-color; 
+    }
+
+    .navbar-default .nav > li>a,
+    .navbar-default .nav>li>a:focus {
+        color: $navbar-default-nav-li-a-media-768-color; 
+        padding: 20px;
+        letter-spacing: 1.1px;
+        text-shadow: 1px 1px 1px rgba(60,60,60,0.7);
+    }
+
+    .navbar-default .nav > li>a:hover,
+    .navbar-default .nav>li>a:focus:hover {
+        color: $navbar-default-nav-li-a-hover-media-768-color; 
+    }
+
+    .navbar-default.affix {
+        border-color: $navbar-default_affix-media-768-border-color; 
+        background-color: $navbar-default_affix-media-768-background-color;
+    }
+
+    .navbar-default.affix .navbar-header .navbar-brand {
+        font-size: 15px;
+        color: $navbar-default_affix-media-768-color; 
+        padding: 20px;
+        letter-spacing: 1px;
+    }
+
+    .navbar-default.affix .navbar-header .navbar-brand:hover,
+    .navbar-default.affix .navbar-header .navbar-brand:focus {
+        color: $navbar-default_affix-focus-media-768-color; 
+    }
+
+    .navbar-default.affix .nav > li>a,
+    .navbar-default.affix .nav>li>a:focus {
+        color: $navbar-default_affix-nav-li-a-media-768-color; 
+        text-shadow: 1px 1px 1px rgba(30,30,30,0.7);
+    }
+
+    .navbar-default.affix .nav > li>a:hover,
+    .navbar-default.affix .nav>li>a:focus:hover {
+        color: $navbar-default_affix-nav-li-a-focus-media-768-color; 
+    }
+}
+
+header {
+    position: relative;
+    min-height: auto;
+    text-align: center;
+    color: $header-color; 
+    width: 100%;
+    background-color: $header-background-color; 
+//    background-image: url('https://splashbase1.s3.amazonaws.com/lifeofpix/regular/Life-of-Pix-free-stock-photos-Slate-Stone-Xeromatic-1440x953.jpg');
+    background-position: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
+header .header-content {
+    position: relative;
+    width: 100%;
+    padding: 100px 15px;
+    text-align: center;
+    z-index: 2;
+}
+
+header .header-content .inner h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+header .header-content .inner p {
+    margin-bottom: 50px;
+    font-size: 16px;
+    font-weight: 300;
+    color: $header-content-inner-color; 
+}
+
+footer {
+    background-color: $footer-background-color; 
+}
+
+@media(min-width:768px) {
+    .icon-lg {
+        font-size: 80px;
+    }
+    
+    header {
+        min-height: 100%;
+    }
+
+    header .header-content {
+        position: absolute;
+        top: 50%;
+        padding: 0 50px;
+        -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+    }
+
+    header .header-content .inner {
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 1000px;
+    }
+
+    header .header-content .inner h1 {
+        font-size: 53px;
+    }
+
+    header .header-content .inner p {
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 80%;
+        font-size: 18px;
+    }
+    
+    section {
+        min-height: 600px;
+        padding: 100px 0;
+    }
+
+}
+
+textarea {
+    resize: none;
+}
+
+.margin-top-0 {
+    margin-top: 0;
+}
+
+.feature {
+    margin: 50px auto 0;
+    max-width: 400px;
+}
+
+@media(min-width:992px) {
+    .feature {
+        margin: 20px auto 0;
+    }
+}
+
+.feature p {
+    margin-bottom: 0;
+}
+
+.call-to-action h2 {
+    margin: 0 auto 20px;
+}
+
+
+.btn-default {
+    border-color: $btn-default-border-color; 
+    color: $btn-default-color; 
+    background-color: $btn-default-background-color; 
+    -webkit-transition: all .35s;
+    -moz-transition: all .35s;
+    transition: all .35s;
+}
+
+.btn-default:hover,
+.btn-default:focus,
+.btn-default.focus,
+.btn-default:active,
+.btn-default.active,
+.open > .dropdown-toggle.btn-default {
+    border-color: $btn-default-focus-border-color; 
+    color: $btn-default-focus-color; 
+    background-color: $btn-default-active-background-color; 
+    opacity: 0.7;
+}
+
+.btn-default:active,
+.btn-default.active,
+.open > .dropdown-toggle.btn-default {
+    background-image: none;
+}
+
+.btn-default.disabled,
+.btn-default[disabled],
+fieldset[disabled] .btn-default,
+.btn-default.disabled:hover,
+.btn-default[disabled]:hover,
+fieldset[disabled] .btn-default:hover,
+.btn-default.disabled:focus,
+.btn-default[disabled]:focus,
+fieldset[disabled] .btn-default:focus,
+.btn-default.disabled.focus,
+.btn-default[disabled].focus,
+fieldset[disabled] .btn-default.focus,
+.btn-default.disabled:active,
+.btn-default[disabled]:active,
+fieldset[disabled] .btn-default:active,
+.btn-default.disabled.active,
+.btn-default[disabled].active,
+fieldset[disabled] .btn-default.active {
+    border-color: $btn-default-fieldset-disabled-border-color; 
+    background-color: $btn-default-fieldset-disabled-background-color; 
+    opacity: 0.7;
+}
+
+.btn-default .badge {
+    color: $btn-default-badge-color; 
+    background-color: $btn-default-badge-background-color; 
+}
+
+.btn.btn-primary {
+    background-color: transparent;
+    border:1px solid $btn-primary-border-color;
+    border-color: $btn-primary-border-color; 
+    color: $btn-primary-color;
+    -webkit-transition: all .35s;
+    -moz-transition: all .35s;
+    transition: all .35s;
+}
+
+.btn.btn-primary:hover {
+    opacity: 0.7;
+}
+
+.btn {
+    border: 0;
+    border-radius: 290px;
+    font-family: 'Helvetica Neue',Arial,sans-serif;
+}
+
+.btn-xl {
+    padding: 15px 30px;
+    font-size: 20px;
+}
+
+::-moz-selection {
+    text-shadow: none;
+    color: $moz-selection-color; 
+    background: $moz-selection-background-color; 
+}
+
+::selection {
+    text-shadow: none;
+    color: $selection-color; 
+    background: $selection-background-color; 
+}
+
+img::selection {
+    color: $img-selection-color; 
+    background: 0 0;
+}
+
+img::-moz-selection {
+    color: $img-moz-selection-color; 
+    background: 0 0;
+}
+
+@import "multi_level_menu";

@@ -1,0 +1,300 @@
+<%
+form_item.init do |fi|
+  	category_group = service_category_group
+  	action_path = edit_service_category_group_path(hash_with_region_and_privacy({:id => category_group.id}))
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+	s = session_filtr_params(fi)
+	
+  	tarif_class_id_to_use_as_source_of_parsed_results = s['tarif_class_id_to_use_as_source_of_parsed_results'].try(:to_i) || category_group.tarif_class_id
+
+	tarif_class_ids_to_use_as_source_of_parsed_results = if s['use_any_service_as_source_of_parsed_results'] == 'true'
+		tarif_class_to_use = category_group.try(:tarif_class)
+		TarifClass.original_tarif_class.
+			where(:operator_id => tarif_class_to_use.try(:operator_id), :privacy_id => tarif_class_to_use.try(:privacy_id)).pluck(:id)
+	else
+		category_group.service_category_tarif_classes.
+			map{|sctc| sctc.conditions.try(:[], 'tarif_set_must_include_tarif_options') || []}.flatten.uniq
+	end
+		
+	formula_params_to_set = Price::Formula.joins(:price_list).where(:price_lists => {:service_category_group_id => category_group.id}).
+		pluck("distinct(json_object_keys(formula->'params'))")
+
+	original_global_categories = TarifList.where(:tarif_class_id => tarif_class_id_to_use_as_source_of_parsed_results).
+		pluck("distinct(json_object_keys(tarif_lists.features->'current_saved_service_desc'))").
+		map{|original_global_category| ((original_global_category.split(/[^[[:word:]]]+/) || []) - ['']) }
+	max_length_of_global_category = original_global_categories.map{|c| c.size}.max
+	max_chosen_global_category_index = (s.try(:[], 'global_category_item') || {}).keys.size
+	
+	global_category_items = []
+	global_category_item_options = []
+	chosen_global_categories = []
+
+	current_max_possible_global_category_index = [max_length_of_global_category || 0, max_chosen_global_category_index + 1].min
+	current_max_possible_global_category_index.times do |global_category_index|
+				 
+		 global_category_item_options[global_category_index] ||= []
+		 
+	 	 original_global_categories.each do |original_global_category| 
+	 		to_include = true
+	 		
+	 		(global_category_index).times do |prev_category_index|
+	 			if !((s["global_category_item"][prev_category_index.to_s] || []) - ['']).blank? and 
+	 				!s["global_category_item"][prev_category_index.to_s].include?(original_global_category[prev_category_index])
+	 				to_include = false
+	 				break
+	 			end		 			
+	 		end if global_category_index != 0
+	 		
+	 		if to_include
+		 		global_category_item_options[global_category_index] += 
+		 			([original_global_category[global_category_index]] - global_category_item_options[global_category_index]) 
+
+		 		chosen_global_category = original_global_category.map{|g| g.to_sym}.to_s
+		 		if global_category_index == (current_max_possible_global_category_index - 1)
+			 		chosen_global_categories += ([chosen_global_category] - chosen_global_categories) 
+		 		end
+	 		end
+ 	 	 end
+		 
+		 break if global_category_index > 0 and s["global_category_item"].try(:[], (global_category_index - 1).to_s).blank?
+
+		 break if global_category_item_options[global_category_index].blank?
+		 
+		 global_category_items += [
+		   	label(form_item.filtr_name, "global_category_item[#{global_category_index}]", "global_category_item[#{global_category_index}]", label_html),
+	     	select(form_item.filtr_name, "global_category_item[#{global_category_index}]", global_category_item_options[global_category_index], 
+		  	  {:include_blank => "select global_category_item[#{global_category_index}]", :selected => (s["global_category_item"].try(:[], global_category_index.to_s)) }, 
+		  	  input_html.merge({:multiple => true, :size => global_category_item_options[global_category_index].size + 1}) )   
+		 ]
+	end	
+	global_category_items = [[]] if global_category_items.blank?
+
+	categories_to_select = {'global_category' => [], 'service_desc_group_name' => [], 'service_desc_sub_group_name' => [], 'field_name' => [] }
+	max_field_value_array_size = 0
+	words_for_filtr_categories_to_select_by_word = []
+	TarifList.joins(:tarif_class).where(:tarif_class => tarif_class_id_to_use_as_source_of_parsed_results).each do |tarif_list_item|
+		(tarif_list_item.current_saved_service_desc || {}).each do |original_global_category, saved_desc_values|
+			if chosen_global_categories.include?(original_global_category)
+				categories_to_select['global_category'] += ([original_global_category] - categories_to_select['global_category'])
+				
+				next if !s["categories_to_select"].try(:[], 'global_category').blank? and !s["categories_to_select"].try(:[], 'global_category').include?(original_global_category)
+				
+				saved_desc_values.each do |saved_desc_value|	
+					categories_to_select['service_desc_group_name'] += ([saved_desc_value['service_desc_group_name']] - categories_to_select['service_desc_group_name'])
+					next if !s["categories_to_select"].try(:[], 'service_desc_group_name').blank? and 
+							!s["categories_to_select"].try(:[], 'service_desc_group_name').include?(saved_desc_value['service_desc_group_name'])
+
+					categories_to_select['service_desc_sub_group_name'] += ([saved_desc_value['service_desc_sub_group_name']] - categories_to_select['service_desc_sub_group_name'])
+					next if !s["categories_to_select"].try(:[], 'service_desc_sub_group_name').blank? and 
+							!s["categories_to_select"].try(:[], 'service_desc_sub_group_name').include?(saved_desc_value['service_desc_sub_group_name'])
+									
+					categories_to_select['field_name'] += ([saved_desc_value['field_name']] - categories_to_select['field_name'])
+
+					max_field_value_array_size = [max_field_value_array_size, (saved_desc_value['param_value'] || []).size].max
+				end
+				
+				if s['if_to_filtr_categories_to_select_by_word'] == 'true'
+					saved_desc_values.each do |saved_desc_value|
+						(s['filtr_categories_to_select_by_word'].try(:[], 'category') || []).each do |saved_desc_value_key|
+							next if saved_desc_value[saved_desc_value_key].blank?
+							words_to_add = saved_desc_value[saved_desc_value_key].split(' ').
+								map{|word| (word.mb_chars.downcase.to_s.match(/^([\s|«|\(|\*|\,]*)(.*?)([\s|»|\)|\*|\,|:|;|\.|\!]?)*$/i) || [])[2]}.
+								select{|word| word.size > 2 or word.to_i > 0}
+							words_for_filtr_categories_to_select_by_word += (words_to_add - words_for_filtr_categories_to_select_by_word)
+						end
+					end
+				end
+			end
+		end		
+	end
+	words_for_filtr_categories_to_select_by_word.sort!
+	
+	puts words_for_filtr_categories_to_select_by_word.to_s
+	
+	field_value_array_index = max_field_value_array_size.times.map{|i| i}
+	
+	categories_to_select_items = []
+	categories_to_select.keys.each do |category_to_select|
+		categories_to_select_items += [
+		   	label(form_item.filtr_name, "categories_to_select[#{category_to_select}]", "categories_to_select[#{category_to_select}]", label_html) +
+	     	select(form_item.filtr_name, "categories_to_select[#{category_to_select}]", categories_to_select[category_to_select].try(:sort), 
+		  	  {:include_blank => "select categories_to_select[#{category_to_select}]", :selected => (s["categories_to_select"].try(:[], category_to_select)) }, 
+		  	  input_html.merge({:multiple => true, :size => [categories_to_select[category_to_select].size, 15].min + 1}) )   
+		]
+	end
+	categories_to_select_items = [''] if categories_to_select_items.blank?
+	
+	params_to_auto_update_formula_params = [label(form_item.filtr_name, "params_to_auto_update_formula_params", label_html), "",]
+	(category_group.params_to_auto_update_formula_params || {}).each do |param_name, param_values|
+		params_to_auto_update_formula_params += [
+			label(form_item.filtr_name, param_name, label_html),
+			label(form_item.filtr_name, param_values, label_html)
+		]
+	end
+	
+	deduct_from_params_regions = Category.where(:id => TarifList.where(:tarif_class_id => category_group.try(:tarif_class).id).pluck(:region_id).uniq)
+	
+  fi.set_fields do |filtr_name|
+    [ 
+	   [
+      	link_to('GroupCategories', admin_tarif_class_path(hash_with_region_and_privacy({:id => category_group.tarif_class_id})), 
+      		{:class => "btn btn-primary", :type =>"button", :remote1 => true}), 
+		link_to( 'Edit PriceFormula', price_list_price_formulas_path(hash_with_region_and_privacy({:price_list_id => category_group.price_lists.first.id}) ), 
+			{:class => "btn btn-primary", :type =>"button", :remote1 => true}),
+       ],
+    ] + [
+		params_to_auto_update_formula_params,
+    ] +
+    [
+       [
+	   	label(filtr_name, "guess_auto_update_params_for_formula", "guess_auto_update_params_for_formula", {:class => "btn btn-success ", :type => "button"}),
+	   	check_box_tag("service_category_group_filtr[guess_auto_update_params_for_formula]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+
+	   	(label(filtr_name, "guess_auto_update_params_for_sctc_regions", "guess_auto_update_params_for_sctc_regions", {:class => "btn btn-success ", :type => "button"}) +
+	   	check_box_tag("service_category_group_filtr[guess_auto_update_params_for_sctc_regions]", "true", nil, input_html.merge({:class => "updatable hidden" })) if false),
+
+	   	label(filtr_name, "restore_auto_update_params_for_sctc_regions", "restore_auto_update_params_for_sctc_regions", {:class => "btn btn-success ", :type => "button"}),
+	   	check_box_tag("service_category_group_filtr[restore_auto_update_params_for_sctc_regions]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+
+      	label(filtr_name, "use_any_service_as_source_of_parsed_results", "use_any_service_as_source_of_parsed_results", label_html),
+      	select(filtr_name, "use_any_service_as_source_of_parsed_results", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите use_any_service_as_source_of_parsed_results", :selected => (s["use_any_service_as_source_of_parsed_results"] || nil)}, input_html.merge({:size => 2}) ),
+
+	   	label(filtr_name, "tarif_class_id_to_use_as_source_of_parsed_results", "tarif_class_id_to_use_as_source_of_parsed_results", label_html),
+      	collection_select(filtr_name, "tarif_class_id_to_use_as_source_of_parsed_results", TarifClass.where(:id => tarif_class_ids_to_use_as_source_of_parsed_results.map(&:to_i)), :id, :name, 
+	  	{:include_blank => "выберите tarif_class_id_to_use_as_source_of_parsed_results", :selected => s["tarif_class_id_to_use_as_source_of_parsed_results"] }, 
+	  		input_html.merge({:multiple => false, :size => [tarif_class_ids_to_use_as_source_of_parsed_results.size, 2].min + 1}) ),
+       ].compact,
+    ] + [
+		global_category_items,
+    ] +
+    [
+       [
+	   	label(filtr_name, "formula_param_to_set", "formula_param_to_set", label_html),
+     	select(filtr_name, "formula_param_to_set", formula_params_to_set, 
+	  	  {:include_blank => "select formula_param_to_set", :selected => (s["formula_param_to_set"]) }, 
+	  	  input_html.merge({:multiple => false, :size => formula_params_to_set.size + 1}) ) , 
+
+	   	label(filtr_name, "service_category_tarif_classes_to_set", "service_category_tarif_classes_to_set", label_html),
+      	collection_select(filtr_name, "service_category_tarif_classes_to_set", category_group.service_category_tarif_classes, :id, :id, 
+	  	{:include_blank => "выберите service_category_tarif_classes_to_set", :selected => s["service_category_tarif_classes_to_set"] }, 
+	  		input_html.merge({:multiple => true, :size => category_group.service_category_tarif_classes.size + 1}) ),
+
+	   	label(filtr_name, "field_value_array_index", "field_value_array_index", label_html),
+     	select(filtr_name, "field_value_array_index", field_value_array_index, 
+	  	  {:include_blank => "select field_value_array_index", :selected => (s["field_value_array_index"]) }, 
+	  	  input_html.merge({:multiple => false, :size => field_value_array_index.size + 1}) ) , 
+
+      	label(filtr_name, "use_any_field_value_array_index_if_value_nil", "use_any_field_value_array_index_if_value_nil", label_html),
+      	select(filtr_name, "use_any_field_value_array_index_if_value_nil", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите use_any_field_value_array_index_if_value_nil", :selected => (s["use_any_field_value_array_index_if_value_nil"] || nil)}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "use_day_multiplier", "use_day_multiplier", label_html),
+      	select(filtr_name, "use_day_multiplier", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите use_day_multiplier", :selected => (s["use_day_multiplier"] || nil)}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "use_as_base_param", "use_as_base_param", label_html),
+      	select(filtr_name, "use_as_base_param", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите use_as_base_param", :selected => (s["use_as_base_param"] || nil)}, input_html.merge({:size => 2}) ),
+       ]
+	] + [
+		categories_to_select_items,
+	] + 
+	[
+		[
+      	label(filtr_name, "accept_results_with_multiple_regions", "accept_results_with_multiple_regions", label_html),
+      	select(filtr_name, "accept_results_with_multiple_regions", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите accept_results_with_multiple_regions", :selected => (s["accept_results_with_multiple_regions"] || nil)}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "if_to_filtr_categories_to_select_by_word", "if_to_filtr_categories_to_select_by_word", label_html),
+      	select(filtr_name, "if_to_filtr_categories_to_select_by_word", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите if_to_filtr_categories_to_select_by_word", :selected => (s["if_to_filtr_categories_to_select_by_word"] || nil)}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "deduct_from_params", "deduct_from_params", label_html),
+      	select(filtr_name, "deduct_from_params", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите deduct_from_params", :selected => (s["deduct_from_params"] || nil)}, input_html.merge({:size => 2}) ),
+	   ],	
+	   (s["if_to_filtr_categories_to_select_by_word"] == 'true' ? [
+
+      	label(filtr_name, "filtr_categories_to_select_by_word[category]", "filtr_categories_to_select_by_word[category]", label_html),
+      	select(filtr_name, "filtr_categories_to_select_by_word[category]", ['service_desc_group_name', 'service_desc_sub_group_name', 'field_name'], 
+	  	{:include_blank => true, :selected => (s["filtr_categories_to_select_by_word"].try(:[], 'category'))}, input_html.merge({:multiple => true, :size => 4}) ),
+
+      	label(filtr_name, "filtr_categories_to_select_by_word[word]", "filtr_categories_to_select_by_word[word]", label_html),
+      	select(filtr_name, "filtr_categories_to_select_by_word[word]", words_for_filtr_categories_to_select_by_word, 
+	  		{:include_blank => true, :selected => (s["filtr_categories_to_select_by_word"].try(:[], 'word'))}, 
+	  		input_html.merge({:multiple => true, :size => [words_for_filtr_categories_to_select_by_word.size, 10].min + 1}) ),
+	    ] : []),
+	  	(s["deduct_from_params"] == 'true' ? [
+
+      	label(filtr_name, "deduct_from_params_what", "deduct_from_params_what", label_html),
+      	select(filtr_name, "deduct_from_params_what", ['number', 'multiplier', 'formula'], 
+	  	{:include_blank => false, :selected => (s["deduct_from_params_what"] || 'number')}, input_html.merge({:size => 3}) ),
+
+      	label(filtr_name, "deduct_from_params_regions", "deduct_from_params_regions", label_html),
+     	collection_select(filtr_name, "deduct_from_params_regions", deduct_from_params_regions, :id, :name, 
+	  	  {:include_blank => true, :selected => (s["deduct_from_params_regions"] || []) }, input_html.merge({:multiple => true, :size => deduct_from_params_regions.size + 1}) ),   
+
+	   	label(filtr_name, "deduct_from_params_formula_param_to_set", "deduct_from_params_formula_param_to_set", label_html),
+     	select(filtr_name, "deduct_from_params_formula_param_to_set", formula_params_to_set, 
+	  	  {:include_blank => "select formula_param_to_set", :selected => (s["deduct_from_params_formula_param_to_set"]) }, 
+	  	  input_html.merge({:multiple => false, :size => formula_params_to_set.size + 1}) ) , 
+
+      	label(filtr_name, "deduct_from_params_amount", "deduct_from_params_amount", label_html),
+      	number_field(filtr_name, "deduct_from_params_amount",  input_html.merge({:value => s["deduct_from_params_amount"]} ) ) +
+
+	   	content_tag(:br) +
+	   	label(filtr_name, "add_params_for_formula_auto_update_deduct_from_params", "add_params_for_formula_auto_update_deduct_from_params", {:class => "btn btn-success ", :type => "button"}) +
+	   	check_box_tag("service_category_group_filtr[add_params_for_formula_auto_update_deduct_from_params]", "true", nil, input_html.merge({:class => "updatable hidden" })) +
+
+	   	content_tag(:br) +
+	   	label(filtr_name, "delete_params_for_formula_auto_update_deduct_from_params", "delete_params_for_formula_auto_update_deduct_from_params", {:class => "btn btn-success ", :type => "button"}) +
+	   	check_box_tag("service_category_group_filtr[delete_params_for_formula_auto_update_deduct_from_params]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+
+        ] : []),
+	    [ content_tag(:br), ],
+	  	[
+	   	label(filtr_name, "add_params_for_formula_auto_update_from_saved_parsed_results", "add_params_for_formula_auto_update_from_saved_parsed_results", {:class => "btn btn-success ", :type => "button"}),
+	   	check_box_tag("service_category_group_filtr[add_params_for_formula_auto_update_from_saved_parsed_results]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+	   	
+	   	label(filtr_name, "delete_params_for_formula_auto_update_from_saved_parsed_results", "delete_params_for_formula_auto_update_from_saved_parsed_results", {:class => "btn btn-success ", :type => "button"}),
+	   	check_box_tag("service_category_group_filtr[delete_params_for_formula_auto_update_from_saved_parsed_results]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+
+	   	label(filtr_name, "update_params_for_formula_from_saved_parsed_results", "update_params_for_formula_from_saved_parsed_results", {:class => "btn btn-success ", :type => "button"}),
+	   	check_box_tag("service_category_group_filtr[update_params_for_formula_from_saved_parsed_results]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+		],
+	    [ content_tag(:br), ],
+	  	[
+	   	label(filtr_name, "add_regions_auto_update_for_sctc_from_saved_parsed_results", "add_regions_auto_update_for_sctc_from_saved_parsed_results", {:class => "btn btn-success ", :type => "button"}),
+	   	check_box_tag("service_category_group_filtr[add_regions_auto_update_for_sctc_from_saved_parsed_results]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+	   	
+	   	label(filtr_name, "delete_regions_auto_update_for_sctc_from_saved_parsed_results", "delete_regions_auto_update_for_sctc_from_saved_parsed_results", {:class => "btn btn-success ", :type => "button"}),
+	   	check_box_tag("service_category_group_filtr[delete_regions_auto_update_for_sctc_from_saved_parsed_results]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+
+	   	label(filtr_name, "update_regions_for_sctc_from_saved_parsed_results", "update_regions_for_sctc_from_saved_parsed_results", {:class => "btn btn-success ", :type => "button"}),
+	   	check_box_tag("service_category_group_filtr[update_regions_for_sctc_from_saved_parsed_results]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+		],
+	    [ content_tag(:br), ],
+    	[
+      	link_to('GroupCategories', admin_tarif_class_path(hash_with_region_and_privacy({:id => category_group.tarif_class_id})), 
+      		{:class => "btn btn-primary", :type =>"button", :remote1 => true}), 
+		link_to( 'Edit PriceFormula', price_list_price_formulas_path(hash_with_region_and_privacy({:price_list_id => category_group.price_lists.first.id}) ), 
+			{:class => "btn btn-primary", :type =>"button", :remote1 => true}),
+        ],
+	    [ content_tag(:br), ],
+    ] + [
+		params_to_auto_update_formula_params,
+    ] + [
+    	[
+      	label(filtr_name, "number_of_chosen_rows", "number_of_chosen_rows", label_html),
+      	number_field(filtr_name, "number_of_chosen_rows",  input_html.merge({:disabled => true, :value => selected_parsed_global_categories.model.try(:size)} ) ), 
+
+      	label(filtr_name, "number_of_distinct_regions_in_chosen_rows", "number_of_distinct_regions_in_chosen_rows", label_html),
+      	number_field(filtr_name, "number_of_distinct_regions_in_chosen_rows",  
+      		input_html.merge({:disabled => true, :value => (selected_parsed_global_categories.model || []).map{|r| r['region_name']}.uniq.size} ) ), 
+    	]
+    ]
+  end
+end
+%>

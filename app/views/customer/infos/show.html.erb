@@ -1,0 +1,5 @@
+<% title "Данные пользователя" %>
+<% noindex 'googlebot' %>
+
+<%= render :partial => 'customer/infos/info/general', :layout => 'application/layouts/model_show', :locals => {:form_item => controller.customer_info(:general)} %>
+

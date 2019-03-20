@@ -1,0 +1,28 @@
+<%
+table_html_options = {:id =>table.table_name, :class => 'table table-bordered table-hover table-condensed'}
+table_html_options = form_html_options.merge(html) if local_assigns[:html]
+table_html_options = table_html_options.collect { |key, value| "#{key.to_s}=\"#{value.to_s}\""}.join(" ").html_safe
+
+%>
+
+<% if table.caption %> 
+  <legend><%= table.caption %></legend>
+<% end %>
+
+<div class="text-center">
+		<%= will_paginate(table.model, :class=>'pagination text-center pagin_border', :remote => true, :param_name => table.pagination_param_name) %>
+</div>	
+
+<% table.model.in_groups_of(3) do |field_group| %>
+<div class="row">
+	<% field_group.each do |item| %>
+	<div class="col-sm-6 col-md-4" >
+		<div class="thumbnail">
+			<% table.fields(item) do |field| %>
+				<%= field %>
+			<% end %>
+		</div>
+	</div>
+	<% end %>
+</div>
+<% end %>

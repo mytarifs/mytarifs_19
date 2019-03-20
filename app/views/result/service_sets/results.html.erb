@@ -1,0 +1,27 @@
+<% title "Список вариантов подбора лучших тарифов и тарифных опций #{region_and_privacy_tag} #{pagination_page_name('service_sets_page')}" %>
+<% description "Список вариантов подбора лучших тарифов и тарифных опций #{region_and_privacy_tag}. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных операторов МТС, «Билайн», \
+				«Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг в \
+				области мобильной связи." %>
+<% keywords "список вариантов подбора лучших тарифов тарифных опций #{region_and_privacy_tag}" %>	
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <span class="h5">Здесь вы можете посмотреть все ваши сохраненные подборы тарифов</span>
+            <hr>
+        </div>
+    </div>
+</header>
+
+
+<div class="panel panel-default" >
+	<div class="panel-heading"><span class="h4">Сохраненные подборы тарифов</span></div>
+	<div class="panel-body">
+		<%= render(:partial => 'result/service_sets/results/results_select', :layout => 'application/layouts/filtr_form_n_columns', 
+			    :locals => {:form_item => results_select} ) %>
+	</div>
+</div>
+
+<%= render :partial => 'result/shared/service_sets', :layout => 'application/layouts/model_table', :locals => {:table => results_service_sets} %>

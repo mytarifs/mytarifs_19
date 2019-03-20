@@ -1,0 +1,27 @@
+<%
+table.init do |t|
+#  t.caption = 'Список тарифов и опций'
+  t.heads = ['Оператор', 'Название тарифа', 'Предоплаченные звонки, мин', 'Предоплаченные смс, шт', 'Предоплаченный интернет, Мб',]
+  
+  t.set_fields do |tarif_class| 
+
+	if tarif_class.blank?
+		[]
+	else
+		unlimited_tarif_class_link_to = link_to( "#{tarif_class['name']}", 
+			unlimited_tarif_class_path(hash_with_region_and_privacy({:id => tarif_class['slug']}) ), :my_remote => false)
+		
+	
+	  [
+		content_tag(:span, "", {class: "operator-#{tarif_class['operator_slug']}"}),
+	    unlimited_tarif_class_link_to, 
+	#    tarif_class["operator_name"], 
+	    tarif_class["max_duration_minute"].try(:round, 0).try(:to_s, :delimited, precision: 0), 
+	    tarif_class["max_count_volume"].try(:round, 0).try(:to_s, :delimited, precision: 0), 
+	    tarif_class["max_sum_volume"].try(:round, 0).try(:to_s, :delimited, precision: 0), 
+	  ]
+	end
+  end
+end
+%>
+

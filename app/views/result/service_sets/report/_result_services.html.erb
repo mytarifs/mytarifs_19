@@ -1,0 +1,22 @@
+<%
+table.init do |t|
+  t.heads = ['Стоимость в месяц, руб', 'Тариф или опция', 'Кол-во минут', 'Кол-во смс и ммс', 'Объем интернета, Мб', ('Кол-во обработанных записей'  if current_user_admin?)].compact
+  s_desc = service_description(all_service_ids)
+  t.row_action = result_service_sets_report_path(hash_with_region_and_privacy({:result_run_id => params[:result_run_id], :service_set_id => controller.service_set_id}) )
+  t.set_fields do |f| 
+  	[
+     (f.price.round(0).to_s(:delimited, precision: 0) if f.price),      
+#     s_desc[f.service_id],
+#     f.service_id,
+#     f.service_set_id,
+  	 link_to(s_desc[f.service_id]['service_name'], tarif_class_path(hash_with_region_and_privacy({:id => (s_desc[f.service_id]['slug'] || f.service_id)}) ), {:target => ""}),    
+     f.sum_duration_minute,
+     f.count_volume,
+     f.sum_volume,
+     (f.call_id_count if current_user_admin?), 
+#     (f.categ_ids if current_user_admin?)     
+  	] 
+  end	
+end
+%>
+

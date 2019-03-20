@@ -1,0 +1,20 @@
+<%
+table.init do |t|
+#  t.caption = 'Список тарифов и опций'
+  t.heads = ['id', 'standard_formula name', 'params', 'calculation_order', 'regions']
+  t.set_fields do |formulas| 
+  	
+  [
+	formulas.id,
+	formulas.standard_formula.try(:name),
+	formulas.formula.try(:[], "params"),
+	formulas.calculation_order,
+	formulas.formula.try(:[], "regions"),
+
+    link_to('copy', price_list_price_copy_formula_path(hash_with_region_and_privacy({:price_list_id => price_list.id, :id => formulas.id})), :my_remote => true), 
+    link_to( 'Destroy', price_list_price_formula_path(hash_with_region_and_privacy({:price_list_id => price_list.id, :id => formulas.id})), 
+    	method: :delete, data: { confirm: 'Are you sure?' } )
+  ]
+  end
+end
+%>

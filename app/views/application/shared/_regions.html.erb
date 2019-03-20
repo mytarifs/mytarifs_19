@@ -1,0 +1,10 @@
+<%
+	content_in :accordion do |region|
+		[
+			[
+				"#{Category.mobile_regions_with_scope(['ratings'])[m_region]['name']} #{Category::Privacies[m_privacy]['name']}",
+				render(:partial => partial_to_render, :locals => {:privacy_key => m_privacy, :region_txt => m_region})
+			]
+		] 
+	end
+%>

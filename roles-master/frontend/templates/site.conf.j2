@@ -1,0 +1,63 @@
+server {
+  {% if ssl %}
+  ## SSL ##
+  listen 443;
+  ssl on;
+  ssl_certificate /etc/letsencrypt/live/{{frontend_domain}}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/{{frontend_domain}}/privkey.pem;
+  ssl_session_timeout 5m;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_ciphers HIGH+kEECDH+AESGCM:HIGH+kEECDH:HIGH+kEDH:HIGH:!aNULL;
+  ssl_prefer_server_ciphers on;
+  {% endif %}
+
+  server_name {{frontend_domain}};
+  root {{frontend.app_path}};
+
+  {% if api_proxy_pass %}
+
+    location /graphql {
+      proxy_pass https://{{domain}}/graphql;
+    }
+
+    location /alerts {
+      proxy_pass https://{{domain}}/alerts;
+    }
+
+  {% endif %}
+
+
+  location ~* \.(?:manifest|appcache|html?|xml|json)$ {
+    expires -1;
+    # access_log logs/static.log; # I don't usually include a static log
+  }
+
+  location ~* \.(?:css|js)$ {
+    try_files $uri =404;
+    expires 1y;
+    access_log off;
+    add_header Cache-Control "public";
+  }
+
+  # Any route containing a file extension (e.g. /devicesfile.js)
+  location ~ ^.+\..+$ {
+    try_files $uri =404;
+  }
+
+  # Any route that doesn't have a file extension (e.g. /devices)
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+
+}
+
+{% if ssl %}
+## Redirect to https
+server {
+  if ($host = {{frontend_domain}}) {
+    return 301 https://$host$request_uri;
+  }
+  listen 80 ;
+  server_name {{frontend_domain}};
+}
+{% endif %}

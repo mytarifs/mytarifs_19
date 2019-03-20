@@ -1,0 +1,68 @@
+<%
+
+content_in :tabs do |user| 
+  [
+    [
+     'Genaral tasks',
+     content_tag(:h2) do
+     	render(:partial => 'tarif_lists/scrap/general/task_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     		:locals => {:form_item => general_task_filtr}) +
+		content_tag(:br)
+     end
+    ],
+    ([
+     'tarif_list_collection',
+     content_tag(:h2) do
+     	render(:partial => 'tarif_lists/scrap/tarif_list_collection/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     	    :locals => {:form_item => tarif_list_collection_filtr}) +
+		content_tag(:br)
+     end + 
+ 	render( :partial => 'tarif_lists/scrap/tarif_list_collection/index', :layout => 'application/layouts/model_table', 
+ 		:locals => {:table => tarif_list_collection, :action_name => scrap_tarif_lists_path(hash_with_region_and_privacy)})
+    ] if session[:filtr].try(:[], 'general_tarif_class_filtr').try(:[], 'show_tarif_list_collection') == 'true'),
+    ([
+     'scraped_info_from_tarif_list_for_parsing',
+     content_tag(:h2) do
+     	render(:partial => 'tarif_lists/scrap/scraped_info_from_tarif_list_for_parsing/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     		:locals => {:form_item => scraped_info_from_tarif_list_for_parsing_filtr}) +
+		content_tag(:br)
+     end + 
+ 	render( :partial => 'tarif_lists/scrap/scraped_info_from_tarif_list_for_parsing/index', :layout => 'application/layouts/model_table', 
+ 		:locals => {:table => scraped_info_from_tarif_list_for_parsing, :action_name => scrap_tarif_lists_path(hash_with_region_and_privacy)})
+    ] if session[:filtr].try(:[], 'general_tarif_class_filtr').try(:[], 'show_scraped_info_from_tarif_list_for_parsing') == 'true'),
+    [
+     'Описание по регионам',
+     content_tag(:h2) do
+     	render(:partial => 'tarif_lists/scrap/tarif_list_region_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     		:locals => {:form_item => tarif_list_region_filtr}) +
+		content_tag(:br)
+     end + 
+     render( :partial => 'tarif_lists/scrap/tarif_list', :layout => 'application/layouts/model_show', 
+     	:locals => {:form_item => controller.tarif_list_form}) +
+     if session[:filtr].try(:[], 'general_tarif_class_filtr').try(:[], 'for_parsing') == 'true'
+     	render(:partial => 'tarif_lists/scrap/service_list_parsing/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     		:locals => {:form_item => service_list_parsing_filtr}) +
+     	content_tag(:br) +
+     	render( :partial => 'tarif_lists/scrap/service_list_parsing/tarif_list', :layout => 'application/layouts/model_show', 
+     	    :locals => {:form_item => controller.tarif_list_for_service_list_parsing_form}) +
+     	render( :partial => 'tarif_lists/scrap/service_list_parsing/table', :layout => 'application/layouts/model_table', 
+     		:locals => {:table => service_list_parsing_table, :action_name => scrap_tarif_lists_path(hash_with_region_and_privacy)})
+     else
+     	render(:partial => 'tarif_lists/scrap/service_parsing/filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     		:locals => {:form_item => service_parsing_filtr}) +
+     	content_tag(:br) +
+     	render( :partial => 'tarif_lists/scrap/service_parsing/tarif_list', :layout => 'application/layouts/model_show', 
+     		:locals => {:form_item => controller.tarif_list_for_service_parsing_form})
+     end
+    ],
+    [
+     'Scraping options',
+     content_tag(:h2) do
+     	render(:partial => 'tarif_lists/scrap/general/scraping_options_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     		:locals => {:form_item => scraping_options_filtr}) +
+		content_tag(:br)
+     end
+    ],
+  ].compact   
+end
+%>

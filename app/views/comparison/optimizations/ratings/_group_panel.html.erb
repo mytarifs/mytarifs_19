@@ -1,0 +1,26 @@
+<div class="panel panel-primary" >
+	<div class="panel-heading"><%= show_as_popover(heading, popover_content) %></div>
+	<div class="panel-body1">
+		  <ul class="list-group" >
+		  <% group_result_description.each do |full_desc| %>
+		  	<%  desc = full_desc[:group].try(:[], 0) || {} %>
+		  	<li class="list-group-item text-left">
+		  		<span><%= "#{desc[:price].round(0)} руб.		" %></span>
+		  		<%= link_to("#{desc[:operator_name]} #{desc[:tarif_name]}", tarif_class_path(hash_with_region_and_privacy({:id => desc[:tarif_slug]})), {:target => ""}) %>
+		  		<% if !desc[:option_slugs].blank? %>
+			  		<span> + (</span>
+			  		<% desc[:option_slugs].each_with_index do |option_slug, index| %>
+			  			<%= link_to("#{desc[:option_names][index]}", tarif_class_path(hash_with_region_and_privacy({:id => option_slug})), {:target => ""}) %>
+			  		<% end %>
+			  		<span>)</span>
+			  	<% else %>
+			  		<span>, без опций</span>
+		  		<% end %>
+		  	</li>
+		  <% end if group_result_description %>
+		  </ul>
+	</div>
+	<div class="panel-footer">
+		<%= footer %>
+	</div>
+</div>

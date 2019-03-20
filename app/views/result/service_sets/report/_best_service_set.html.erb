@@ -1,0 +1,42 @@
+<%
+#raise(StandadError)
+table.init do |t|
+#  model_keys = t.model.collect {|row| row.keys }.flatten.uniq.collect{|key| key }.compact  
+  t.heads = ['Стоимость в месяц, руб', 'Оператор', 'Тариф', 'Общие услуги', 'Тарифные опции']
+  
+  s_desc = service_description(all_service_ids + identical_services)
+  t.row_action = result_service_sets_report_path(
+  	hash_with_region_and_privacy({:result_run_id => params[:result_run_id], :service_set_id => controller.service_set_id}) )
+  t.set_fields do |f|
+    current_id_set = {}
+    services = f.service_ids.map do |id|
+        link_to(s_desc[id.to_i]['service_name'], 
+        	tarif_class_path(hash_with_region_and_privacy({:id => (s_desc[id.to_i]['slug'] || id.to_i)})), {:target => ""})	
+    end.join(', ').html_safe if f.service_ids
+
+    common_services = f.common_services.map do |id|
+        link_to(s_desc[id.to_i]['service_name'], 
+        	tarif_class_path(hash_with_region_and_privacy({:id => (s_desc[id.to_i]['slug'] || id.to_i)})), {:target => ""})	
+    end.join(', ').html_safe if f.common_services
+
+    tarif_options = if !f.tarif_options.blank?
+    	f.tarif_options.map do |id|
+        	link_to(s_desc[id.to_i]['service_name'], 
+        		tarif_class_path(hash_with_region_and_privacy({:id => (s_desc[id.to_i]['slug'] || id.to_i)})), {:target => ""})	
+    	end.join(', ').html_safe
+    	else
+    		"Дополнительные опции подключать не надо"
+    end 
+
+  	[
+  	 (f.price.round(0).to_s(:delimited, precision: 0) if f.price),    
+     (f.operator.name if f.operator),     
+  	 link_to(s_desc[f.tarif_id]['service_name'], 
+    	tarif_class_path(hash_with_region_and_privacy({:id => (s_desc[f.tarif_id]['slug'] || f.tarif_id)})), {:target => ""}),	
+     common_services,   
+     tarif_options,
+  	].compact 
+  	
+  end
+end
+%>

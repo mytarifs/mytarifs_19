@@ -1,0 +1,26 @@
+<%
+region_page = {}
+region_page['all_services'] = session[:current_accordion_page].blank? ? 0 : session[:current_accordion_page]['region_accord_all_services'].to_i
+region_page['internet'] = session[:current_accordion_page].blank? ? 0 : session[:current_accordion_page]['region_accord_internet'].to_i
+region_page['calls'] = session[:current_accordion_page].blank? ? 0 : session[:current_accordion_page]['region_accord_calls'].to_i
+
+content_in :accordion do |user| 
+  [
+    [
+     'Я пользуюсь всеми услугами мобильной связи',
+     render(:partial => 'comparison/optimizations/ratings/all_services', 
+     	:locals => {:panel_class => "panel-success", :name => 'region_accord_all_services', :active => region_page['all_services'] })
+    ], 
+    [
+     'Я пользуюсь только интернетом',
+     render(:partial => 'comparison/optimizations/ratings/internet', 
+     	:locals => {:panel_class => "panel-success", :name => 'region_accord_internet', :active => region_page['internet'] })
+    ], 
+    [
+     'Я только говорю по телефону',
+     render(:partial => 'comparison/optimizations/ratings/calls', 
+     	:locals => {:panel_class => "panel-success", :name => 'region_accord_calls', :active => region_page['calls'] })
+    ], 
+  ] 
+end
+%>

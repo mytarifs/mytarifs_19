@@ -1,0 +1,17 @@
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="">Массовое редактирование тарифов</h1> 
+            <hr>
+        </div>
+    </div>
+</header>
+
+<%= render(:partial => 'tarif_classes/mass_edit/tarifs_to_update_select_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+     :locals => {:form_item => tarifs_to_update_select_filtr}) %>
+
+<br />
+<%= render :partial => 'tarif_classes/mass_edit/tabs', :layout => 'application/layouts/tabs', 
+	:locals => {:name => 'mass_edit_tarif_classes_tabs', :chosen_tarifs => chosen_tarifs_to_mass_edit, :active => session[:current_tabs_page]['mass_edit_tarif_classes_tabs'].to_i} %>

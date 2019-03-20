@@ -1,0 +1,13 @@
+<%= form_tag(hash_with_region_and_privacy({:controller =>'result/runs', :action => :upload_calls}),  
+              :id => "call_history_file_upload_form", 
+              :'data-type' => :html, 
+              :multipart => true) do %>
+
+	<label for="call_history" class="btn btn-success" onclick= <%= set_target("zagruzit_istoriyu") %>>Загрузить детализацию звонков</label>
+	<div hidden>
+		<%= file_field_tag('call_history', {:hidden => true, :rel => "nofollow"})%>
+	</div>		
+	<% submit_tag("Загрузить детализацию звонков", {:class => "btn btn-success", :rel => "nofollow"} ) %>  
+
+<% end %>
+

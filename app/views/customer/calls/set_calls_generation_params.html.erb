@@ -1,0 +1,45 @@
+<% title "Моделирование истории звонков #{region_and_privacy_tag}" %>
+<% description "Моделирование истории звонков #{region_and_privacy_tag}. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных операторов \
+				МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор средств для \
+				анализа услуг в области мобильной связи." %>
+<% keywords "моделирование истории звонков #{region_and_privacy_tag}" %>	
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <span class="h5">С помощью <strong>моделирования истории звонков</strong> вы можете подобрать оптимальный тариф и тарифные опции
+				на основании вашей желаемой модели пользования мобильными услугами</span>
+			<hr />
+			<%= link_to(t('customer.calls.set_calls_generation_params.generate_calls_link'), customer_calls_generate_calls_path(hash_with_region_and_privacy), 
+				{:class => "btn btn-success btn-xl", :type =>"button", :rel => "nofollow",
+               		 :onclick => set_target("sgenerirovat")}) %>
+            <hr>
+			<%= link_to("Перейти к загрузке детализации", customer_history_parsers_prepare_for_upload_path(hash_with_region_and_privacy), 
+				{:class => "btn btn-primary", :type =>"button"}) %>
+            <hr>
+        </div>
+    </div>
+</header>
+
+
+<div class="panel panel-default" >
+	<div class="panel-heading"><span class="h4"> Сохранение результатов моделирования звонков</span></div>
+	<div class="panel-body">
+		<%= render :partial => 'call_run_choice' %>
+	</div>
+	<div class="panel-footer">
+		<%= link_to(t('customer.calls.set_calls_generation_params.call_runs_link'), customer_call_runs_path(hash_with_region_and_privacy), 
+			{:class => "btn btn-primary", :type =>"button", :rel => "nofollow"}) %>
+		<%= render :partial => 'information' %>
+	</div>
+</div>
+
+<div class="h4">Параметры моделирования звонков</div>
+
+
+<%= render :partial => 'calls_gener_params_tabs', :layout => 'application/layouts/tabs', 
+	:locals => {:name => 'calls_gener_params_tabs', :active => session[:current_tabs_page]['calls_gener_params_tabs'].to_i} %>
+
+

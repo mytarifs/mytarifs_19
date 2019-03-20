@@ -1,0 +1,39 @@
+<% title "Запрос на получение инструкции по разблокировке аккаунта" %>
+<% description "Запрос на получение инструкции по разблокировке аккаунта. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных операторов МТС, «Билайн», \
+				«Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг в \
+				области мобильной связи." %>
+<% keywords "запрос на получение инструкции по разблокировке аккаунта" %>	
+<% noindex 'googlebot' %>
+
+<%
+	input_html = {:class => "form-control  "}
+	link_to_html = {:class => "btn btn-link", :type => 'button'}
+	submit_html = {:class => "btn btn-primary btn-group-justified"}
+	label_html = {:class => "control-label "}
+%>
+
+<%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post }) do |f| %>
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) if current_user %>
+
+   <% if !devise_error_messages!.blank? %>
+	<div class="alert alert-warning alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert">
+			<span aria-hidden="true">&times;</span>
+			<span class="sr-only">Close</span>
+		</button>
+		<%= devise_error_messages! %>
+	</div>
+  <% end %>
+
+  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+	  	<%= f.label :email, label_html %>
+  		<%= f.email_field( :email, {autofocus: true}.merge(input_html) ) %>
+  <% end %>
+
+  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+  		<%= f.submit "Вышлите инструкции по разблокировке аккаунта", submit_html %>
+  <% end %>
+
+<% end %>
+
+<%= render "devise/shared/links" %>

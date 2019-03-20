@@ -1,0 +1,28 @@
+<%
+table.init do |t|
+#  t.caption = 'Список тарифов и опций'
+  t.heads = ['Название тарифа (опции, услуги)', 'Для физических лиц', ' Тариф / Опция / Услуга',] + (user_type == :admin ? ['ID', 'region', '', '', '', ''] : [])
+  t.set_fields do |tarif_class| 
+
+	tarif_class_by_operator_link_to = link_to( "#{tarif_class.name}", 
+	    	tarif_class_by_operator_path(hash_with_region_and_privacy({:operator_id => params[:operator_id], :id => tarif_class.slug}) ), :my_remote => false)
+	
+	http = tarif_class.full_http_from_http(m_region, :http)
+
+  [
+    tarif_class_by_operator_link_to, 
+ 	(tarif_class.privacy_id == Category::Privacies['personal']['id'] ? "+" : "-"),
+    (tarif_category_txt_from_standard_service_id(tarif_class.standard_service_id) if tarif_class.standard_service), 
+  ] + (user_type == :admin ? [
+#    tarif_class.id, 
+    link_to_if(tarif_class.features, tarif_class.name, http, :target => ""), 
+    link_to( 'Show admin', admin_tarif_class_path(tarif_class), :my_remote => true), 
+    link_to( 'Edit', edit_tarif_class_path(tarif_class), :my_remote => true), 
+#    (tarif_class.created_at.to_formatted_s(:short) if  tarif_class.created_at), 
+#    (tarif_class.updated_at.to_formatted_s(:short) if tarif_class.updated_at), 
+#    link_to( 'Destroy', tarif_class, method: :delete, data: { confirm: 'Are you sure?' } )
+  ] : [])
+  end
+end
+%>
+

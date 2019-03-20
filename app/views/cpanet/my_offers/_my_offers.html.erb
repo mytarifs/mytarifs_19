@@ -1,0 +1,31 @@
+<%
+table.init do |t|
+  filtr = session[:filtr]['my_offers_filtr'] || {}
+    
+  t.heads = ['Website', 'MyOffer', 'Offer', 'Offer status', 'Connection status',] +
+  			(['features_keys', 'features', 'offer_features_keys', 'offer_features'] - (filtr['hide_fields'] || [])) + ['', '', '']
+  
+  t.set_fields do |my_offer| 
+  	features_keys_to_show = (filtr['features_keys_to_show'] || []) - ['']
+  	features_to_show = features_keys_to_show.blank? ? my_offer.features : my_offer.features.try(:slice, *features_keys_to_show)
+
+  	offer_features_keys_to_show = (filtr['offer_features_keys_to_show'] || []) - ['']
+  	offer_features_to_show = offer_features_keys_to_show.blank? ? my_offer.offer.try(:features) : my_offer.offer.try(:features).try(:slice, *offer_features_keys_to_show)
+  	
+	[
+		(my_offer.website.try(:name) || my_offer.website_id || ''),
+		(my_offer.try(:name) || my_offer.try(:[], :features).try(:[], 'name') || ''),
+		(my_offer.offer.try(:name) || my_offer.offer_id || ''),
+		(my_offer.offer.try(:status) || ''),
+		(my_offer.status || ''),
+		((filtr['hide_fields'] || []).include?('features_keys') ? nil : my_offer.features.try(:keys)),
+		((filtr['hide_fields'] || []).include?('features') ? nil : features_to_show),
+		((filtr['hide_fields'] || []).include?('offer_features_keys') ? nil : my_offer.offer.try(:features).try(:keys)),
+		((filtr['hide_fields'] || []).include?('offer_features') ? nil : offer_features_to_show),
+		link_to( "Programs", cpanet_my_offer_programs_path(my_offer) ),
+		link_to( "Edit", edit_cpanet_my_offer_path(my_offer), :my_remote => true),
+		(['active', 'Активен'].include?(my_offer.status) ? '' : link_to( 'Destroy', cpanet_my_offer_path(my_offer), method: :delete, data: { confirm: 'Are you sure?' } ) ),
+	].compact
+  end
+end	
+%>

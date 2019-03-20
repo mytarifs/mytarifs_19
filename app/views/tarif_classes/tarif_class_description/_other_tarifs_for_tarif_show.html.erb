@@ -1,0 +1,21 @@
+<%
+table.init do |t|
+#  t.caption = 'Список тарифов и опций'
+  t.heads = ['Название', 'Система оплаты', 'Кто может подключить', 'Тип телефонного номера',].map do |head|
+  	content_tag(:span, head, { :style => "font-size: 13px"})
+  end
+  
+  t.set_fields do |tarif_class| 
+	  [
+	    (tarif_class["slug"] ? link_to(tarif_class["name"], tarif_class_path(hash_with_region_and_privacy({:id => tarif_class["slug"]})), {:my_remote => true}) :
+	    	tarif_class["name"]), 
+	    tarif_class.payment_type,
+	    tarif_class.privacy.try(:name),
+	    (tarif_class.phone_number_type || []).join(' или '),
+	  ].map do |item|
+  			content_tag(:span, item, { :style => "font-size: 13px"})
+  		end
+  end
+end
+%>
+

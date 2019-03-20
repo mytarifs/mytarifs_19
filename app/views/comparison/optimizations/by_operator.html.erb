@@ -1,0 +1,37 @@
+<% title "Рейтинг тарифов #{operator.name} #{region_and_privacy_tag}: список рейтингов" %>
+<% description "Рейтинг тарифов #{operator.name} #{region_and_privacy_tag}: список рейтингов.www.mytarifs.ru — сервис по подбору тарифов и опций для \
+				мобильных операторов МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий \
+				выбор средств для анализа услуг в области мобильной связи." %>
+<% keywords "список рейтингов рейтинг тарифов #{operator.name} #{region_and_privacy_tag}" %>	
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <span class="h5">Рейтинг тарифов <%= operator.name %> подготовлено следующим образом.
+				Мы смоделировали несколько типичных моделей поведения пользователей мобильной связи.
+				После этого выбрали лучшие тарифы и опции по стоимости пользования.
+			</span>
+            <br />
+            <br />
+            <%= render :partial => "application/shared/social_share_buttons" %>
+            <hr>
+<!--
+            <div class="h4">Рейтинг не учитывает ваши особенности пользования мобильной связи. Поэтому мы предлагаем вам подобрать тариф и опции.</div>
+            <%= link_to "Начать подбор тарифа", customer_calls_set_calls_generation_params_path, {:class => "btn btn-primary btn-xl"} %>
+-->            
+        </div>        
+    </div>
+</header>
+
+<% region_page = session[:current_accordion_page].blank? ? 0 : session[:current_accordion_page]['region_accord_rating_panel'].to_i %>
+<%= render(:partial => 'application/shared/regions', :layout => 'application/layouts/accordion', 
+     	:locals => {:panel_class => "panel-info", :name => 'region_accord_rating_panel', :active => region_page, 
+     	:partial_to_render => 'comparison/optimizations/by_operator/rating_panel_render'})
+ %>
+
+<% render( :partial => 'comparison/optimizations/by_operator/optimizations_panels', :layout => 'application/layouts/model_panels', 
+		:locals => {:table => controller.comparison_optimizations_table, :panels_in_row => 2}) if false  %>
+
+<%= render :partial => "application/shared/hypercomments" %>

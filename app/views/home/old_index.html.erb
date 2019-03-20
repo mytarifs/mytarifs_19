@@ -1,0 +1,284 @@
+<% title "Подбор выгодного тарифа" %>
+<% description "Описание возможностей и порядка подбора оптимального тарифа мобильной связи, включая мобильные опций" %>
+
+   <nav id="topNav" class="navbar navbar-default navbar-fixed-top">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="#first"><i class="fa fa-phone "></i> mytarifs.ru</a>
+            </div>
+            <div class="navbar-collapse collapse" id="bs-navbar">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a class="page-scroll" href="#one">Как это работает</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#two">Как выбирать тариф</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#three">Варианты подбора</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#four">Что еще</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#last">Зарегистрироваться</a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <%= render('/application/menus/main_top_menu_collapsed') %> 
+                    </li>
+                    <li>
+                        <a class="page-scroll" data-toggle="modal" title="Подбор выгодного тарифа" href="#aboutModal">О нас</a>
+                    </li>
+                </ul>
+            </div>
+    </nav>
+    
+
+    <header id="first">
+        <div class="header-content">
+            <div class="inner">
+                <h1 class="cursive">Лучший тариф для вас</h1>
+                <div class="h4">У нас вы сможете подобрать выгодный тариф  и опции на мобильную связь.</div>
+                <div class="h4">Сейчас доступны для подбора тарифы МТС, Билайн, Мегафон и Теле2 для Москвы и Московской области</div>
+                <hr>
+               	<%= link_to "Рейтинг операторов", comparison_optimization_path(hash_with_region_and_privacy({:id => 2})), {:class => "btn btn-info btn-xl"} %> &nbsp; 
+               	<%= link_to "Начать подбор тарифа", customer_calls_set_calls_generation_params_path(hash_with_region_and_privacy), {:class => "btn btn-info btn-xl"} %> &nbsp; 
+				<%= render :partial => 'application/shared/alerts' %>
+				<%= render :partial => 'application/shared/calculation_status' %>
+            </div>
+        </div>
+    </header>
+    
+    <section class="bg-primary" id="one">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-lg-offset-3 col-md-8 col-md-offset-2 text-center">
+                    <span class="h2 margin-top-0 text-primary">Как это работает</span>
+                    <p class="text-faded">
+                        Для выбора самого выгодного для вас тарифа нужно пройти четыре этапа.
+                    </p>
+                    <hr class="primary">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-phone fa-5x wow fadeIn" data-wow-delay=".2s"></i>
+                        <span class="h3">Сообщаете, как вы пользуетесь связью</span>
+                        <p class="text-muted">Загрузите детализацию звонков или смоделируйте ее, чтобы можно было подобрать тариф именно для вас</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-calculator fa-5x wow fadeInUp" data-wow-delay=".4s"></i>
+                        <span class="h3">Выбираете параметры подбора</span>
+                        <p class="text-muted">Мы предлагаем несколько вариантов подбора для учета ваших возможных потребностей</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-envelope fa-5x wow fadeIn" data-wow-delay=".6s"></i>
+                        <span class="h3">Мы подбираем и сообщаем вам</span>
+                        <p class="text-muted">Подбор занимает порядка 10-15 минут в зависимости от загрузки сайта. Мы напишем вам о готовности подбора по почте.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-user fa-5x wow fadeIn" data-wow-delay=".8s"></i>
+                        <span class="h3">Вы принимаете решение</span>
+                        <p class="text-muted">Вы можете последовать нашей рекомендации или дополнительно проанализировать полученные результаты.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    <section id="two">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <span class="h2 margin-top-0 text-primary">Как выбирать тариф</span>
+	                <div class="h4">Мы рекомендуем обратить внимание на те мобильные услуги, которыми вы пользуетесь больше всего, и затраты на которые самые большие.</div>
+                    <hr class="primary">
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-search fa-5x wow fadeIn" data-wow-delay=".3s"></i>
+                        <span class="h3">Анализ услуг</span>
+                        <p class="text-muted">Вы сможете проанализировать ваше пользование услугами с различной степенью детализации.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-sort-amount-desc fa-5x wow fadeInUp" data-wow-delay=".2s"></i>
+                        <span class="h3">Агрегированные затраты по услугам</span>
+                        <p class="text-muted">По каждому предложенному варианту вы увидете затраты по отдельным услугам.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-th fa-5x wow fadeIn" data-wow-delay=".3s"></i>
+                        <span class="h3">Затраты по тарифам, опциям и услугам</span>
+                        <p class="text-muted">Затраты по отдельным услугам сгруппированы по тарифу или опциям.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-list-ul fa-5x wow fadeIn" data-wow-delay=".3s"></i>
+                        <span class="h3">Сравнение тарифов</span>
+                        <p class="text-muted">Вы сможете сравнить до четырех тарифов по затратам или цене отдельных услуг.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    
+    <section class="bg-primary" id="three">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <span class="h2 margin-top-0 text-primary">Варианты подбора тарифа</span>
+	                <div class="h4">Мы предоставляем четыре варианта подбора, которые могут пригодиться вам в разных ситуациях.</div>
+                    <hr class="primary">
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-globe fa-5x wow fadeIn" data-wow-delay=".3s"></i>
+                        <span class="h3">Основной вариант</span>
+                        <p class="text-muted">Поиск самого выгодного тарифа и опций из всех доступных для подключения тарифов и опций МТС, Билайн, Мегафон и Теле2.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa fa-wrench fa-5x wow fadeInUp" data-wow-delay=".2s"></i>
+                        <span class="h3">Выбраные услуги</span>
+                        <p class="text-muted">Вы можете ограничить список услуг, по которым подбирать тариф. Это пригодится, например, если у вас два телефона или две сим-карты.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-check fa-5x wow fadeIn" data-wow-delay=".3s"></i>
+                        <span class="h3">Один оператор</span>
+                        <p class="text-muted">Вы можете подобрать тариф только для выбранного оператора. Это пригодится, если вы не планируете менять оператора.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 text-center">
+                    <div class="feature">
+                        <i class="icon-lg fa fa-usd fa-5x wow fadeIn" data-wow-delay=".3s"></i>
+                        <span class="h3">Проверка стоимости</span>
+                        <p class="text-muted">Вы можете проверить сколько будут стоить тариф и набор опций. Это пригодится для проверки ваших планов по изменению тарифов и опций.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="container-fluid" id="four">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+                <span class="h2 text-center text-primary">Что еще</span>
+                <hr>
+                <div class="media wow fadeInRight">
+                    <span class="h3">Анализ затрат</span>
+                    <div class="media-body media-middle">
+                        <p>Вы сможете проанализировать ваши затраты на мобильную связь, если загрузите детализацию звонков.</p>
+                    </div>
+                    <div class="media-right">
+                        <i class="icon-lg fa fa-money fa-5x"></i>
+                    </div>
+                </div>
+                <hr>
+                <div class="media wow fadeIn">
+                    <span class="h3">Сохранение результатов</span>                    
+                    <div class="media-left">
+                    	<br />
+                        <i class="icon-lg fa fa-floppy-o fa-5x"></i>
+                    </div>
+                    <div class="media-body media-middle">
+                        <p>Если захотите, то вы сможете сохранить ваши результаты для последующего использования.</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="media wow fadeInRight">
+                    <span class="h3">Описание тарифов</span>
+                    <div class="media-body media-middle">
+                        <p>Вы сможете сами изучить тарифы и опции. У нас не будет мелкого шрифта и ссылок.</p>
+                    </div>
+                    <div class="media-right">
+                        <i class="icon-lg fa fa-file-text fa-5x"></i>
+                    </div>
+                </div>
+                <hr>
+            </div>
+        </div>
+    </section>
+    <aside class="bg-dark">
+        <div class="container text-center">
+            <div class="call-to-action">
+                <span class="h2 text-primary">Приступить к подбору тарифа</span>
+                <%= link_to "Смоделировать звонки", customer_calls_set_calls_generation_params_path(hash_with_region_and_privacy), {:class => "btn btn-default btn-lg wow flipInX"} %> &nbsp;
+                <%= link_to "Загрузить детализацию", customer_history_parsers_prepare_for_upload_path(hash_with_region_and_privacy), {:class => "btn btn-default btn-lg wow flipInX"} %> 
+            </div>
+            <br>
+            <hr/>
+        </div>
+    </aside>
+    <section id="last">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <span class="h2 margin-top-0 wow fadeIn">Зарегистрироваться</span>
+                    <p>Мы предлагаем вам зарегистрироваться, так как это позволит вам повторно воспользоваться полученными результатами.
+                    	Для гостей мы предлагаем упрощенный вариант подбора тарифов.</p>
+                    <hr class="primary">
+	                <%= link_to "Регистрация", new_user_registration_path, {:class => "btn btn-default btn-lg wow flipInX", :rel => "nofollow"} %> &nbsp;
+	                <%= link_to "Войти", login_path, {:class => "btn btn-default btn-lg wow flipInX", :rel => "nofollow"} %> 
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer id="footer">
+        <div class="container-fluid">
+            <div class="row">
+            	<%= render('/application/shared/footer') %>
+            </div>
+        </div>
+    </footer>
+    <div id="aboutModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+        	<div class="modal-body">
+        		<span class="h2 text-center">www.mytarifs.ru</span>
+        		<div class="p5 text-center">
+        		    Сервис по подбору выгодных тарифов и опций для мобильной связи.
+        		</div>
+                <hr class="primary">
+        		<p class="text-justify">
+        		    Мы помогаем принять правильное решение, предлагая варианты решений и средства для анализа, в области мобильной связи.
+        		    Мы молодая компания, и будем благодарны, если вы поддержите нас.
+        		</p>
+                <p class="text-center">
+	                <%= link_to "Поддержать", new_customer_payments_path(hash_with_region_and_privacy), {:class => "btn btn-primary btn-lg center-btn flipInX", :rel => "nofollow"} %> &nbsp;
+	        		<button class="btn btn-primary btn-lg" data-dismiss="modal" aria-hidden="true"> Закрыть </button>
+                </p>
+        	</div>
+        </div>
+        </div>
+    </div>

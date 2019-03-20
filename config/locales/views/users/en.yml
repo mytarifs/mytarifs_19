@@ -1,0 +1,9 @@
+en:
+  login: log in
+  logout: log out
+  account_info: account info
+  user: user
+  letter_to_admin: letter to admin
+  default_guest_name: guest
+  register: register    
+        

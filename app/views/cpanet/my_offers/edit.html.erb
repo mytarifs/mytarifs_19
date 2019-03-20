@@ -1,0 +1,10 @@
+<% title 'Edit MyOffer' %>
+
+<p>
+	<%	link_to_html = {:class => "btn btn-link", :type => 'button'} %>
+</p>
+
+<%= render :partial => 'form', :layout => 'application/layouts/model_form_for_three_column', 
+	:locals => {:form_item => controller.my_offer_form, :url => cpanet_my_offer_path(my_offer) } %>
+
+

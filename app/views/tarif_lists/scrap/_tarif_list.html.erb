@@ -1,0 +1,35 @@
+<%
+form_item.init do |fi|
+#  fi.caption = 'Show tarif class'
+  fi.set_fields do |tarif_list| 
+  	action_path = scrap_tarif_lists_path(hash_with_region_and_privacy)
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+  	s = session[:filtr]['tarif_list_region_filtr'] || {}
+  	
+  	page_body = if tarif_list.id and s['show_body_page'] == 'true' and tarif_list.try(:tarif_class).try(:operator_id)
+	  	parser = ServiceParser::Runner.init({
+	  		:operator_id => tarif_list.try(:tarif_class).try(:operator_id),
+	  		:region_id => tarif_list.try(:region_id),
+	  		:original_page => (tarif_list.description || ""),
+	  		:tarif_class => tarif_list.try(:tarif_class),
+	  		:parsing_class => tarif_list.try(:tarif_class).try(:parsing_class),
+	  	})
+	  	tags_to_exclude_from_page = s['tags_to_exclude_from_page'] - ['']
+	  	parser.clean_body(tags_to_exclude_from_page).try(:body).try(:to_html).try(:html_safe)
+	else
+		nil
+  	end
+	[
+	  ["status", tarif_list.status],
+	  ["search_services_tag", tarif_list.tarif_class.try(:search_services_tag)],
+	  [
+      	link_to('visited_page_url', tarif_list.visited_page_url, {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+      	tarif_list.visited_page_url
+	  ],
+	  ["updated_at", tarif_list.updated_at],
+	  (page_body ? ['page_body', page_body] : nil)	  
+	].compact
+  end
+end	
+%>

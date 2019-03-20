@@ -1,0 +1,90 @@
+<% title "Отправка электронной почты | Регистрация на www.mytarifs.ru" %>
+<% description "Отправка электронной почты (регистрация). www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных операторов МТС, «Билайн», \
+				«Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг в \
+				области мобильной связи." %>
+<% keywords "отправка электронной почты регистрация" %>	
+<% noindex 'googlebot' %>
+
+<% render :partial => 'users/layouts/field_temp' %>
+
+<%
+	input_html = {:class => "form-control  "}
+	link_to_html = {:class => "btn btn-link", :type => 'button'}
+	submit_html = {:class => "btn btn-primary btn-group-justified"}
+	label_html = {:class => "control-label "}
+	
+	s = session[:filtr]['registration_option_filtr'] || {}
+	checkbox_html  = {:class => "form-control updatable ", :action_name => '/users/sign_up', :filtr_name => "registration_option_filtr"}.
+		merge(s["register"] == 'true' ? {:checked => 'checked'} : {} )
+	
+	step = (s["register"] == 'true' ? 1 : 0)
+	
+%>
+
+<% title ["Отправка электронной почты", "Регистрация"][step] %>
+
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: {:class => "" }) do |f| %>
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) if current_user %>
+
+  <%= tag(:input, :name => "registration_type", :type => "hidden", :value => [:only_email, :full_registration][step] ) %>
+
+   <% if !devise_error_messages!.blank? %>
+	<div class="alert alert-warning alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert">
+			<span aria-hidden="true">&times;</span>
+			<span class="sr-only">Close</span>
+		</button>
+		<%= devise_error_messages! %>
+	</div>
+  <% end %>
+
+  <% field_temp [true,  true][step] do %>
+	  	<%= f.label 'register', ["Хотите зарегистрироваться?", "Отказаться от регистрации"][step], label_html %>
+  		<%= check_box("registration_option_filtr", "register", checkbox_html, true, false ) %>
+  <% end %>
+  
+  <br />
+  
+  <% field_temp [false, true][step] do %>
+	  	<%= f.label :name, label_html %>
+  		<%= f.text_field( :name, {}.merge(input_html) ) %>
+  <% end %>
+
+  <% field_temp [true, true][step] do %>
+	  	<%= f.label :email, label_html %>
+  		<%= f.email_field( :email, {autofocus: true }.merge(input_html) ) %>
+  <% end %>
+
+  <% field_temp [false, true][step] do %>
+	  	<%= f.label :password, "Новый пароль", label_html %>
+	  	<% if @validatable %><i>(<%= @minimum_password_length %> знаков минимум)</i><% end %>
+	    <%= f.password_field :password, {autocomplete: "off"}.merge(input_html) %>
+  <% end %>
+
+  <% field_temp [false, true][step] do %>
+	  	<%= f.label :password_confirmation, "Подтверждение нового пароля", label_html %>
+	    <%= f.password_field :password_confirmation, {autocomplete: "off"}.merge(input_html) %>
+  <% end %>
+
+  <% field_temp [true, true][step] do %>
+  		<br />
+  		<%= f.submit( ["Отправить", "Зарегистрировать"][step], submit_html.merge({:onclick => set_target("press_registration_on_users_sign_up")})) %>
+  <% end %>
+
+  <% field_temp [true, true][step] do %>
+  		<br />
+  		<%= render :partial => "application/shared/social_login" %>
+  <% end %>
+
+
+<% end %>
+
+<br />
+  <% field_temp [true, false][step] do %>
+		<% if true and session[:work_flow].try(:[], :offer_to_provide_email) %>
+			<%= link_to("Перейти к подбору тарифа, если не хотите предоставлять email", session[:work_flow].try(:[], :path_to_go), 
+							{:class => "btn btn-primary", :type =>"button", :rel => "nofollow"}) %>
+		<% end %>
+  <% end %>
+
+<%= render "devise/shared/links" if [false, true][step] %>

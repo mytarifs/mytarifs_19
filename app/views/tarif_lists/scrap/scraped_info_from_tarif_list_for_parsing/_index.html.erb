@@ -1,0 +1,37 @@
+<%
+table.init do |t|
+  show_normalized_name = false
+  t.heads = [
+  	('normalized_name' if show_normalized_name)
+  ].compact + ['region', 'service', 'urls', 'tarif class name', 'status', 'error404', 'h1', 'fixed_month_payment', 'fixed_day_payment']
+  t.set_fields do |scraped_info| 
+  	
+  i = 0
+  urls = (scraped_info.try(:[], 'urls') || []).map do |url|
+  	i += 1
+  	region_id = scraped_info.try(:[],'region_id').try(:to_i)
+  	operator_id = scraped_info.try(:[],'operator_id').try(:to_i)
+  	privacy_id = scraped_info.try(:[],'privacy_id').try(:to_i)
+  	region_prefix = Category::Region::Desc.new(region_id, operator_id).subdomain
+  	full_url = Scraper::Service.region_http_from_full_http(url, region_prefix, operator_id, privacy_id)
+  	link_to(i.to_s, full_url, {:target => :blank})
+  end.compact
+
+  [
+  	(scraped_info.try(:[], 'normalized_name') if show_normalized_name),  	
+  ].compact +
+  [
+  	scraped_info.try(:[],'region_name'),
+  	scraped_info.try(:[], 'original_name'),
+  	urls.join(', ').html_safe,
+  	scraped_info.try(:[], 'tarif_class_name'),
+  	scraped_info.try(:[], 'status'),
+  	scraped_info.try(:[], 'initial_processing').try(:[], 'error404'),
+  	scraped_info.try(:[], 'initial_processing').try(:[], 'h1'),
+  	scraped_info.try(:[], 'initial_processing').try(:[], 'fixed_month_payment'),
+  	scraped_info.try(:[], 'initial_processing').try(:[], 'fixed_day_payment'),
+  ]
+  end
+end
+%>
+

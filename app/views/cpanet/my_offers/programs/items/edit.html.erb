@@ -1,0 +1,10 @@
+<% title 'Edit Item' %>
+
+<p>
+	<%	link_to_html = {:class => "btn btn-link", :type => 'button'} %>
+</p>
+
+<%= render :partial => 'form', :layout => 'application/layouts/model_form_for_three_column', 
+	:locals => {:form_item => controller.item_form, :url => cpanet_programs_item_path(item)  } %>
+
+

@@ -1,0 +1,20 @@
+<% title "Расчеты для быстрого подбора тарифов" %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <hr>
+        </div>
+    </div>
+</header>
+
+<p> Статус расчетов - кол-во задач в очереди:
+	<%= controller.calculation_status %>
+</p>
+
+<p>
+<%= render( :partial => 'comparison/fast_optimizations/calculation_options', :layout => 'application/layouts/filtr_form_n_columns', 
+	:locals => {:form_item => calculation_options} ) %>
+</p>

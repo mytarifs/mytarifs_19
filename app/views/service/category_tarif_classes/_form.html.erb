@@ -1,0 +1,141 @@
+<%
+form_item.init do |fi|
+  fi.set_fields do |f|
+  	action_path = edit_service_category_tarif_class_path(hash_with_region_and_privacy({:id => f.object.id}))
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	updatable_input_html = input_html.merge({:class => "updatable form-control "})
+	label_html = {:class => "form-label "}
+	s = session_model_params(fi)
+	filtr_name = 'service_category_tarif_class'
+	
+	service_region_ids = TarifList.where(:tarif_class_id => f.object.try(:as_standard_category_group).try(:tarif_class_id)).pluck(:region_id).uniq
+	service_region_ids = Category.mobile_regions_with_scope(['tarif_description']).map{|key, desc| desc['region_ids'][0]} if service_region_ids.blank?
+	service_regions = Category.where(:id => service_region_ids)
+
+	s["uniq_service_category"] = transform_uniq_service_category_to_hash(s["uniq_service_category"]) if s["uniq_service_category"].is_a?(String)
+
+	s['conditions'] ||= {}	
+	s['conditions']['parts'] = f.object.conditions.try(:[], 'parts')
+	
+	rouming = (s["uniq_service_category"].try(:[], "rouming") || nil)
+	service = (s["uniq_service_category"].try(:[], "service") || nil)
+	direction = (s["uniq_service_category"].try(:[], "direction") || nil)
+	partner = (s["uniq_service_category"].try(:[], "partner") || nil)
+	
+	roumings = (Optimization::Global::Base::Structure || {})
+	services = (Optimization::Global::Base::Structure[rouming.try(:to_sym)] || {}) if rouming
+	directions = (Optimization::Global::Base::Structure[rouming.try(:to_sym)][service.try(:to_sym)] || {}) if rouming and service
+	partners = (Optimization::Global::Base::Structure[rouming.try(:to_sym)][service.try(:to_sym)][direction.try(:to_sym)] || {}) if rouming and service and direction and !directions.blank?
+	
+   	filtr_fields = []
+   	(s['filtr'] || {}).each do |filtr_key, filtr_by_type|
+   		next if ["new_filtr_key", "new_filtr_key_type"].include?(filtr_key)
+   		filtr_by_type.each do |filtr_type, filtr_options|
+   			next if ["name"].include?(filtr_type)
+   			select_values = Optimization::Global::Base::StructureFiltrs[filtr_key.to_sym].map{|r| [r, (r.to_s.constantize.is_a?(Integer) ? r.to_s.constantize : r.to_s)]}
+			filtr_fields << [
+				f.label("filtr[#{filtr_key}][name]", 'filtr_category_name', label_html),
+	   			f.text_field("filtr[#{filtr_key}][name]", input_html.merge({:value => (s["filtr"].try(:[], filtr_key).try(:[], 'name') || nil) })),
+			]
+	   		filtr_fields << [
+	   			f.text_field("filtr_keys[#{filtr_key}][#{filtr_type}]", input_html.merge({:value => {filtr_key => filtr_type}})),
+	
+		     	f.select("filtr[#{filtr_key}][#{filtr_type}]", select_values, 
+		  	    	{:include_blank => true, :selected => (s['filtr'].try(:[], filtr_key).try(:[], filtr_type) || []) }, 
+			  	  	input_html.merge({:multiple => true, :size => Optimization::Global::Base::StructureFiltrs[filtr_key.to_sym].size + 1}) )   
+	   		]
+   		end
+   	end	   
+
+	options_for_must_include = TarifClass.where(privacy_id: f.object.try(:tarif_class).try(:privacy_id)).all_by_operator_region_and_service_type(
+		f.object.try(:tarif_class).try(:operator_id), f.object.try(:tarif_class).try(:features).try(:[], 'region_txt'), 
+		[TarifClass::ServiceType[:tarif], TarifClass::ServiceType[:special_service]])
+
+    [ 
+	   [
+#	   	'', s
+	   ],
+	   [
+	   	f.label(:id, 'ID', label_html), 
+	   	f.number_field(:id, input_html.merge({:disabled => true}))
+	   ],
+	   [
+	   	link_to( 'GroupCategories', admin_tarif_class_path(hash_with_region_and_privacy({:id => f.object.tarif_class_id})), 
+	   		{:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => true})
+	   ],
+	   [
+	   	f.label("conditions[regions]", "regions", label_html),
+     	f.collection_select("conditions[regions]", service_regions, :id, :name, 
+	  	  {:include_blank => true, :selected => (s["conditions"].try(:[], 'regions') || []) }, input_html.merge({:multiple => true, :size => service_regions.size + 1}) )   
+	   ],	
+	   [
+	   	f.label("service_category_one_time_id", "service_category_one_time_id", label_html),
+     	f.select("service_category_one_time_id", Service::Category::ID['onetime'].map{|r| [r[1], r[0]]}, 
+	  	  {:include_blank => true, :selected => (s["service_category_one_time_id"].try(:to_s) || nil) }, input_html )   
+	   ],	
+	   [
+	   	f.label("service_category_periodic_id", "service_category_periodic_id", label_html),
+     	f.select("service_category_periodic_id", Service::Category::ID['periodic'].map{|r| [r[1], r[0]]}, 
+	  	  {:include_blank => true, :selected => (s["service_category_periodic_id"].try(:to_s) || nil) }, input_html )   
+	   ],	
+	   [
+	   	f.label("uniq_service_category[rouming]", "rouming", label_html),
+     	f.select("uniq_service_category[rouming]", roumings.map{|r| [r[0], r[0]]}, 
+	  	  {:include_blank => true, :selected => rouming }, 
+	  	  input_html.merge({:multiple => false, :size => roumings.keys.size + 1}))   
+	   ],	
+	   ([
+	   	f.label("uniq_service_category[service]", "service", label_html),
+     	f.select("uniq_service_category[service]", services.map{|r| [r[0], r[0]]}, 
+	  	  {:include_blank => true, :selected => service }, 
+	  	  input_html.merge({:multiple => false, :size => services.keys.size + 1}))   
+	   ] if rouming),	
+	   ([
+	   	f.label("uniq_service_category[direction]", "direction", label_html),
+     	f.select("uniq_service_category[direction]", directions.map{|r| [r[0], r[0]]}, 
+	  	  {:include_blank => true, :selected => direction }, 
+	  	  input_html.merge({:multiple => false, :size => directions.keys.size + 1}))   
+	   ] if rouming and service and !services.blank? and !directions.blank?),	
+	   ([
+	   	f.label("uniq_service_category[partner]", "partner", label_html),
+     	f.select("uniq_service_category[partner]", partners.map{|r| [r[0], r[0]]}, 
+	  	  {:include_blank => true, :selected => partner }, 
+	  	  input_html.merge({:multiple => false, :size => partners.keys.size + 1}))   
+	   ] if rouming and service and direction and !services.blank? and !directions.blank? and !partners.blank?),	
+
+	   [
+	   	f.label("filtr", content_tag(:strong, 'filtr group'), label_html), 
+	   	f.label("filtr", content_tag(:strong, 'filtr group'), label_html), 
+	   ],
+	   [
+	   	f.label("filtr[new_filtr_key]", 'new_filtr_key', label_html) +
+     	f.select("filtr[new_filtr_key_type]", ['in', 'not_in'], 
+	  	  {:include_blank => true, :selected => (s['filtr'].try(:[], 'new_filtr_key_type') || nil) }, 
+	  	  input_html.merge({:multiple => false, :size => 3})),   
+     	f.select("filtr[new_filtr_key]", Optimization::Global::Base::StructureFiltrs.keys, 
+	  	  {:include_blank => true, :selected => s["filtr"].try(:[], 'new_filtr_key') }, 
+	  	  input_html.merge({:multiple => false, :size => Optimization::Global::Base::StructureFiltrs.keys.size + 1})),   
+	   ],
+	  ] + filtr_fields +
+	  [
+
+	   [
+	   	f.label('conditions[parts]', 'parts', label_html), 
+	   	f.text_field('conditions[parts]', input_html.merge({:disabled => true, :value => (s["conditions"].try(:[], 'parts') || nil)}))
+	   ],
+	   [
+	   	f.label('conditions[tarif_set_must_include_tarif_options]', 'tarif_set_must_include_tarif_options', label_html), 
+     	f.collection_select("conditions[tarif_set_must_include_tarif_options]", options_for_must_include, :id, :name_with_region, 
+	  	  	{:include_blank => true, :selected => (s['conditions'].try(:[], 'tarif_set_must_include_tarif_options') || [])}, 
+	  	  	input_html.merge({:multiple => true, :size => options_for_must_include.size + 1}) )   
+	   ],
+	   [
+	   	link_to( 'GroupCategories', admin_tarif_class_path(hash_with_region_and_privacy({:id => f.object.tarif_class_id})), 
+	   		{:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => true})
+	   ],
+	].compact
+  end
+end
+%>

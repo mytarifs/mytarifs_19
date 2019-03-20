@@ -1,0 +1,239 @@
+<%
+form_item.init do |fi|
+  fi.set_fields do |f|
+  	action_path = f.object.id ? edit_tarif_class_path(hash_with_region_and_privacy({:id => f.object.id})) : new_tarif_class_path(hash_with_region_and_privacy)
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	updatable_input_html = input_html.merge({:class => "updatable form-control "})
+	label_html = {:class => "form-label "}
+	s = session_model_params(fi)
+	
+	service_region_ids = f.object.id ? TarifList.where(:tarif_class_id => f.object.id).pluck(:region_id).uniq : TarifList.pluck(:region_id).uniq
+	service_region_ids = Category.mobile_regions_with_scope(['tarif_description']).map{|key, desc| desc['region_ids'][0]} if service_region_ids.blank?
+	service_regions = Category.where(:id => service_region_ids)
+
+	base_services = TarifClass.where(privacy_id: s['privacy_id'])
+	tarifs_for_forbidden = base_services.all_by_operator_region_and_service_type(s["operator_id"].try(:to_i), s['features'].try(:[], 'region_txt'), TarifClass::ServiceType[:tarif])
+    options_for_priority = base_services.all_by_operator_region_and_service_type(s["operator_id"].try(:to_i), s['features'].try(:[], 'region_txt'), TarifClass::ServiceType[:special_service])
+    tarifs_for_prerequisites = base_services.all_by_operator_region_and_service_type(s["operator_id"].try(:to_i), s['features'].try(:[], 'region_txt'), nil)
+
+   	incompatible_fields = []
+   	(s['dependency'].try(:[], 'incompatibility') || {}).each do |compatibility_key, incompatible_options|
+   		incompatible_fields << [
+   			f.text_field("dependency[incompatibility_keys][#{compatibility_key}]", input_html.merge({:value => compatibility_key})),
+#	     	'',
+	     	f.collection_select("dependency[incompatibility][#{compatibility_key}]", options_for_priority, :id, :name_with_region, 
+		  	  	{:include_blank => true, :selected => (s['dependency'].try(:[], 'incompatibility').try(:[], compatibility_key) || []) }, 
+		  	  	input_html.merge({:multiple => true, :size => options_for_priority.size + 1}) )   
+   		]
+   	end	   
+    [ 
+#	   [s["publication_status"].try(:to_i), s.keys],
+#	   [[fi.model.is_archived, tarifs_for_forbidden.size], [session[:form]["tarif_class"]['dependency']['is_archived']]],
+	   [
+	   	link_to( 'Список тарифов', tarif_classes_path(hash_with_region_and_privacy), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => true})
+	   ],
+	   [
+	   	f.label(:id, 'ID', label_html), 
+	   	f.number_field(:id, input_html.merge({:disabled => true}))
+	   ],
+	   [
+	   	f.label(:name, 'Название тарифа', label_html), 
+	   	f.text_field(:name, input_html.merge({:value => s['name']}))
+	   ],
+	   [
+	   	f.label("operator_id", "Оператор", label_html),
+     	f.collection_select("operator_id", Category::Operator.operators_with_tarifs.all, :id, :name, 
+	  	  {:include_blank => false, :selected => (s["operator_id"].try(:to_i) || Category::Operator::Const::Mts) }, input_html )   
+	   ],	
+	   [
+	   	f.label("features[region_txt]", "Регион", label_html),
+     	f.select("features[region_txt]", Category.mobile_regions_with_scope.map{|r| [r[1]['name'], r[0]]}, 
+	  	  {:include_blank => true, :selected => (s["features"].try(:[], 'region_txt') || nil) }, input_html )   
+	   ],	
+	   [
+	   	f.label("features[regions]", "regions", label_html),
+     	f.collection_select("features[regions]", service_regions, :id, :name, 
+	  	  {:include_blank => true, :selected => (s["features"].try(:[], 'regions') || []) }, input_html.merge({:multiple => true, :size => service_regions.size + 1}) )   
+	   ],	
+	   [
+	   	f.label("features[archived_regions]", "archived_regions", label_html),
+     	f.collection_select("features[archived_regions]", service_regions, :id, :name, 
+	  	  {:include_blank => true, :selected => (s["features"].try(:[], 'archived_regions') || []) }, input_html.merge({:multiple => true, :size => service_regions.size + 1}) )   
+	   ],	
+	   [
+	   	f.label("privacy_id", "Для физических или юридических лиц", label_html),
+     	f.collection_select("privacy_id", Category.privacy.all, :id, :name, 
+	  	  {:include_blank => false, :selected => (s["privacy_id"].try(:to_i) || 2) }, input_html )   
+	   ],	
+	   [
+	   	f.label("standard_service_id", "Тип услуги", label_html),
+     	f.collection_select("standard_service_id", Category.standard_services.all, :id, :name, 
+	  	  {:include_blank => false, :selected => (s["standard_service_id"].try(:to_i) || TarifClass::ServiceType[:tarif]) }, input_html )   
+	   ],	
+	   [
+	   	f.label(:slug, 'ЧПУ', label_html), 
+	   	f.text_field(:slug, input_html.merge({:value => s['slug']}))
+	   ],
+	   [
+	   	f.label("features[http]", 'ссылка на описание на сайте оператора', label_html), 
+	   	f.text_field("features[http]", input_html.merge({:value => s['features'].try(:[], 'http')}))
+	   ],
+	   [
+	   	f.label("features[buy_http]", 'ссылка на покупку тарифа на сайте оператора', label_html), 
+	   	f.text_field("features[buy_http]", input_html.merge({:value => s['features'].try(:[], 'buy_http')}))
+	   ],
+	   [
+#	   	f.object.features['payment_type'], 
+	   	f.label("features[payment_type]", 'Способ оплаты', label_html), 
+      	f.select("features[payment_type]", ["Постоплатная", "Авансовая"], 
+      		{:include_blank => true, :selected => s['features'].try(:[], 'payment_type') }, input_html.merge({:multiple => false, :size => 3}) ),
+	   ],
+	   ((s["standard_service_id"].try(:to_i)  != TarifClass::ServiceType[:tarif]) ? [] : [
+	   	f.label("features[phone_number_type]", 'Тип номера телефона', label_html), 
+      	f.select("features[phone_number_type]", ["Федеральный", "Городской"], 
+      		{:include_blank => false, :selected => (s['features'].try(:[], 'phone_number_type') || ["Федеральный"])}, 
+      		input_html.merge({:multiple => true, :size => 2}) ),
+	   ]),
+	   [
+	   	f.label("features[allowed_option_for_children]", 'Наличие детского пакета опций', label_html), 
+	   	check_box_tag("tarif_class[features][allowed_option_for_children]", s['features'].try(:[], 'allowed_option_for_children'), 
+	   		(checked = s['features'].try(:[], 'allowed_option_for_children')), input_html)
+	   ],
+	   [
+	   	f.label("features[tv_video_content]", 'Наличие  дополнительного контента', label_html), 
+	   	f.text_field("features[tv_video_content]", input_html.merge({:value => s['features'].try(:[], 'tv_video_content')}))
+	   ],
+	   [
+	   	f.label("features[contract_sharing_with_other_devices]", 'Наличие  семейного доступа', label_html), 
+	   	f.text_field("features[contract_sharing_with_other_devices]", input_html.merge({:value => s['features'].try(:[], 'contract_sharing_with_other_devices')}))
+	   ],
+	   [
+	   	f.label("features[phone_must_have_3g_or_4g]", 'Требование к мобильной сети', label_html), 
+	   	check_box_tag("tarif_class[features][phone_must_have_3g_or_4g]", s['features'].try(:[], 'phone_must_have_3g_or_4g'), 
+	   		(checked = s['features'].try(:[], 'phone_must_have_3g_or_4g')), input_html)
+	   ],
+	   [
+	   	f.label("features[only_mobile_phone]", 'Доступность только для мобильных телефонов', label_html), 
+	   	check_box_tag("tarif_class[features][only_mobile_phone]", s['features'].try(:[], 'only_mobile_phone'), 
+	   		(checked = s['features'].try(:[], 'only_mobile_phone') ), input_html)
+	   ],
+	   [
+	   	f.label("features[limited_trafic_to_file_nets]", 'Ограничения на трафик файлообменных сетей', label_html), 
+	   	check_box_tag("tarif_class[features][limited_trafic_to_file_nets]", s['features'].try(:[], 'limited_trafic_to_file_nets'), 
+	   		(checked = s['features'].try(:[], 'limited_trafic_to_file_nets') ), input_html)
+	   ],
+	   [
+	   	f.label("features[limited_speed]", 'Ограничения на скорость интернета', label_html), 
+	   	f.text_field("features[limited_speed]", input_html.merge({:value => s['features'].try(:[], 'limited_speed')}))
+	   ],
+	   [
+	   	f.label("features[limited_time_of_day]", 'Ограничения на время использования', label_html), 
+	   	f.text_field("features[limited_time_of_day]", input_html.merge({:value => s['features'].try(:[], 'limited_time_of_day')}))
+	   ],
+	   [
+	   	f.label("features[recommended_for_planshet]", 'Рекомендация оператором для использования в планшетах', label_html), 
+	   	check_box_tag("tarif_class[features][recommended_for_planshet]", s['features'].try(:[], 'recommended_for_planshet'), 
+	   		(checked = s['features'].try(:[], 'recommended_for_planshet') ), input_html)
+	   ],
+	   [
+	   	f.label("features[internet_sharing_with_other_devices]", 'Возможность раздачи интернета', label_html), 
+	   	check_box_tag("tarif_class[features][internet_sharing_with_other_devices]", s['features'].try(:[], 'internet_sharing_with_other_devices'), 
+	   		(checked = s['features'].try(:[], 'internet_sharing_with_other_devices')), input_html)
+	   ],
+	   [
+	   	f.label("features[available_only_for_pencioner]", 'Доступность только для пенсионеров', label_html), 
+	   	check_box_tag("tarif_class[features][available_only_for_pencioner]", s['features'].try(:[], 'available_only_for_pencioner'), 
+	   		(checked = s['features'].try(:[], 'available_only_for_pencioner') ), input_html)
+	   ],
+	   [
+	   	f.label("features[excluded_from_optimization]", 'Исключена из расчетов (подбор тарифо)', label_html), 
+	   	check_box_tag("tarif_class[features][excluded_from_optimization]", s['features'].try(:[], 'excluded_from_optimization'), 
+	   		(checked = s['features'].try(:[], 'excluded_from_optimization') ), input_html)
+	   ],
+	   [
+	   	f.label("dependency[incompatibility][]", 'Несовместимость с другими опциями', label_html), ''
+	   ],
+	   [
+	   	f.label("dependency[new_incompatibility_key]", 'Новая группа несовместимостей с другими опциями', label_html), 
+	   	f.text_field("dependency[new_incompatibility_key]", input_html.merge({:value => s["dependency"].try(:[], 'new_incompatibility_key')}))
+	   ],
+	  ] + incompatible_fields +
+	  [
+	   [
+	   	f.label("dependency[general_priority]", 'Приоритет при вычислениях (подборе тарифа)', label_html), 
+     	f.collection_select("dependency[general_priority]", Category.optimization_calculation_priority, :id, :name, 
+	  	  {:include_blank => false, :selected => (s["dependency"].try(:[], 'general_priority') || Category.optimization_calculation_priority.first.id) }, input_html )   
+	   ],
+	   [
+	   	f.label("dependency[other_tarif_priority][lower]", 'Опции с более низким приоритетом', label_html), 
+     	f.collection_select("dependency[other_tarif_priority][lower]", options_for_priority, :id, :name_with_region, 
+	  	  	{:include_blank => true, :selected => (s['dependency'].try(:[], 'other_tarif_priority').try(:[], "lower") || []) }, 
+	  	  	input_html.merge({:multiple => true, :size => options_for_priority.size + 1}) )   
+	   ],
+	   [
+	   	f.label("dependency[other_tarif_priority][higher]", 'Опции с более высоким приоритетом', label_html), 
+     	f.collection_select("dependency[other_tarif_priority][higher]", options_for_priority, :id, :name_with_region, 
+	  	  	{:include_blank => true, :selected => (s['dependency'].try(:[], 'other_tarif_priority').try(:[], "higher") || []) }, 
+	  	  	input_html.merge({:multiple => true, :size => options_for_priority.size + 1}) )   
+	   ],
+	   [
+	   	f.label("dependency[prerequisites]", 'Необходимость наличия тарифа или опций', label_html), 
+     	f.collection_select("dependency[prerequisites]", tarifs_for_prerequisites, :id, :name_with_region, 
+	  	  	{:include_blank => true, :selected => (s['dependency'].try(:[], 'prerequisites') || [])}, 
+	  	  	input_html.merge({:multiple => true, :size => tarifs_for_prerequisites.size + 1}) )   
+	   ],
+	   [
+	   	f.label("dependency[forbidden_tarifs][to_switch_on]", 'Несовместимость с тарифами (подключение)', label_html), 
+     	f.collection_select("dependency[forbidden_tarifs][to_switch_on]", tarifs_for_forbidden, :id, :name_with_region, 
+	  	  	{:include_blank => true, :selected => (s['dependency'].try(:[], 'forbidden_tarifs').try(:[], "to_switch_on") || []) }, 
+	  	  	input_html.merge({:multiple => true, :size => tarifs_for_forbidden.size + 1}) )   
+	   ],
+	   [
+	   	f.label("dependency[forbidden_tarifs][to_serve]", 'Несовместимость с тарифами (обслуживание)', label_html), 
+     	f.collection_select("dependency[forbidden_tarifs][to_serve]", tarifs_for_forbidden, :id, :name_with_region, 
+	  	  	{:include_blank => true, :selected => (s['dependency'].try(:[], 'forbidden_tarifs').try(:[], "to_serve") || []) }, 
+	  	  	input_html.merge({:multiple => true, :size => tarifs_for_forbidden.size + 1}) )   
+	   ],
+	   [
+	   	f.label("dependency[multiple_use]", 'Возможность многократного использования', label_html), 
+	   	check_box_tag("tarif_class[dependency][multiple_use]", s['dependency'].try(:[], 'multiple_use'), 
+	   		(checked = s['dependency'].try(:[], 'multiple_use')), input_html)
+	   ],
+	   [
+	   	f.label("dependency[is_archived]", 'Архивная опция?', label_html), 
+	   	check_box_tag("tarif_class[dependency][is_archived]", s['dependency'].try(:[], 'is_archived'), 
+	   		(checked = s['dependency'].try(:[], 'is_archived') ), input_html)
+	   ],
+	   [
+	   	f.label("features[publication_status]", 'Статус публикации', label_html), 
+     	f.select("features[publication_status]", Content::Article::PublishStatus.to_a, 
+	  	  {:include_blank => false, :selected => (s["features"].try(:[], 'publication_status').try(:to_i) || Content::Article::PublishStatus[:draft]) }, input_html )   
+	   ],
+	   [
+	   	f.label("features[for_parsing]", 'for_parsing', label_html), 
+	   	check_box_tag("tarif_class[features][for_parsing]", s['features'].try(:[], 'for_parsing'), 
+	   		(checked = s['features'].try(:[], 'for_parsing') ), input_html)
+	   ],
+	   [
+	   	f.label("features[for_existing_servises]", 'for_existing_servises', label_html), 
+	   	check_box_tag("tarif_class[features][for_existing_servises]", s['features'].try(:[], 'for_existing_servises'), 
+	   		(checked = s['features'].try(:[], 'for_existing_servises') ), input_html)
+	   ],
+	   [
+	   	f.label("features[has_parsing_class]", 'has_parsing_class', label_html), 
+	   	check_box_tag("tarif_class[features][has_parsing_class]", s['features'].try(:[], 'has_parsing_class'), 
+	   		(checked = s['features'].try(:[], 'has_parsing_class') ), input_html)
+	   ],
+	   [
+	   	f.label("features[parsing_class]", 'parsing_class', label_html), 
+	   	f.text_field("features[parsing_class]", input_html.merge({:value => s["features"].try(:[], 'parsing_class')}))
+	   ],
+	   [
+	   	link_to( 'Список тарифов', tarif_classes_path(hash_with_region_and_privacy), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => true})
+	   ]
+	].compact
+  end
+end
+%>

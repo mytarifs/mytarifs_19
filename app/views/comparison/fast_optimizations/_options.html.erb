@@ -1,0 +1,29 @@
+<%
+form_item.init do |f|
+#  f.caption = "Choice of service"	
+  f.set_fields do |filtr_name|
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control", :action_name => action_name_path}
+	label_html = {:class => "control-label"}
+	link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+	
+    s = session_filtr_params(f)
+	
+	tarif_condition = s['operator_id'].blank? ? Category::Operator::Const::OperatorsForOptimization : s['operator_id']
+	
+	result = []
+
+	result += fast_optimization_options.keys.map do |part|
+		initial_value = s.try(:[], part).blank? ? fast_optimization_options[part][:options].try(:to_a).try(:[], 0).try(:[], 0).try(:to_s) : s.try(:[], part)
+		[
+#			[initial_value, s[part]].to_s,
+			label(filtr_name, part, fast_optimization_options[part][:name], label_html),
+	      	select(filtr_name, part, fast_optimization_options[part][:options].to_a.map{|i| [i[1], i[0].to_s]}, 
+		  	{:selected => initial_value}, 
+		  	input_html.merge({:size => fast_optimization_options[part][:options].size}) )		  	
+		]
+	end
+
+	result.flatten.in_groups_of(8)
+  end
+end
+%>

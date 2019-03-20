@@ -1,0 +1,24 @@
+<% caption = "Список полезных статей по мобильной связи" %>
+<% title "#{caption} #{pagination_page_name('content_articles_page')}" %>
+<% description "Список полезных статей по мобильной связи" %>	
+<% 
+	set_meta_tags(canonical: content_mobile_articles_url(hash_with_region_and_privacy({}, 'personal', 'moskva_i_oblast') )) if 
+		content_mobile_articles_path(hash_with_region_and_privacy({:trailing_slash => false}, 'personal', 'moskva_i_oblast') ) != request.path
+ %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class=""><%= caption %></h1>
+            <hr>
+        </div>
+    </div>
+</header>
+
+<%= render :partial => "application/shared/social_share_buttons" %>
+
+<br />
+
+<%= render :partial => 'content/articles/mobile_articles/index', :layout => 'application/layouts/model_table', :locals => {:table => controller.mobile_articles}%>
+

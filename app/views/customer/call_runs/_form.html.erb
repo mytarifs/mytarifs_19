@@ -1,0 +1,58 @@
+<%
+
+form_item.init do |fi|
+	action_path = fi.model.id ? edit_customer_call_run_path(hash_with_region_and_privacy({:id => fi.model.id})) : new_customer_call_run_path(hash_with_region_and_privacy)	
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+	link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+	
+	s = session_model_params(fi)
+
+  fi.set_fields do |f|
+ 	  [
+	   [
+	   	f.label( :name, 'Название', label_html), 
+	   	f.text_field( :name, input_html.merge({:value =>(s['name'] || "новое описание")}))
+	   ], 
+	   [
+	   	f.label( :description, 'Описание', label_html), 
+	   	f.text_area( :description, input_html.merge({:value => (s['description'] || "новое детальное описание")}))
+	   ], 
+	   [
+	   	f.label( :source, 'Источник данных', label_html), 
+	 	f.select(:source, Customer::CallRun.source_names.map.with_index{|r, i| [r, i]}, {}, input_html)
+	   	], 
+	   [
+	   	f.label( :operator_id, 'Оператор', label_html), 
+	 	f.collection_select(:operator_id, Category::Operator.operators_with_tarifs.all, :id, :name, 
+	 		{:include_blank => "Выберите оператора", :selected => (s["operator_id"].try(:to_i) || Category::Operator::Const::Mts) }, input_html)
+	   	], 
+	   [
+	   	f.label( "init_params[general][privacy_id]", 'Для бизнеса или частных клиентов', label_html), 
+	 	select("customer_call_run", "init_params[general][privacy_id]", Category::Privacies.map{|key, desc| [desc['name'], desc['id']]}, 
+	 		{:include_blank => "Выберите ваш тип", :selected => (s["init_params"].try(:[], 'general').try(:[], 'privacy_id').try(:to_i) || nil)  }, input_html)
+	   	], 
+	   [
+	   	f.label( "init_params[general][region_txt]", 'Домашний регион', label_html), 
+	 	select("customer_call_run", "init_params[general][region_txt]", Category.mobile_regions_with_scope(['tarif_comparison']).map{|key, desc| [desc['name'], key]}, 
+	 		{:include_blank => "Выберите домашний регион", :selected => (s["init_params"].try(:[], 'general').try(:[], 'region_txt') || nil) }, input_html)
+	   	], 
+	   [
+	   	f.label( " "), 
+	   	f.submit(t('customer.call_runs.edit.form.submit_button'), :class => "btn btn-primary", :type =>"submit", :remote => true)
+	   ],
+       [
+		 f.object.id ? link_to( "Перейти к описанию", 
+			 customer_call_run_path(hash_with_region_and_privacy({:id => f.object.id})), link_to_html) : "",
+ 		 link_to( "Перейти к списку описаний", 
+ 			 customer_call_runs_path(hash_with_region_and_privacy), link_to_html)      	
+       ],
+	   [
+	   	'', 
+	   	f.text_field( :user_id, {:hidden => true, :value => (s['source'] == '2' ? nil : current_or_guest_user_id) })
+	   ],
+	  ]
+  end
+end
+%>
+

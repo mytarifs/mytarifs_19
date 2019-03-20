@@ -1,0 +1,38 @@
+<%
+form_item.init do |f|
+  f.set_fields do |filtr_name|
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => action_name}
+	label_html = {} #{:class => "control-label "}
+    s = session_filtr_params(f)        
+
+    items_statuses = Cpanet::MyOffer::Program::Item.pluck(:status).uniq
+
+    domains = Cpanet::Website::Nets.values.map{|net_desc| net_desc[:my_domens] }.flatten.uniq
+    
+    hide_fields = ['source', 'page_item', 'content_name', 'page_item_name_for_check', 'content_desc']
+
+  [
+  	[
+  	label(filtr_name, "status", "status", label_html),
+  	select(filtr_name, "status", items_statuses, 
+  	{:include_blank => 'select status', :selected => s["status"]}, input_html.merge({:multiple => false, :size => items_statuses.size + 1}) ),
+
+  	label(filtr_name, "domain", "domain", label_html),
+  	select(filtr_name, "domain", domains, 
+  	{:include_blank => 'select domain', :selected => s["domain"]}, input_html.merge({:size => domains.size + 1}) ),
+
+  	label(filtr_name, "hide_fields", "hide_fields", label_html),
+  	select(filtr_name, "hide_fields", hide_fields, 
+  	{:include_blank => 'select hide_fields', :selected => s["hide_fields"]}, input_html.merge({:multiple => true, :size => hide_fields.size + 1}) ),
+
+  	label(filtr_name, "row_per_page", "Кол-во записей на странице", label_html),
+  	select(filtr_name, "row_per_page", [10, 25, 50], 
+  	{:selected => (s["row_per_page"] || 25)}, input_html.merge({:size => 3}) ),
+
+  	],
+
+  ]
+	    
+  end
+end
+%>

@@ -1,0 +1,113 @@
+<% title "Вводная страница для новых посетителей" %>
+<% description "Вводная страница для новых посетителей. www.mytarifs.ru — помогаем принять правильное решение! \
+				Предлагаем широкий выбор средств для анализа услуг в области мобильной связи." %>
+<% keywords "вводная страница для новых посетителей" %>	
+<% noindex 'googlebot' %>
+<% content_for :hide_title, 'true' %>
+
+<section id="first" >
+	<header>
+	    <div class="header-content header-content-smaller">
+	        <div class="inner">
+	            <h1 class="cursive">Добро пожаловать на сайт помощи по вопросам мобильной связи!</h1>
+	            <hr />
+	            <div class="h4">Мы предлагаем набор бесплатных сервисов, которые должны помочь Вам решить вопросы, связанные с мобильной связью.
+	            	На нашем сайте вы найдете:
+	            </div>
+	            <hr />
+	        </div>
+	        <%= render :partial => "application/shared/social_share_buttons" %>	        
+	    </div>
+	</header>
+
+
+    <div class="container-fluid">
+		<div class="my_collapsable h3 text-center">
+			<a my_collapsable="true" data-toggle="collapse" href="#service_list" aria-expanded="true" aria-controls="service_list">
+				  Список сервисов<span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>
+		<div class="collapse in" id="service_list">
+			<div class="row block-center">
+	            <ul class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 pull-left list-unstyled">
+	            	<li><div class="h4"><span class="fa fa-bar-chart fa-lg" aria-hidden="true"></span> Рейтинги операторов и тарифов</div>
+		            	<ul>
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Рейтинги по всем регионам и операторам", 
+		            			root_with_region_and_privacy(m_privacy, m_region), {:onclick => set_target("individ_podbor")}) %></span></li>
+		            		<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Рейтинги тарифов для #{operator.name}", 
+		            			comparison_optimizations_by_operator_path(hash_with_region_and_privacy({:operator_id => operator.slug})), {:onclick => set_target("individ_podbor")}) %></span></li>
+		            		<% end %>
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Рейтинг безлимитных тарифов", 
+		            			comparison_unlimited_rating_path(hash_with_region_and_privacy({:name => 'reiting_bezlimitnyh_tarifov'})), 
+		            			{:onclick => set_target("individ_podbor")}) %></span></li>
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Рейтинг безлимитных тарифов для интернета", 
+		            			comparison_unlimited_rating_for_internet_path(hash_with_region_and_privacy({:name => 'reiting_bezlimitnyh_tarifov_i_optsii_dlya_interneta'})), 
+		            			{:onclick => set_target("individ_podbor")}) %></span></li>
+		            	</ul>
+	            	</li>
+	            	<li><div class="h4"><span class="fa fa-search fa-lg" aria-hidden="true"></span> Три варианта подбора выгодных тарифов и опций</div>
+		            	<ul class="">
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Упрощенный подбор с минимальным количеством ваших действий", 
+		            			result_detailed_calculations_choose_your_tarif_with_our_help_path(hash_with_region_and_privacy), {:onclick => set_target("individ_podbor")}) %></span></li>
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Быстрый подбор по заранее подготовленным вариантам пользования мобильной связью", 
+		            			comparison_fast_optimizations_path(hash_with_region_and_privacy), {:onclick => set_target("individ_podbor")}) %></span></li>
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Детальный подбор с максимальным учетом ваших требований", 
+		            			result_detailed_calculations_new_path(hash_with_region_and_privacy), {:onclick => set_target("individ_podbor")}) %></span></li>
+		            	</ul>
+	            	</li>
+	            	<li><div class="h4"><span class="fa fa-bars fa-lg" aria-hidden="true"></span> Другие полезные сервисы</div>
+		            	<ul class="">
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Детальное сравнение тарифов, которые вы выберите сами", 
+		            			compare_tarifs_path(hash_with_region_and_privacy), {:onclick => set_target("individ_podbor")}) %></span></li>
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Детальное описание тарифов и опций", 
+		            			tarif_classes_path(hash_with_region_and_privacy), {:onclick => set_target("individ_podbor")}) %></span></li>
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Подбор безлимитных тарифов по параметрам", 
+		            			unlimited_tarif_classes_path(hash_with_region_and_privacy), {:onclick => set_target("individ_podbor")}) %></span></li>
+		            		<li class="list-unstyled"><span class="h5"><%= link_to("Полезные советы по мобильной связи", 
+		            			content_mobile_articles_path(hash_with_region_and_privacy), {:onclick => set_target("individ_podbor")}) %></span></li>
+		            	</ul>
+	            	</li>
+	            </ul>
+			</div>
+			<br />
+			<div class="row">
+	            <div  class="h4 col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 pull-left">
+	            	Пробуйте, <%= link_to "пишите нам, если что-то не понятно, или появляются ошибки", new_customer_demand_path(hash_with_region_and_privacy), {:rel => "nofollow"} %>,
+	            	не бойтесь экспериментировать, и удачи Вам!
+	            </div>
+			</div>
+		</div>
+		<br />
+		<% if user_type == :guest %>
+		<div class="my_collapsable h3 text-center">
+			<a my_collapsable="true" data-toggle="collapse" href="#registration" aria-expanded="true" aria-controls="registration">
+				Регистрация<span class="<%= "true" ? "fa fa-caret-up fa-lg" : "fa fa-caret-down fa-lg" %>"></span>
+			</a>
+		</div>
+		<div class="collapse in" id="registration">
+			<div class="row">
+				<div class="col-lg-10 col-lg-offset-2 col-md-10 col-md-offset-2">
+					<ul class="list-unstyled">
+						<li><div class="h4"><span class="fa fa-sign-in fa-lg" aria-hidden="true"></span> Мы рекомендуем вам зарегистрироваться у нас на сайте так как:</div></li>
+						<ul>
+							<li class="list-unstyled"><span class="h5">Для этого достаточно оставить электронную почту.</span></li>
+							<li class="list-unstyled"><span class="h5">Это позволит вам сохранить все сделанные вами подборы тарифов и повторно их использовать.</span></li>
+							<li class="list-unstyled"><span class="h5">Если вы захотите, то мы готовы высылать вам новые рекомендации по выгодным тарифам при изменении тарифов у операторов.</span></li>
+							<li class="list-unstyled"><span class="h5">Вы также сможете быть в курсе важных изменений в области мобильной связи.</span></li>
+						</ul>
+					</ul>
+					<hr />
+				</div>
+				<div class="col-lg-8 col-lg-offset-2 col-md-8 col-md-offset-2 text-center">
+	            	<%= render partial: 'users/registrations/submit_email_form' %>
+				</div>
+			</div>
+		</div>
+		<% end %>
+		
+		<%= render :partial => "application/shared/hypercomments" %>
+    </div>
+</section>
+
+

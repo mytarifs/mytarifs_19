@@ -1,0 +1,30 @@
+<%
+form_item.init do |fi|
+  link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+  link_to_html_with_confirm = link_to_html.merge({:data => { :confirm => "Are you sure?" }, :remote => false})
+
+  fi.set_fields do  |optimization| 
+    (user_type != :admin ? [] : [
+      [
+		link_to( 'Редактировать описание', edit_comparison_optimization_path(optimization), link_to_html),
+      ],
+    ]) +
+    [  
+      [
+#		link_to( "Перейти к списку рейтингов", comparison_optimizations_path, link_to_html)      	
+      ],
+#      ['Название', optimization.name], 
+#      ['Описание сравнения операторов и тарифов', optimization.description], 
+	] + (user_type != :admin ? [] : [
+      ['id', optimization.id],
+      ['Статус публикации', (optimization.publication_status.name if optimization.publication_status)], 
+      ['Порядок публикации', optimization.publication_order], 
+      ['Results', (optimization.groups.map(&:result) if false and optimization.groups)],
+      ['Тип оптимизации', (optimization.type.name if optimization.type)],
+      ['Категории услуг, используемые при оптимизации', (optimization.type.for_service_categories if optimization.type)],
+      ['Тарифные опции, используемые при оптимизации', (optimization.type.for_services_by_operator if optimization.type)],
+	]).compact
+  end  
+end
+%>
+

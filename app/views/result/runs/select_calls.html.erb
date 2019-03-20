@@ -1,0 +1,121 @@
+<% title "Загрузка детализации звонков для детального подбора тарифа и опций #{region_and_privacy_tag}" %>
+<% description "Загрузка детализации звонков для детального подбора тарифа и опций #{region_and_privacy_tag}. www.mytarifs.ru — сервис по подбору тарифов и опций для \
+				мобильных операторов МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий \
+				выбор средств для анализа услуг в области мобильной связи." %>
+<% keywords "загрузка детализации звонков для детального подбора тарифа и опций  #{region_and_privacy_tag}" %>	
+<% content_for :hide_title, 'true' %>
+<% noindex 'googlebot' %>
+
+<%= render :partial => 'result/runs/calculation/steps', :locals => {:current_step => 0} %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <hr />
+        </div>
+        <%= render :partial => "application/shared/social_share_buttons", :locals => {:data_url => result_detailed_calculations_new_url} %>
+    </div>
+</header>
+
+<p>	В настоящее время доступен подбор тарифа для Москвы и Московской области, Санкт-Петербурга и Ленинградской области и еще
+	<%= Category.mobile_regions_with_scope(['full_optimization']).keys.size - 2 %> регионов
+	
+   	<%= render( :partial => 'result/runs/calculation/region_txt_select_filtr', :layout => 'application/layouts/filtr_form_n_columns', 
+   		:locals => {:form_item => region_txt_select}) if false %>
+</p>
+
+<% if result_run.call_run_id %>
+	<p>Вы уже загрузили или смоделировали детализацию звонков и можете перейти к выбору способа подбора тарифа, 
+		или еще раз изменить детализацию звонков  с помощь вариантов ниже.
+		<%= link_to("Перейти на следующий шаг", result_detailed_calculations_accounting_period_select_path(hash_with_region_and_privacy({:id => params[:id]})), 
+			{:class => "btn btn-success btn_text_always_on_screen", :type =>"button", :remote => false, :rel => "nofollow"}) %>
+	</p>
+<% else %>
+	<p>
+		Для детального подбора тарифа нам необходимо понимать, как вы пользуетесь мобильной связью. 
+		Мы используем для этого детализацию услуг мобильной связи (звонков).
+		Вы можете сообщить нам, какую детализацию использовать для подбора, одним из четырех вариантов:
+	</p>
+<% end %>
+
+<br />
+	
+<span class="h3">1-й способ. Использование ранее загруженной или смоделированной детализации</span>
+<p>
+	Если вы ранее уже загружали или моделировали детализацию, то можете использовать ее повторно. Для этого выберите нужный вариант
+	из списка ниже и нажмите на кнопку "перейти на следующий шаг"
+
+	<%= render( :partial => 'result/runs/calculation/call_run_select', :layout => 'application/layouts/filtr_form_inline', :locals => {:form_item => call_run_select}) %>
+	
+</p>
+
+<span class="h3">2-й способ. Загрузка детализации</span>
+<p>	
+	Детализацию звонков вы можете получить у вашего мобильного оператора. 
+	Можно загрузить детализацию (историю) звонков для следующих операторов и форматов:
+	<ul>
+		<li>МТС в формате HTML</li>
+		<li>Мегафон в формате HTML</li>
+		<li>Билайнв формате XLS или XLSX</li>
+		<li>Теле2 в формате PDF</li>
+	</ul>
+   	<%= render :partial => 'result/runs/calculation/upload_form' %>
+
+	<%= link_to('Инструкция по получению детализации у вашего мобильного оператора', home_detailed_description_path(hash_with_region_and_privacy)) %> 
+</p>
+
+<span class="h3">3-й способ. Переслать нам детализацию по электронной почте</span>
+<p>	
+	<ul>
+		<li>Если вы уже получили детализацию у мобильного оператора, то можете переслать ее по электронной почте на calls.tarif@gmail.com</li>
+		<li>После получения вашего письма, мы загрузим детализацию и сообщим вам по почте, после чего вы сможете продолжить подбор тарифа.</li>
+		<li>Если вы выбирает этот способ, то укажите ваш телефон (по которому будет детализация), 
+			и электронный адрес, на который выслать вам результаты.</li>
+		<% if !current_or_guest_user.confirmed? %>
+		<li>Вам необходимо будет подтвердить электронную почту после получения от нас запроса на подтверждение.</li>
+		<% end %>
+	</ul>
+
+   	<%= 
+   		render( :layout => 'result/runs/calculation/calls_gener_params_tabs/put_content_in_center_column') do
+   			render( :partial => 'result/runs/calculation/send_calls_by_mail', :layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => send_calls_by_mail_form})
+   		end 
+   	%>
+
+</p>
+
+<span class="h3">4-й способ. Моделирование детализации</span>
+<p>
+	<ul>
+		<li>Смоделировать детализацию по параметрам можно с разной степенью точности. Для упрощения мы подготовили стандартные параметры, 
+	которые вы выбираете из списка</li>
+		<li>После этого можете эти параметры отредактировать по вашему усмотрению</li>
+		<li>Прогноз результатов моделирования можно посмотреть на вкладке "Свод"</li>
+		<li>После того, как вы выбрали параметры, нажмите на кнопку "Перейти на следующий шаг"</li>
+	</ul>
+	
+	<div>	
+		<%= link_to("Перейти на следующий шаг", result_detailed_calculations_generate_calls_path(hash_with_region_and_privacy({:id => params[:id]})), 
+			{:class => "btn btn-success btn_text_always_on_screen", :type =>"button", :remote => false, :rel => "nofollow"}) %>
+	</div>
+</p>
+
+<p>
+	<%= render :partial => 'result/runs/calculation/calls_gener_params_tabs', :layout => 'application/layouts/tabs', 
+		:locals => {:name => 'calls_gener_params_tabs', :active => session[:current_tabs_page]['calls_gener_params_tabs'].to_i} %>
+	
+</p>
+<% if user_type == :admin %>
+<div class="panel panel-default">
+	<div class="panel-heading"><span class="h4">Текущие параметры подбора тарифа</span></div>
+	<ul class="list-group" >
+		<li class="list-group-item"><strong>Название подбора: </strong><%= result_run.name %></li>
+		<li class="list-group-item"><strong>Описание: </strong><%= (result_run.description.blank? ? "Описание нет" : result_run.description) %></li>
+		<li class="list-group-item"><strong>Способ подбора тарифа: </strong><%= (result_run.optimization_type || "Способ подбора не выбран") %></li>
+		<li class="list-group-item"><strong>Название детализации звонков: </strong><%= (result_run.call_run.try(:name) || "Детализация не загружена или не смоделирована") %></li>
+		<li class="list-group-item"><strong>Период расчета: </strong><%= (result_run.accounting_period || "Период расчета не выбран") %></li>
+	</ul>
+</div>
+<% end %>
+

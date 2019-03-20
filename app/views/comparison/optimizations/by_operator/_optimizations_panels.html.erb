@@ -1,0 +1,18 @@
+<%
+table.init do |t|
+  link_html = {:my_remote => true}
+  t.set_fields do |optimization| 
+  	{
+  	:head => optimization.name,
+  	:body => [
+	    optimization.description,
+    ],
+	:footer => 
+	  content_tag(:div, {:class => "btn-toolbar"}) do
+		link_to("Просмотр", comparison_optimization_by_operator_path(hash_with_region_and_privacy({:operator_id => params[:operator_id], :id => optimization.slug})), 
+			link_html.merge({:class => "btn btn-primary"}) ) 
+	  end
+  	}
+  end
+end
+%>

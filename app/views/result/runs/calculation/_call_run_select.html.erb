@@ -1,0 +1,35 @@
+<%
+form_item.init do |fi|
+input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control btn_text_always_on_screen",
+	:action_name => result_detailed_calculations_select_calls_path(hash_with_region_and_privacy({:id => params[:id]}))}
+label_html = {:class => "control-label "}
+link_to_html = {:class => "btn btn-success btn_text_always_on_screen", :type =>"button", :remote => false}
+  s = session_filtr_params(fi)	
+  
+  link_to_result_run = s["call_run_id"].blank? ? 
+  	result_detailed_calculations_select_calls_path(hash_with_region_and_privacy({:id => params[:id]})) : 
+  	result_detailed_calculations_accounting_period_select_path(hash_with_region_and_privacy({:id => params[:id]}))
+  
+  existing_user_ids = Customer::CallRun.pluck(:user_id).uniq
+  chosen_user = s['user_id'].blank? ? current_or_guest_user_id : s['user_id'].try(:to_i)
+  
+  loaded_call_run_ids = Customer::Call.select(:call_run_id).joins(:call_run).where(:customer_call_runs => {:user_id => chosen_user}).uniq
+  call_runs_with_loaded_calls = Customer::CallRun.where({:id => loaded_call_run_ids}).order("customer_call_runs.updated_at desc")
+  
+  fi.set_fields do |filtr_name|
+
+    [
+      (user_type == :admin ? [
+		collection_select(filtr_name, :user_id, User.where(:id => existing_user_ids), :id, :name, 
+   		{:include_blank => 'выберите пользователя', :selected => chosen_user }, input_html ),
+      ] : nil),
+      [
+		collection_select(filtr_name,:call_run_id, call_runs_with_loaded_calls, :id, :full_name, 
+   		{:include_blank => 'выберите детализацию звонков', :selected => s['call_run_id']}, input_html ),
+
+		link_to( 'Перейти на следующий шаг', link_to_result_run, link_to_html),
+	  ],
+    ].compact
+  end
+end
+%>

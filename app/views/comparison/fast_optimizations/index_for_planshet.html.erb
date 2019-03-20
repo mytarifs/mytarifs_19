@@ -1,0 +1,71 @@
+<% title "Калькулятор тарифов для планшета на сервисе MyTarifs.ru" %>
+<% description "Калькулятор тарифов для планшета. www.mytarifs.ru — сервис по подбору тарифов и опций для \
+				мобильных операторов МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий \
+				выбор средств для анализа услуг в области мобильной связи." %>
+<% content_for :hide_title, 'true' %>
+
+<% service_is_recommended_for_planshet = "(features->>'recommended_for_planshet')::text is not null and ((features->>'recommended_for_planshet')::text)::boolean = true" %>
+<% 
+    filtr = session_filtr_params(fast_optimization_options_form)
+    region_txt = filtr['region_txt'].blank? ? 'moskva_i_oblast' : filtr['region_txt']
+%>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="">Калькулятор тарифов для планшета *</h1>
+        </div>
+        <%= render :partial => "application/shared/social_share_buttons" %>
+        <br />
+    </div>
+</header>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:estimate_cost, :under_h1) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<br />
+<div class="panel panel-success">
+	<div class="panel-body">
+		<div class="h4 text-center1 text-success">Выберите параметры пользования мобильной связью</div>
+		<%= render( :partial => 'comparison/fast_optimizations/options_vertical', 
+			:layout => 'application/layouts/filtr_form_2_columns_with_1_label', 
+			:locals => {:form_item => fast_optimization_options_form, :fast_optimization_options => fast_optimization_options, 
+				:url =>  comparison_fast_optimizations_for_planshet_path(hash_with_region_and_privacy({:name => 'dlya_plansheta'})) } ) %>
+	</div>
+</div>
+
+
+<div class="h4 text-center">Лучшие тарифы и опции</div>
+<p>
+<%= render( :partial => 'comparison/fast_optimizations/results', 
+	:locals => {:fast_optimization_results => fast_optimization_results(:best_result, 4, nil, 
+		TarifClass.privacy_and_region_where_with_default(m_privacy, m_region).where(service_is_recommended_for_planshet).pluck(:id)) } ) %>
+</p>
+
+<%= render :partial => "application/shared/social_share_buttons" %>
+
+<br />
+<div class="row text-center">
+	<%= link_to("Детальный подбор тарифа", "#",  
+		{"data-link" => result_detailed_calculations_new_path(hash_with_region_and_privacy), :class => "external-link btn btn-success btn-xl btn_text_always_on_screen", :type =>"button", 
+			:remote => false, :onclick => set_target("hochu_det_podbor")})  %>
+</div>
+
+<br />
+<p class="h6">* Калькулятор позволяет оперативно подобрать оптимальный тариф и опции за несколько секунд,
+	выбрав подходящие для Вас параметры** использования мобильной связью.<br /><br />
+	<%= "** " + fast_optimization_presenter.base_params[:description][:about_params]%>
+	<%= fast_optimization_presenter.base_params[:description][:about_optimization_assumptions]%>
+</p>
+
+<br />
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:estimate_cost, :bottom) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<br />
+
+<%= render :partial => "application/shared/hypercomments" %>

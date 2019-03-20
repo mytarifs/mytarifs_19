@@ -1,0 +1,268 @@
+<%
+form_item.init do |fi|
+  fi.set_fields do |f|
+  	action_path = f.object.id ? edit_cpanet_program_path(f.object) : new_cpanet_my_offer_program_path(params[:my_offer_id])
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+	s = session_model_params(fi)
+	
+	page_desc = [
+	   	f.label("features[page]", "page", label_html),
+     	f.select("features[page]", Cpanet::PageType::Desc.keys, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'page') }, input_html.merge({:size => Cpanet::PageType::Desc.keys.size + 1}) ),   
+
+	   	f.label("features[stat_id]", "stat_id", label_html),
+	   	f.text_field("features[stat_id]", input_html.merge({:value => s["features"].try(:[], 'stat_id') }))
+	]
+	
+	if !s["features"].try(:[], 'page').blank? and !Cpanet::PageType::Desc[s['features']['page'].to_sym].blank?
+		(Cpanet::PageType::Desc[s['features']['page'].to_sym][:page_param_filtr] || {}).each do |filtr_key, filtr_values|
+			page_desc += [
+			   	f.label("features[page_param_filtr][#{filtr_key}]", "[page_param_filtr][#{filtr_key}]", label_html),
+		     	f.select("features[page_param_filtr][#{filtr_key}]", filtr_values, 
+			  	  {:include_blank => true, :selected => s["features"].try(:[], 'page_param_filtr').try(:[], filtr_key.to_s) }, 
+			  	  	input_html.merge({:multiple => true, :size => filtr_values.size + 1}) )   
+			]
+		end
+		(Cpanet::PageType::Desc[s['features']['page'].to_sym][:page_id_filtr] || {}).each do |filtr_key, filtr_values|
+			page_desc += [
+			   	f.label("features[page_id_filtr][#{filtr_key}]", "[page_id_filtr][#{filtr_key}]", label_html),
+		     	f.select("features[page_id_filtr][#{filtr_key}]", filtr_values, 
+			  	  {:include_blank => true, :selected => s["features"].try(:[], 'page_id_filtr').try(:[], filtr_key.to_s) }, 
+			  	  	input_html.merge({:multiple => true, :size => filtr_values.size + 1}) )   
+			]
+		end
+	end
+
+	source_desc = [
+	   	f.label("features[source_type]", "source_type", label_html),
+     	f.select("features[source_type]", Cpanet::SourceType::Desc.keys, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'source_type') }, input_html.merge({:size => Cpanet::SourceType::Desc.keys.size + 1}) )   
+	]
+
+	place_desc = [
+	   	f.label("features[place_type]", "place_type", label_html),
+     	f.select("features[place_type]", Cpanet::PlaceType::Desc.keys, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'place_type') }, input_html.merge({:size => Cpanet::PlaceType::Desc.keys.size + 1}) )   
+	]
+	
+	place_type = s["features"].try(:[], 'place_type').try(:to_sym)
+	if !place_type.blank?		
+		place_desc += [
+		   	f.label("features[place]", "place", label_html),
+	     	f.select("features[place]", Cpanet::PlaceType::Desc[place_type].keys, 
+		  	  {:include_blank => true, :selected => s["features"].try(:[], 'place') }, input_html.merge({:size => Cpanet::PlaceType::Desc[place_type].keys.size + 1}) )   
+		]
+	end
+	
+	place_view_desc = [
+	   	f.label("features[place_view_type]", "place_view_type", label_html),
+     	f.select("features[place_view_type]", Cpanet::PlaceViewType::Desc.keys, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'place_view_type') }, input_html.merge({:size => Cpanet::PlaceViewType::Desc.keys.size + 1}) )   
+	]
+	
+	
+	place_view_type = s["features"].try(:[], 'place_view_type').try(:to_sym)	
+	if !place_view_type.blank?		
+		place_view_params = []
+		Cpanet::PlaceViewType::Desc[place_view_type].each do |original_param_name, param_options|
+			param_name = original_param_name.to_s
+			place_view_params << f.label("features[place_view_params][#{param_name}]", "place_view_params[#{param_name}]", label_html)
+
+		    place_view_params << case param_options[:method]
+		    when :select
+		    	f.select("features[place_view_params][#{param_name}]", param_options[:select_options], 
+			  	  {:include_blank => true, :selected => ( s["features"].try(:[], 'place_view_params').try(:[], param_name) || param_options[:default] ) }, 
+			  	  	input_html.merge({:size => param_options[:select_options].size + 1}) )   
+		    else
+		    	f.text_field("features[place_view_params][#{param_name}]", 
+			  	  input_html.merge({:value => (s["features"].try(:[], 'place_view_params').try(:[], param_name) || param_options[:default] ) } )  )   
+		    end
+		end		
+		
+	end
+	
+	catalog_list = program.my_offer.try(:catalogs).try(:keys) || []	
+	catalog_fields = [
+	   	f.label("features[catalog]", "catalog", label_html),
+     	f.select("features[catalog]", catalog_list, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog') }, input_html.merge({:size => [catalog_list.size, 10].min + 1}) )   
+	]
+
+#                 :catalog_category_values, :catalog_offer_category_name, :catalog_offers
+
+	catalog_category_path_list = ['/yml_catalog/shop/categories/category']	
+	catalog_category_id_name_list = ['id']
+	catalog_offer_path_list = ['/yml_catalog/shop/offers/offer']	
+	catalog_offer_category_name_list = ['categoryId']
+	catalog_offer_name_list = ['model']	
+	catalog_offer_url_list = ['url']	
+	catalog_fields += [
+	   	f.label("features[catalog_category_path]", "catalog_category_path", label_html),
+     	f.select("features[catalog_category_path]", catalog_category_path_list, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_category_path') }, input_html.merge({:size => [catalog_category_path_list.size, 10].min + 1}) ) +
+    	f.text_field("features[catalog_category_path_text]", input_html.merge({:value => s["features"].try(:[], 'catalog_category_path_text') } )  ) +   
+
+	   	f.label("features[catalog_category_id_name]", "catalog_category_id_name", label_html) +
+     	f.select("features[catalog_category_id_name]", catalog_category_id_name_list, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_category_id_name') }, input_html.merge({:size => [catalog_category_id_name_list.size, 10].min + 1}) ) +   
+    	f.text_field("features[catalog_category_id_name_text]", input_html.merge({:value => s["features"].try(:[], 'catalog_category_id_name_text') } )  ) +
+	  	     
+	   	f.label("features[catalog_offer_path]", "catalog_offer_path", label_html) +
+     	f.select("features[catalog_offer_path]", catalog_offer_path_list, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_offer_path') }, input_html.merge({:size => [catalog_offer_path_list.size, 10].min + 1}) )  + 
+    	f.text_field("features[catalog_offer_path_text]", input_html.merge({:value => s["features"].try(:[], 'catalog_offer_path_text') } )  ),
+
+	   	f.label("features[catalog_offer_category_name]", "catalog_offer_category_name", label_html),
+     	f.select("features[catalog_offer_category_name]", catalog_offer_category_name_list, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_offer_category_name') }, input_html.merge({:size => [catalog_offer_category_name_list.size, 10].min + 1}) ) +   
+    	f.text_field("features[catalog_offer_category_name_text]", input_html.merge({:value => s["features"].try(:[], 'catalog_offer_category_name_text') } )  ) +
+
+	   	f.label("features[catalog_offer_name]", "catalog_offer_name", label_html) +
+     	f.select("features[catalog_offer_name]", catalog_offer_name_list, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_offer_name') }, input_html.merge({:size => [catalog_offer_name_list.size, 10].min + 1}) ) +   
+    	f.text_field("features[catalog_offer_name_text]", input_html.merge({:value => s["features"].try(:[], 'catalog_offer_name_text') } )  ) +
+
+	   	f.label("features[catalog_offer_url_name]", "catalog_offer_url_name", label_html) +
+     	f.select("features[catalog_offer_url_name]", catalog_offer_url_list, 
+	  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_offer_url_name') }, input_html.merge({:size => [catalog_offer_url_list.size, 10].min + 1}) ) +   
+    	f.text_field("features[catalog_offer_url_name_text]", input_html.merge({:value => s["features"].try(:[], 'catalog_offer_url_name_text') } )  ),
+	]
+
+	
+	catalog_test_paths = nil
+	if !s["features"].try(:[], 'catalog').blank?
+		file_url = program.my_offer.try(:catalogs).try(:[], s["features"].try(:[], 'catalog')).try(:[], 'file_url')
+		if file_url
+			website = program.my_offer.website
+		    options = {
+		      'cpanet' => website.cpanet,
+		      'website_id' => website.id,
+		      'clean_cache' => 'false',
+		      'file_url' => file_url,
+		    }
+			cpanet = Cpanet::Runner.init(options)
+			doc = cpanet.parsed_catalog			
+			
+			catalog_category_path = s["features"].try(:[], 'catalog_category_path_text') || s["features"].try(:[], 'catalog_category_path')			
+			if !catalog_category_path.blank?
+				catalog_category_id_name = s["features"].try(:[], 'catalog_category_id_name_text') || s["features"].try(:[], 'catalog_category_id_name') || catalog_category_id_name_list[0]
+				catalog_category_list = doc.search(catalog_category_path).map{|category_node| [category_node.text, category_node.attr(catalog_category_id_name)]}
+				catalog_filtrs = [
+				   	f.label("features[catalog_category_values]", "features[catalog_category_values]", label_html),
+			     	f.select("features[catalog_category_values]", catalog_category_list, 
+				  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_category_values') }, 
+				  	  	input_html.merge({:multiple => true, :size => [catalog_category_list.size, 10].min + 1}) )   
+				]
+				
+				catalog_offer_path = s["features"].try(:[], 'catalog_offer_path_text') || s["features"].try(:[], 'catalog_offer_path') || catalog_offer_path_list[0]
+				catalog_category_values = s["features"].try(:[], 'catalog_category_values') || []
+				
+				if !catalog_offer_path.blank? and !catalog_category_values.blank?
+					
+					catalog_offer_values_list = []
+					catalog_offer_path_before = catalog_offer_path
+					catalog_category_values.each_with_index do |catalog_category_value, index|
+						catalog_offer_path = "#{catalog_offer_path_before}[categoryId=#{catalog_category_value}]"
+						catalog_category_id_name = s["features"].try(:[], 'catalog_category_id_name_text') || s["features"].try(:[], 'catalog_category_id_name') || catalog_category_id_name_list[0]
+						catalog_offer_name = s["features"].try(:[], 'catalog_offer_name_text') || s["features"].try(:[], 'catalog_offer_name') || catalog_offer_name_list[0]
+						catalog_offer_url = s["features"].try(:[], 'catalog_offer_url_text') || s["features"].try(:[], 'catalog_offer_url') || catalog_offer_url_list[0]
+
+						catalog_offer_values_list += doc.search(catalog_offer_path).map do |category_node| 							
+							text = "#{category_node.at(catalog_offer_name).try(:text)}, #{category_node.at(catalog_offer_url).try(:text)}"
+							[text, category_node.attr(catalog_category_id_name)]
+						end
+
+					end
+
+					catalog_filtrs += [
+					   	f.label("features[catalog_offer_values]", "features[catalog_offer_values]", label_html),
+				     	f.select("features[catalog_offer_values]", catalog_offer_values_list, 
+					  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_offer_values') }, 
+					  	  	input_html.merge({:multiple => true, :size => [catalog_offer_values_list.size, 10].min + 1}) )   
+					]
+				end
+			end
+			
+
+
+
+
+#fields to test xml pathes
+			catalog_test_path_size = (s["features"].try(:[], 'catalog_test_path').try(:keys).try(:size) || 0) + 1
+			catalog_test_paths = []
+			current_doc_path = "/"
+			current_doc = doc.at(current_doc_path)
+			catalog_test_path_options = current_doc.elements.map{|element|  element.name }.uniq			
+			catalog_test_path_size.times.each do |catalog_test_path_order|
+
+				if catalog_test_path_size == (catalog_test_path_order + 1)
+					catalog_test_paths += [
+					   	f.label("features[catalog_test_path][#{catalog_test_path_order}]", "catalog_test_path[#{catalog_test_path_order}]", label_html),
+				     	f.select("features[catalog_test_path][#{catalog_test_path_order}]", catalog_test_path_options, 
+					  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_test_path').try(:[], catalog_test_path_order.to_s) }, 
+					  	  	input_html.merge({:size => [catalog_test_path_options.size, 10].min + 1}) )   
+					]
+				else
+					catalog_test_path_options = [s["features"].try(:[], 'catalog_test_path').try(:[], catalog_test_path_order.to_s)]
+					catalog_test_paths += [
+					   	f.label("features[catalog_test_path][#{catalog_test_path_order}]", "catalog_test_path[#{catalog_test_path_order}]", label_html),
+				     	f.select("features[catalog_test_path][#{catalog_test_path_order}]", catalog_test_path_options, 
+					  	  {:include_blank => true, :selected => s["features"].try(:[], 'catalog_test_path').try(:[], catalog_test_path_order.to_s) }, 
+					  	  	input_html.merge({:size => [catalog_test_path_options.size, 10].min + 1}) )   
+					]
+				end
+
+				next if s["features"].try(:[], 'catalog_test_path').try(:[], catalog_test_path_order.to_s).blank?
+				
+				current_doc_path = "#{current_doc_path}/#{s["features"].try(:[], 'catalog_test_path').try(:[], catalog_test_path_order.to_s)}"
+				current_doc = current_doc.at(current_doc_path)
+				catalog_test_path_options = current_doc.elements.map{|element|  element.name }.uniq
+								
+			end
+			
+			catalog_full_test_path = [
+			   	f.label("features[catalog_full_test_path]", "catalog_full_test_path", label_html),
+		    	f.text_field("features[catalog_full_test_path]", input_html.merge({:disabled => true, :value => current_doc_path } )  ) 
+			]
+
+		end
+	end
+	
+    [ 
+	   [
+      	link_to('Programs', cpanet_my_offer_programs_path(params[:my_offer_id] || f.object.my_offer_id), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => false})
+	   ],
+	   [
+	   	f.label(:id, 'ID', label_html), 
+	   	f.number_field(:id, input_html.merge({:value => s['name'], :disabled => true})),
+
+	   	f.label(:name, 'Название программы', label_html), 
+	   	f.text_field(:name, input_html.merge({:value => s['name']})),
+
+	   	f.label(:status, "Статус программы", label_html),
+     	f.select(:status, ['active', 'disabled'], 
+	  	  {:include_blank => "select status", :selected => s["status"] }, input_html.merge({:size => 3}) )   
+	   ], 
+	   page_desc[0..5],
+	   page_desc[6..-1],
+	   source_desc,
+	   place_desc,
+	   place_view_desc,
+	   (place_view_params.blank? ? nil : place_view_params[0..5]),
+	   (place_view_params.blank? ? nil : place_view_params[6..11]),
+	   (place_view_params.blank? ? nil : place_view_params[12..-1]),
+	   catalog_fields,
+	   catalog_filtrs,
+	   (catalog_test_paths[0..5] if catalog_test_paths),
+	   (catalog_test_paths[6..-1] if catalog_test_paths and catalog_test_paths.size > 6),
+	   catalog_full_test_path,
+	   [
+      	link_to('Programs', cpanet_my_offer_programs_path(params[:my_offer_id] || f.object.my_offer_id), {:class => "btn btn-primary", :type =>"button", :remote => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => false})
+	   ],
+	].compact
+  end
+end
+%>

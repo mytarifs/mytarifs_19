@@ -1,0 +1,18 @@
+<%= form_tag(hash_with_region_and_privacy({:controller =>'customer/history_parsers', :action => :upload}), 
+              :id => "call_history_file_upload_form", 
+              :action_name => customer_history_parsers_upload_path(hash_with_region_and_privacy),
+              :method => parsing_params[:file_upload_form_method], 
+              :remote => parsing_params[:file_upload_remote_mode], 
+              :'data-type' => :html, 
+              :multipart => true, 
+              :'data-turbolinks' => parsing_params[:file_upload_turbolink_mode]) do %>
+
+	<label for="call_history" class="btn btn-success btn-xl" onclick= <%= set_target("zagruzit_istoriyu") %>>
+			<%= t('customer.history_parsers.prepare_for_upload.load_file_link') %></label>
+	<div hidden>
+		<%= file_field_tag('call_history', {:hidden => true, :rel => "nofollow"})%>
+	</div>		
+	<% submit_tag(t('customer.history_parsers.prepare_for_upload.load_file_link'), {:class => "btn btn-success", :rel => "nofollow"} ) %>  
+
+<% end %>
+

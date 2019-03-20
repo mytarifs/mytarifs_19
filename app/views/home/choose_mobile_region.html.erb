@@ -1,0 +1,35 @@
+<% title "Выбор домашнего региона пользователя" %>
+<% description "Выбор домашнего региона пользователя. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных операторов МТС, «Билайн», \
+				«Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг в \
+				области мобильной связи." %>
+<% keywords "выбор домашнего региона пользователя" %>	
+<% noindex 'googlebot' %>
+
+<%
+	input_html = {:class => "form-control  "}
+	submit_html = {:class => "btn btn-primary btn-group-justified"}
+	label_html = {:class => "control-label "}
+%>
+
+  <br />
+  <br />
+
+<%= form_tag(home_set_mobile_region_path(hash_with_region_and_privacy) ) do %>
+
+  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+	  <%= label :mobile_region, :key, "Регион регистрации тарифа (домашний регион)", label_html %>
+	  <%= select(:mobile_region, :key, Category.mobile_regions_with_scope(['full_optimization']).map{|m| [m[1]['name'], m[0]] }, {:selected => session['mobile_region'] }, 
+	  			{:multiple => false, :size => Category.mobile_regions_with_scope(['full_optimization']).keys.size }.merge(input_html) )%>
+  <% end %>
+  
+  <br />
+  <br />
+  
+  <%= render( :layout => 'application/layouts/put_content_in_center_column') do %>
+  	  <%= submit_tag "Выбрать домашний регион", submit_html %>
+  <% end %>
+<% end %>
+  <br />
+  <br />
+  <br />
+  <br />

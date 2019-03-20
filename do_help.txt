@@ -1,0 +1,146 @@
+File upload - https://github.com/janko-m/shrine
+
+Ansible
+хранилище информации в кластере: Consul
+https://github.com/mytarifs/mytarifs/blob/ci/Dockerfile.production
+
+https://github.com/mytarifs/mytarifs/blob/ci/docker/entry.sh
+
+
+
+root@mt-staging-1:/# docker ps
+CONTAINER ID        IMAGE                           COMMAND                  CREATED             STATUS              PORTS                      NAMES
+a89ba42b4e22        mt-frontend:current             "/bin/sh -c 'exec /en"   16 hours ago        Up 16 hours         0.0.0.0:30000->30000/tcp   mt-frontend
+eae7ecd3dc4b        postgres:9.4                    "/docker-entrypoint.s"   16 hours ago        Up 16 hours         0.0.0.0:5432->5432/tcp     postgres
+898e28294604        memcached:1.4.23                "memcached"              17 hours ago        Up 17 hours         0.0.0.0:11211->11211/tcp   memcached
+
+https://github.com/mytarifs/infrastructure/blob/master/roles/app/vars/main.yml
+root@mt-staging-1:/etc/mytariffs# cat /etc/mytariffs/environment – настройки на сервере
+docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake -T"
+docker exec -it mt-frontend /bin/bash
+
+
+https://www.hetzner.de/hosting/produkte_rootserver/ex41
+
+staging = http://mt-site.us.to
+slack = https://mytarifs.slack.com
+
+
+book on git = https://git-scm.com/book/ru/v1
+
+мониторинг сайтов - http://uptimerobot.com
+
+подключение к серверам
+ssh -p 122 root@server
+
+команда запустить root-shell внутри контейнера   docker exec -it _имя_контейнера_ bash
+например docker exec -it mt-frontend bash
+
+доступ к pg:  docker exec -it postgres su postgres -c psql
+дамп pg:      docker exec -it postgres su postgres -c 'pg_dump mytariffs'
+
+запуск консоли на  ssh -p 122 root@188.166.166.166 (вход на mt-staging-1) потом docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rails c"
+run mailman from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake run_mailman"
+run db:seed from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake db:seed"
+run sitemap from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake sitemap:refresh:no_ping"
+
+run export:update_price_standard_formulas_from_seed_file from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake export:update_price_standard_formulas_from_seed_file"
+
+run export:content from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake export:content"
+run import:content from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake import:content"
+run import:content from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake import:tarifs PRIVACY_M=personal"
+run import:content from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake import:fast_optimization PRIVACY_M=personal"
+run import:content from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake import:fast_optimization REGION_TXT=moskva_i_oblast PRIVACY_M=personal"
+run import:content from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake import:ratings PRIVACY_M=personal"
+
+copy file from app to docker: docker cp mt-frontend:/app/db/seeds/autoload/content/articles.rb /tmp/articles.rb
+copy file from docker to local: rsync -a mt-staging-1:/tmp/articles.rb /tmp/articles.rb
+
+Получение продакшн версии (на любом сервере): curl -s http://$PUBLIC_IP:8500/v1/kv/versions/frontend/production | jq -r .[].Value | base64 -d | sed 's/$/\n/'
+Установка новой версии: curl -s -X PUT -d _НОВАЯ_ВЕРСИЯ_ http://$PUBLIC_IP:8500/v1/kv/versions/frontend/production
+Установка новой версии: curl -s -X PUT -d 217 http://$PUBLIC_IP:8500/v1/kv/versions/frontend/production
+проверка результата: curl -s http://$PUBLIC_IP:8500/v1/kv/versions/frontend/production | jq -r .[].Value | base64 -d | sed 's/$/\n/'
+
+Информация о сервисах:
+# системный журнал journald:  				$ journalctl -f
+
+# журнал, отфильтрованный по unit'у:		$ journalctl -f -u mt-frontend
+
+# состояние сервиса:						$ systemctl status mt-frontend
+
+
+Проверка памяти процессами:  root@mt-staging-1:~# ps amux | head -1; ps amux | grep unicorn | grep -v grep
+
+Перенос БД с Хероку
+Для переноса нужно:
+Скачать дамп БД с Heroku (https://devcenter.heroku.com/articles/heroku-postgres-import-export#export).
+Если скачивали дамп не на сервере, то скопировать его на сервер при помощи команды scp. Например,
+scp mytariffs.dump mt-staging-1:/tmp/mytariffs.dump
+
+Зайти на сервер при помощи SSH:
+ssh mt-staging-1
+
+На сервере скопировать дамп в Docker-среду сервера БД:
+docker cp /tmp/mytariffs.dump postgres:/tmp/mytariffs.dump
+
+Зайти в среду сервера БД:
+docker exec -it postgres su - postgres
+
+Восстановить дамп в БД с именем mytariffs при помощи команды pg_restore (по мотивам команды взятой из документации Heroku):
+pg_restore --verbose --clean --no-acl --no-owner -d mytariffs /tmp/mytariffs.dump
+
+Под mt-staging-1 подразумевается:
+Host mt-staging-1
+  User root
+  HostName 188.166.166.166
+  Port 122
+
+
+Изменение переменных окружения
+Переменные окружения, доступные приложению, хранятся в Vault-файле roles/app/vars/main.yml, зашированном средствами Ansible Vault. 
+Его можно отредактировать при помощи команды ansible-vault edit roles/app/vars/main.yml или использовать ansible-vault для расшировки, редактирования и последующего шифрования.
+Для добавления переменных необходимо:
+Внести изменения в roles/app/vars/main.yml.
+Обновить конфигурацию кластера при помощи ansible-playbook -i hosts playbook4.yml --ask-vault-pass.
+Перезапустить приложение при помощи ansible app -i hosts -m shell -a 'systemctl restart mt-frontend', чтобы изменения вступили в силу.
+
+
+Для использования ansible не забыть проверить ssh/config !
+
+Мониторинг использования памяти (на сервере, а не на доккере) ( docker exec -it mt-frontend bash )
+# vmstat 5
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  0   1344  66848 165996 626044    0    0     0     7   17   17  1  1 97  0  0
+ 0  0   1344  67000 165996 626044    0    0     0    32  357  972  1  1 97  0  0```
+
+si и so – показывают, сколько страниц было загружено/отправлено в swap за период... если памяти хватает, то там почти всегда 0
+
+swpd – это сколько всего страниц в swap'е... в принципе, ничего страшного, если там что-то есть... лишь бы обращение не было частым
+
+проверка постоянной памяти на сервере
+root@mt-staging-1:~# df -h
+или
+root@mt-staging-1:/# du -sh /var/log
+or du -sh * (for directory)
+(cd ..
+cd var/lib/db-backups
+rm -f 20170228-postgres.sql.gz
+) для очистки бекапров БД
+
+cd var/log - для очистки логов
+
+
+создание дампа БД (команда запускается из локальной консоли)
+ssh mt-staging-1 'export FN=`mktemp -p /tmp mtbak.XXXXXXXXXX`; docker exec -u postgres -i postgres pg_dump mytariffs > $FN && cat $FN | xz; rm -f $FN' > `date +mytariffs-dump_%Y-%m-%d-%H-%M-%S.sql.xz`
+
+восстановление БД из дампа (DATABASE = имя БД)(команда запускается там где восстанавливается БД):
+echo dbtest | sed -e 's/\(.*\)/DROP DATABASE \1; CREATE DATABASE \1;/' | psql -d postgres
+а затем
+cat mytariffs-dump.sql.xz | xz -d | psql -d dbtest
+
+
+root@mt-registry:~# docker restart registrator (по-моему помогло последний раз)
+
+
+  

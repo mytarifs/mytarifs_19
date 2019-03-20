@@ -1,0 +1,5 @@
+<% title t('.title') %>
+
+<%= render :partial => 'form', :layout => 'application/layouts/model_form_for_broad_input_column', 
+	:locals => {:form_item => price_formula_form, 
+		:url => price_list_price_formula_path(hash_with_region_and_privacy({:id => params[:id], :price_list_id => params[:price_list_id]}))} %>

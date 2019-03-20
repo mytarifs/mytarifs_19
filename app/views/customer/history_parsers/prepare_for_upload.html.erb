@@ -1,0 +1,49 @@
+<% title "Загрузка детализации звонков #{region_and_privacy_tag}" %>
+<% description "Загрузка детализации звонков #{region_and_privacy_tag}. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных операторов \
+				МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор средств для \
+				анализа услуг в области мобильной связи." %>
+<% keywords "загрузка детализации звонков #{region_and_privacy_tag}" %>	
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <span class="h5">Можно загрузить детализации звонков для <strong>МТС</strong> в формате HTML, XLS или XLSX,
+			<strong>Мегафон</strong> в формате HTML, <strong>Билайн</strong> в формате XLS или XLSX, 
+			<strong>Теле2</strong> в формате PDF.</span>
+			<% session[:current_accordion_page]['home_steps_accord'] = 0 %>
+			<span class="h5"><%= link_to "Инструкция по получению детализации на сайтах операторов", home_detailed_description_path(hash_with_region_and_privacy) %></span>
+            <hr>
+           	<%= render :partial => 'upload_form' %>
+            <hr>
+			<%= link_to("Перейти к моделированию звонков", customer_calls_set_calls_generation_params_path(hash_with_region_and_privacy), 
+				{:class => "btn btn-primary", :type =>"button"}) %>
+        </div>
+    </div>
+</header>
+
+
+<p>
+	<%= render(:partial => 'customer/history_parsers/user_params', :layout => 'application/layouts/filtr_form_n_columns', 
+		:locals => {:form_item => user_params_filtr})  if true %>
+</p>
+
+
+<div class="panel panel-default" >
+	<div class="panel-heading"><span class="h4"> результатов загрузки детализации</span></div>
+	<div class="panel-body">
+		<%= render :partial => 'call_run_choice' %>
+	</div>
+	<div class="panel-footer">
+		<%= link_to(t('customer.history_parsers.prepare_for_upload.call_runs_link'), customer_call_runs_path(hash_with_region_and_privacy), 
+			{:class => "btn btn-primary", :type =>"button", :rel => "nofollow"}) %>		
+		<%= render :partial => 'information' %>
+	</div>
+</div>
+
+<p>
+<%= render( :partial => 'call_history_tabs', :layout => 'application/layouts/tabs', 
+      :locals => {:name => 'call_history_tabs', :active => session[:current_tabs_page]['call_history_tabs'].to_i}) if user_type == :admin %>
+</p>
+

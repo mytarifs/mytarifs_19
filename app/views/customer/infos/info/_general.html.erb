@@ -1,0 +1,21 @@
+<%
+form_item.init do |fi|
+#  fi.caption =  'Профиль'
+	link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+
+  fi.set_fields do  |general| 
+    ([
+    	([
+    		"Информация из загрузок", general.call_run
+    	] if user_type == :admin),
+    	[
+    		"Задачи", (general.tasks.blank? ? "Нет задач" : general.tasks)
+    	],
+      [
+#		link_to( t('customer.call_runs.show.call_run.edit_link'), edit_customer_call_run_path(call_run), link_to_html),
+#		link_to( t('customer.call_runs.show.call_run.call_runs_link'), customer_call_runs_path, link_to_html)      	
+      ],
+    ]).compact 
+  end  
+end
+%>

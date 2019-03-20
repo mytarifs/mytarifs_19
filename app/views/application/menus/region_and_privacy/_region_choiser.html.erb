@@ -1,0 +1,6 @@
+<ul class="dropdown-menu">
+	<% Category.mobile_regions_with_scope(['ratings']).each do |m_region, m_region_desc| %>
+		<li><%= link_to(  Category::MobileRegions[m_region].try(:[], 'name'), root_with_region_and_privacy(m_privacy, m_region) ) %></li>
+	<% end %>
+</ul>
+

@@ -1,0 +1,77 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => scrap_tarif_lists_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label "}
+  s = session_filtr_params(fi)	
+
+  tarif_regions = Category.where(:id => TarifList.pluck(:region_id).uniq)
+  
+  filtr = session[:filtr]['scraped_info_from_tarif_list_for_parsing_filtr'] || {}
+    
+    base_tarif_class_ids = case
+    when !filtr['tarif_classes_for_parsing_id'].blank?; [filtr['tarif_classes_for_parsing_id']].flatten.compact.map(&:to_i);
+    else base_tarif_class_from_general_tarif_class_filtr.pluck(:id).uniq;
+    end
+    
+    base_tarif_lists = TarifList.includes(:region)#.joins(:tarif_class)#.where(:tarif_class_id => base_tarif_class_ids)      
+    base_tarif_lists = base_tarif_lists.where(:region_id => filtr['region_id'].try(:to_i)) if !filtr['region_id'].blank?
+    base_tarif_lists
+  	
+  possible_statuses = TarifList.where(:id => base_tarif_lists.pluck("id")).select("distinct((tarif_lists.features->>'status')::text) as status_1").map{|r| r.status_1}.compact - ['']
+  
+  chosen_statuses = (((s['status'] || []) - ['']) || []).map{|st| "'#{st}'"}.join(', ')
+  s['status'] = nil if chosen_statuses.blank?
+  base_tarif_lists = base_tarif_lists.where("(tarif_lists.features->>'status')::text in (#{chosen_statuses}) or (tarif_lists.features->>'status')::text is null") if !s['status'].blank?
+
+  base_tarif_classes_for_parsing = base_tarif_class_from_general_tarif_class_filtr.
+  	select("distinct tarif_classes.id, tarif_classes.name").order("tarif_classes.name, tarif_classes.id")
+  	
+  tarif_classes_for_parsing = base_tarif_classes_for_parsing.for_parsing('true')
+  tarif_classes_for_parsing = tarif_classes_for_parsing.joins(:tarif_lists).where(:tarif_lists => {:region_id => s["region_id"].to_i}) if !s["region_id"].blank?
+  
+  base_tarif_classes = base_tarif_classes_for_parsing.for_parsing('false')
+  base_tarif_classes = base_tarif_classes.joins(:tarif_lists).where(:tarif_lists => {:region_id => s["region_id"].to_i}) if !s["region_id"].blank?
+  	
+  
+  fi.set_fields do |filtr_name|
+    [
+	   [
+	   	label(filtr_name, "region_id", 'region_id', label_html),
+      	collection_select(filtr_name, "region_id", tarif_regions, :id, :name, 
+	  	{:include_blank => "выберите регион", :selected => s["region_id"] }, input_html.merge({:size => [10, tarif_regions.size + 1].min}) ) +
+
+      	label(filtr_name, "force_to_scrap", "force_to_scrap", label_html) +
+      	select(filtr_name, "force_to_scrap", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["force_to_scrap"] || nil)}, input_html.merge({:size => 2}) ) +
+
+	   	label(filtr_name, "scrap_filtered_services_to_scrap", "scrap_filtered_services_to_scrap", {:class => "btn btn-success ", :type => "button"}) +
+	   	check_box_tag("scraped_info_from_tarif_list_for_parsing_filtr[scrap_filtered_services_to_scrap]", "true", nil, input_html.merge({:class => "updatable hidden" })),
+
+      	label(filtr_name, "status", "status", label_html),
+     	select(filtr_name, "status", possible_statuses, 
+	  	  {:include_blank => true, :selected => s["status"]}, input_html.merge({:multiple => true, :size => possible_statuses.size + 1})) +
+
+      	label(filtr_name, "show_null_status", "show_null_status", label_html) +
+      	select(filtr_name, "show_null_status", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_null_status"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "show_only_empty_h1", "show_only_empty_h1", label_html) +
+      	select(filtr_name, "show_only_empty_h1", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_only_empty_h1"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "row_per_page", "Кол-во записей на странице", label_html) +
+      	select(filtr_name, "row_per_page", [10, 25, 50, 200], 
+	  	{:selected => (s["row_per_page"] || 25)}, input_html.merge({:size => 4}) ),
+
+      	label(filtr_name, "tarif_classes_for_parsing_id", "tarif_classes_for_parsing_id", label_html),
+      	collection_select(filtr_name, "tarif_classes_for_parsing_id", tarif_classes_for_parsing, :id, :name, 
+	  	{:include_blank => "tarif_classes_for_parsing_id", :selected => s["tarif_classes_for_parsing_id"] }, input_html.merge({:size => [15, tarif_classes_for_parsing.size + 1].min})),
+
+      	label(filtr_name, "base_tarif_classes_id", "base_tarif_classes_id", label_html),
+      	collection_select(filtr_name, "base_tarif_classes_id", base_tarif_classes, :id, :name, 
+	  	{:include_blank => "tarif_class_id", :selected => s["base_tarif_classes_id"] }, input_html.merge({:size => [15, base_tarif_classes.size + 1].min})),
+	   ],
+    ].compact
+  end
+end
+%>

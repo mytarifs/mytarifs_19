@@ -1,0 +1,16 @@
+<%
+table.init do |t|
+#  t.caption = 'Список тарифов и опций'
+  t.heads = ['id', 'standard_formula name', 'params', 'calculation_order', 'regions']
+  t.set_fields do |formulas| 
+  	
+  [
+	formulas.id,
+	formulas.standard_formula.try(:name),
+	formulas.formula.try(:[], "params"),
+	formulas.calculation_order,
+	formulas.formula.try(:[], "regions"),
+  ]
+  end
+end
+%>

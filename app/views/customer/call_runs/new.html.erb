@@ -1,0 +1,6 @@
+<% title t('.title') %>
+<% noindex 'googlebot' %>
+
+<%= render :partial => 'form', :layout => 'application/layouts/model_form_for', 
+	:locals => {:form_item => controller.customer_call_run_form, :url => customer_call_runs_path(hash_with_region_and_privacy)} %>
+

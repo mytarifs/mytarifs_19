@@ -1,0 +1,35 @@
+<div class="table-responsive">
+	<div class="row">
+		<div class="col-xs-12 text-center">			
+			<table class='table table-bordered table-hover table-condensed text-center'>
+				<thead>
+					<tr>
+						<th class="info">Оператор</th>
+						<th class="info">Тариф</th>
+						<th class="info">Рекомендуемые для подключения опции</th>
+						<th class="info">Оценка затрат, рублей</th>
+					</tr>
+				</thead>
+				
+				<tbody>
+					<% fast_optimization_results_to_show.each do |service_set_id, service_set_resut| %>
+						<% option_links = [] %>
+						<% service_set_resut[:option_names].each_with_index do |option_name, index|
+							option_links << link_to(option_name, 
+							tarif_class_path(hash_with_region_and_privacy({:id => service_set_resut[:option_slugs][index]})),
+							:target => "")
+						end %>
+					<tr>
+						<td><%= service_set_resut[:operator_name] %> </td>	
+						<td><%= link_to(service_set_resut[:tarif_name], 
+							tarif_class_path(hash_with_region_and_privacy({:id => service_set_resut[:tarif_slug]})),
+							:target => "")  %> </td>	
+						<td><%= option_links.blank? ? "Не надо подключать дополнительные опции" : option_links.join(", ").html_safe %> </td>	
+						<td class="text-danger bold"><%= service_set_resut[:price] %> </td>	
+					</tr>							
+					<% end if fast_optimization_results_to_show %>
+				</tbody>
+			</table>			
+		</div>
+	</div>	
+</div>

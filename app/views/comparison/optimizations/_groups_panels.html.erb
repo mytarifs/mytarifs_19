@@ -1,0 +1,38 @@
+<%
+table.init do |t|
+  link_html = {:my_remote => true}
+  t.set_fields do |group|   	
+  	result_desc = []
+  	@group_result_description[privacy_key][region_txt][group.id].each do |full_desc|
+  		desc = full_desc[:group].try(:[], 0) || {}
+  		next if desc.blank?
+
+  		result_desc << content_tag(:span, "#{desc[:price].round(0)} руб.		") +
+  		link_to("#{desc[:operator_name]} #{desc[:tarif_name]}", tarif_class_path(hash_with_region_and_privacy({:id => desc[:tarif_slug]})), {:target => ""}) + 
+  		if desc[:option_slugs].blank?
+  			content_tag(:span, ", без опций")
+  		else
+  			option_links = []
+  			desc[:option_slugs].each_with_index do |option_slug, index|
+  				option_links << link_to("#{desc[:option_names][index]}", tarif_class_path(hash_with_region_and_privacy({:id => option_slug})), {:target => ""})
+  			end
+
+  			content_tag(:span, " + ( ") +
+  			option_links.join(", ").html_safe +
+  			content_tag(:span, " )")
+  		end
+  	end if @group_result_description[privacy_key][region_txt][group.id]
+
+  	{
+  	:head => group.name,
+  	:body => result_desc,
+	:footer => (content_tag(:div, {:class => "btn-toolbar"}) do
+	    link_to( "Результаты", result_service_sets_result_path(hash_with_region_and_privacy({:result_run_id => group.result_run.try(:slug)})), link_html.merge({:class => "btn btn-primary"})) + 
+	    link_to( "Сравнение", result_compare_path(hash_with_region_and_privacy({:result_run_id => group.result_run.try(:slug)})), link_html.merge({:class => "btn btn-primary"})) +
+	    ((group.call_runs.size > 0) ? link_to( "Звонки", 
+	    	comparison_call_stat_path(hash_with_region_and_privacy({:id => params[:id], :group => group.id})), link_html.merge({:class => "btn btn-primary"}) ) : "")
+	  end if group.result_run)
+  	}
+  end
+end
+%>

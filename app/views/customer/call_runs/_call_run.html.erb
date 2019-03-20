@@ -1,0 +1,33 @@
+<%
+form_item.init do |fi|
+#  fi.caption =  'Профиль'
+	link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+
+  fi.set_fields do  |call_run| 
+    ([
+      ['Название', call_run.name], 
+      ['Источник данных', 
+      	(call_run.class.source_names[call_run.source] if call_run.source)
+      ], 
+      ['Описание', call_run.description], 
+      [
+		link_to( t('customer.call_runs.show.call_run.edit_link'), 
+			edit_customer_call_run_path(hash_with_region_and_privacy({:id => call_run.id})), link_to_html),
+		link_to( t('customer.call_runs.show.call_run.call_runs_link'), 
+			customer_call_runs_path(hash_with_region_and_privacy), link_to_html)      	
+      ],
+    ] + ((user_type != :admin) ? [] : [
+		([
+			link_to( 'Вернуться к описанию рейтинга', comparison_optimization_path(hash_with_region_and_privacy({:id => session[:current_id]['comparison_optimization_id']})), 
+			link_to_html)] if session[:current_id]['comparison_optimization_id'
+		]),
+      	['Пользователь', (call_run.user.name if call_run.user)], 
+      	['Оператор', (call_run.operator.name if call_run.operator)], 
+        ['init_class', call_run.init_class], 
+      ] +
+		(call_run.init_params.blank? ? [] : call_run.init_params.keys.map{|k| [k, call_run.init_params[k]]}) 
+      )
+      ).compact 
+  end  
+end
+%>

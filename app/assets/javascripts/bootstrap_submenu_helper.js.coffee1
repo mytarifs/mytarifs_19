@@ -1,0 +1,2 @@
+$(document).on 'ready turbolinks:load ajaxComplete', ->
+  $("[data-submenu]").submenupicker()

@@ -1,0 +1,51 @@
+<% title (result_service_sets_model.first.try(:run).try(:comparison_group) ? "Детальный состав затрат по тарифу \
+	#{results_service_set.try(:full_name)}\
+	 для рейтинга: #{result_service_sets_model.first.run.comparison_group.optimization.name}, \
+	корзина: #{result_service_sets_model.first.run.comparison_group.name} #{region_and_privacy_tag}" :
+	"Список лучших тарифов для подбора тарифов пользователя #{region_and_privacy_tag}") %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <span class="h5">Детальный состав затрат показывает структуру затрат по отдельным тарифам и опциям, и мобильным услугам.
+				Можно также посмотреть агрегированные затраты только по мобильным услугам.</span>
+            <hr>
+        </div>
+    </div> 
+</header>
+
+<div class="panel panel-default">
+	<div class="panel-heading"><span class="h4">Описание подбора тарифа</span></div> 
+
+	<% if result_service_sets_model.first.run.comparison_group %>
+		<ul class="list-group" >
+			<li class="list-group-item"><strong>Название рейтинга: </strong><%= result_service_sets_model.first.run.comparison_group.optimization.name %></li>
+			<li class="list-group-item"><strong>Название корзины: </strong><%= result_service_sets_model.first.run.comparison_group.name %></li>
+			<li class="list-group-item"><strong> Результат для: </strong><%= results_service_set.try(:full_name) %></li>
+		</ul>
+	<% else %>
+		<ul class="list-group" >
+			<li class="list-group-item"><strong>Сохраненное название подбора: </strong><%= result_service_sets_model.first.run.name %></li>
+			<li class="list-group-item"><strong>Сохраненное описание звонков: </strong><%= result_service_sets_model.first.run.call_run.try(:name) %></li>
+			<li class="list-group-item"><strong> Результат для: </strong><%= results_service_set.try(:full_name) %></li>
+		</ul>
+	<% end if result_service_sets_model.first %> 
+	<div class="panel-footer">
+		<%= render( :partial => 'result/service_sets/detailed_results/information') + 
+			link_to("Назад", service_sets_detailed_results_return_link_to, {:class => "btn btn-success", :type =>"button", :remote => true}) %>
+	</div>
+</div>
+
+<div class="panel panel-default" >
+	<div class="panel-heading"><span class="h4"> Вариант показа затрат</span></div>
+	<div class="panel-body">
+		<%= render(:partial => 'result/service_sets/detailed_results/if_show_aggregate_results', :layout => 'application/layouts/filtr_form_inline', 
+			:locals => {:form_item => controller.if_show_aggregate_results} )  %>
+	</div>
+</div>
+
+<%= render :partial => 'result/service_sets/detailed_results/results_for_customer', :layout => 'application/layouts/tabs', 
+    :locals => {:name => 'detailed_results', :active => session[:current_tabs_page]['detailed_results'].to_i} %>
+      

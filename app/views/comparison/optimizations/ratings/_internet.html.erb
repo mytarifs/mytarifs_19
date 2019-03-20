@@ -1,0 +1,35 @@
+<div class="row">
+    <div class="col-lg-4 col-md-4 text-center">
+        <div class="feature">
+        	<%= render :partial => 'comparison/optimizations/ratings/group_panel', :locals => {
+        		:heading => "Читаю новости и проверяю почту", :group_result_description => group_result_description_by_original_group_id_privacy_and_region(21), 
+        	 	:popover_content => "Объем потребления интернета 300 Мб",
+        	 	:footer => link_to( "Детальные результаты", 
+        	 		comparison_optimization_path(hash_with_region_and_privacy({:id =>group_result_description_by_original_group_id_privacy_and_region(21)[0][:comparison_optimization_slug]})), 
+        	 		{:class => "btn btn-primary", :target => "",
+               		 :onclick => set_target("internetom")}) } if group_result_description_by_original_group_id_privacy_and_region(21) %>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 text-center">
+        <div class="feature">
+        	<%= render :partial => 'comparison/optimizations/ratings/group_panel', :locals => {
+        		:heading => "Смотрю видео-ролики и пользуюсь интернетом", :group_result_description => group_result_description_by_original_group_id_privacy_and_region(23), 
+        	 	:popover_content => "Объем потребления интернета 1 Гб",
+        	 	:footer => link_to( "Детальные результаты", 
+        	 	comparison_optimization_path(hash_with_region_and_privacy({:id => group_result_description_by_original_group_id_privacy_and_region(23)[0][:comparison_optimization_slug]})), 
+        	 		{:class => "btn btn-primary", :target => "",
+               		 :onclick => set_target("internetom")}) } if group_result_description_by_original_group_id_privacy_and_region(23) %>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 text-center">
+        <div class="feature">
+        	<%= render :partial => 'comparison/optimizations/ratings/group_panel', :locals => {
+        		:heading => "Смотрю фильмы и пользуюсь интернетом", :group_result_description => group_result_description_by_original_group_id_privacy_and_region(27), 
+        	 	:popover_content => "Объем потребления интернета 10 Гб",
+        	 	:footer => link_to( "Детальные результаты", 
+        	 		comparison_optimization_path(hash_with_region_and_privacy({:id => group_result_description_by_original_group_id_privacy_and_region(27)[0][:comparison_optimization_slug]})), 
+        	 		{:class => "btn btn-primary", :target => "",
+               		 :onclick => set_target("internetom")}) } if group_result_description_by_original_group_id_privacy_and_region(27) %>
+        </div>
+    </div>
+</div>

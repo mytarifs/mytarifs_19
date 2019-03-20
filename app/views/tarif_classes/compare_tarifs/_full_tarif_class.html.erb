@@ -1,0 +1,43 @@
+<%
+tarif_desc = {}
+
+tarif_classes.each do |tarif_class_id, tarif_class|
+	tarif_desc["tarif_class"] ||= {}
+	tarif_desc["tarif_class"][tarif_class_id] = tarif_class
+	
+	tarif_desc["Доступность к подключению"] ||= {}
+	tarif_desc["Доступность к подключению"][tarif_class_id] = "#{tarif_class.dependency['is_archived'] ? 'тариф является архивным и не доступен для подключения' : 'доступен для подключения'}"
+	tarif_desc["Кто может подключить"] ||= {}
+	tarif_desc["Кто может подключить"][tarif_class_id] = tarif_class.privacy.name if tarif_class.privacy
+	tarif_desc["Система оплаты"] ||= {}
+	tarif_desc["Система оплаты"][tarif_class_id] = tarif_class.features['payment_type'] if tarif_class.features
+	tarif_desc["Тип телефонного номера"] ||= {}
+	tarif_desc["Тип телефонного номера"][tarif_class_id] = tarif_class.features['phone_number_type'].join(' или ') if tarif_class.features.try(:[], 'phone_number_type')
+end
+%>
+<div class="table-responsive">
+	<div class="row">
+		<div class="col-xs-12 text-center">			
+			<table class='table table-bordered table-hover table-condensed text-center'>
+				<thead>
+					<tr>
+						<th class="info">Параметр</th>
+						<% tarif_desc["tarif_class"].each do |tarif_class_id, tarif_class| %>
+						<th class="info"><%= "#{tarif_class.operator.try(:name)}, #{tarif_class.name}"%></th>
+						<% end if tarif_desc["tarif_class"]%>
+					</tr>
+				</thead>				
+				<tbody>
+				<% tarif_desc.except("tarif_class").each do |desc_name, desc_item| %>
+					<tr>
+						<td><%= desc_name %></td>
+						<% desc_item.each do |tarif_class_id, desc_item_value| %>
+						<td><%=  desc_item_value %></td>
+						<% end %>
+					</tr>
+				<% end %>
+				</tbody>
+			</table>			
+		</div>
+	</div>	
+</div>

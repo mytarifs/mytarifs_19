@@ -1,0 +1,21 @@
+<%
+table.init do |t|
+  filtr = session[:filtr]['my_offers_filtr'] || {}
+
+  heads_to_hide = ["has_deeplinks", "yml_name", "region", "yml_id", "all_keys", "file_url", "file_size"]
+  t.heads = ['offer_id', 'offer_name'] +
+  			(heads_to_hide - (filtr['hide_catalogs_fields'] || [])) + []
+  
+  t.set_fields do |catalog| 
+  	fields_to_hide = heads_to_hide.map do |head_to_hide|
+  		((filtr['hide_catalogs_fields'] || []).include?(head_to_hide) ? nil : (catalog.try(:[], head_to_hide)) || '')
+  	end
+
+	fields_to_show = [
+		(catalog['offer_id'] || ''),
+		(catalog['offer_name'] || ''),
+	] + fields_to_hide
+	fields_to_show.compact
+  end
+end	
+%>

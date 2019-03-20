@@ -1,0 +1,159 @@
+<% title "Подбор тарифа мобильной связи, выгодные тарифы для телефона и планшета #{region_and_privacy_tag}" %>
+<% description "www.mytarifs.ru — сервис по подбору оптимальных тарифов и опций для мобильных операторов МТС, «Билайн», \
+				«Мегафон», TELE2 #{region_and_privacy_tag}. Помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг \
+				в области мобильной связи." %>
+<% keywords "подбор тарифов и опций операторов мтс билайн мегафон tele2 услуги в области мобильной связи #{region_and_privacy_tag}" %>	
+			
+<% content_for :hide_title, 'true' %>
+ 
+<header id="first">
+    <div class="header-content">
+        <div class="inner">
+            <h1 class="cursive">Лучший тариф мобильной связи для вас</h1>
+            <hr class="primary">
+            <div class="h3 margin-top-0 text-muted">Для подбора тарифа вы можете воспользоваться одним из наших сервисов.</div>
+			<hr class="primary">
+			<%= render :partial => "application/shared/social_share_buttons" %>                <hr>
+           	<hr class="primary">
+        </div>
+    </div>
+</header>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:root, :under_h1) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<section class="bg-primary1" id="zero">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-5 col-md-5 text-center">
+                <div class="feature-wide">
+                    <i class="fa fa-sort-amount-desc fa-2x wow fadeIn" data-wow-delay=".2s"></i>
+                    <span class="h3">Рейтинги тарифов</span>
+                    <p class="text-muted">Выберите рейтинг, который похож на то, как вы пользуетесь мобильной связью</p>
+                    <div>
+
+		        	<%= render :partial => 'comparison/optimizations/ratings/group_panel', :locals => {
+		        		:heading => "Пример рейтинга", :group_result_description => group_result_description_by_original_group_id_privacy_and_region(17), 
+		        	 	:popover_content => "1200 мин звонков, 420 смс, 3Гб интернета",
+		        	 	:footer => link_to( "Перейти к рейтингам", 
+		        	 		comparison_choose_your_tarif_from_ratings_path(hash_with_region_and_privacy), 
+		        	 		{:class => "btn btn-primary", :target => "",
+		        	 		 :onclick => set_target("vsemi_uslugami")	}) } if group_result_description_by_original_group_id_privacy_and_region(17) %>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7 col-md-7 text-center">
+                <div class="feature-wide">
+                    <i class="fa fa-calculator fa-2x wow fadeInUp" data-wow-delay=".4s"></i>
+                    <span class="h3">Калькулятор тарифов</span>
+                    <p class="text-muted">Быстрый подбор тарифа на основе выбранных вами параметров пользования мобильной связью</p>
+					<div class="panel panel-success">
+						<div class="panel-body">
+							<%= render( :partial => 'comparison/fast_optimizations/options_vertical', 
+								:layout => 'application/layouts/filtr_form_2_columns_with_1_label', 
+								:locals => {:form_item => fast_optimization_options_form, :fast_optimization_options => fast_optimization_options, 
+									:url => comparison_fast_optimizations_path(hash_with_region_and_privacy) } ) %>
+						</div>                        	
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-primary" id="one">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3 col-md-8 col-md-offset-2 text-center">
+                <span class="h2 margin-top-0 text-primary1">Детальный подбор тарифа специально для вас</span>
+                <p class="text-muted">
+                    Для выбора самого выгодного для вас тарифа нужно пройти четыре простых этапа.
+                </p>
+                <hr class="primary">
+	            <%= link_to "Подобрать тариф", result_detailed_calculations_new_path(hash_with_region_and_privacy), {:class => "btn btn-default btn-lg wow flipInX"} %> &nbsp;
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="bg-primary1" id="two">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3 col-md-8 col-md-offset-2 text-center">
+                <span class="h2 margin-top-0 text-primary1">Дополнительные сервисы</span>
+                <p class="text-muted">
+                    .Также вы может воспользоваться дополнительными услугами нашего сайта.
+                </p>
+                <hr class="primary">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4 col-md-4 text-center">
+                <div class="feature-wide">
+                    <i class="fa fa-list-ul fa-2x wow fadeIn" data-wow-delay=".2s"></i>
+                    <span class="h3">Сравнение тарифов</span>
+                    <p class="text-muted">Выберите несколько тарифов и получите детальное сравнение по стоимости отдельных услуг</p>
+		            <%= link_to "Сравнить тарифы", compare_tarifs_path(hash_with_region_and_privacy), {:class => "btn btn-default wow flipInX"} %> &nbsp;
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 text-center">
+                <div class="feature-wide">
+                    <i class="fa fa-file-text fa-2x wow fadeInUp" data-wow-delay=".4s"></i>
+                    <span class="h3">Описание тарифов</span>
+                    <p class="text-muted">Быстрый поиск нужного вам тарифа или опции, а также детальное описание параметров тарифа</p>
+		            <%= link_to "Перейти к описанию тарифов", tarif_classes_path(hash_with_region_and_privacy), {:class => "btn btn-default wow flipInX"} %> &nbsp;
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 text-center">
+                <div class="feature-wide">
+                    <i class="fa fa-usd fa-2x wow fadeInUp" data-wow-delay=".4s"></i>
+                    <span class="h3">Проверка стоимости тарифов</span>
+                    <p class="text-muted">Вы можете проверить сколько будут стоить тариф и набор опций.</p>
+		            <%= link_to "Проверить стоимость тарифа", estimate_cost_tarif_class_path(hash_with_region_and_privacy), {:class => "btn btn-default wow flipInX"} %> &nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-primary" id="last">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 text-center">
+                <span class="h2 margin-top-0 wow fadeIn">Регистрация на сайте</span>
+                <p class="text-muted">Мы предлагаем вам зарегистрироваться, так как это позволит вам повторно воспользоваться полученными результатами.
+                	Для гостей мы предлагаем только упрощенный вариант подбора тарифов.</p>
+                <hr class="primary">
+                <%= link_to "Регистрация", new_user_registration_path, {:class => "btn btn-default btn-lg wow flipInX", :rel => "nofollow"} %> &nbsp;
+                <%= link_to "Войти", login_path, {:class => "btn btn-default btn-lg wow flipInX", :rel => "nofollow"} %> 
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-primary1" id="support">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 text-center">
+                <span class="h2 margin-top-0 wow fadeIn">Поддержка проекта</span>
+                <p class="text-muted">Мы помогаем принять правильное решение, предлагая варианты решений и средства для анализа, в области мобильной связи.
+    		    Мы молодая компания, и будем благодарны, если вы поддержите нас.</p>
+                <hr class="primary">
+                <p class="text-center">
+	                <%= link_to "Поддержать", new_customer_payments_path(hash_with_region_and_privacy), {:class => "btn btn-primary btn-lg center-btn flipInX", :rel => "nofollow"} %> 
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:root, :bottom) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+

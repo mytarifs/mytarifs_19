@@ -1,0 +1,73 @@
+<div class="row-fluid">
+	<div class=" col-md-2 col-sm-4">
+		<ul class="list-unstyled">
+			<li class="list-unstyled text-center"><%= link_to(content_tag(:u, 'ГЛАВНАЯ'), 
+				root_with_region_and_privacy(m_privacy, m_region), {:remote => false, :class => ""}) %><br /><br /></li>
+			<li class="list-unstyled"><%= link_to  "Статьи", content_mobile_articles_path(hash_with_region_and_privacy) %></li>
+			<li class="list-unstyled"><%= link_to "Новости", home_news_path(hash_with_region_and_privacy) %></li>
+			<li class="list-unstyled"><%= link_to("Обратная связь", new_customer_demand_path(hash_with_region_and_privacy), {:rel => "nofollow"}) %></li>
+			<li class="list-unstyled"><%= link_to("Карта сайта", home_sitemap_path(hash_with_region_and_privacy)) %></li>
+			<li class="list-unstyled"><%= link_to('Контакты', home_contacts_path(hash_with_region_and_privacy)) %></li>
+			<li class="list-unstyled">Email: <%= mail_to "info@mytarifs.ru", nil, {} %></li><br />
+			<li class="list-unstyled">
+				<div class="hidden-xs hidden-sm hidden-md text-center1"><%= image_tag('android_osx_microsoft_log.png', alt: "Адаптировано для мобильных устройств", height: 45) %></div>
+			</li>
+			<br />
+		</ul>
+	</div>
+	<div class=" col-md-3 col-sm-4">
+		<ul class="list-unstyled">
+			<li class="list-unstyled text-center"><%= link_to content_tag(:u, "КАЛЬКУЛЯТОР ТАРИФОВ"), 
+				comparison_fast_optimizations_path(hash_with_region_and_privacy) %><br /><br /></li>
+			<li class="list-unstyled"><%= link_to "Детальный подбор тарифа", 
+			    result_detailed_calculations_new_path(hash_with_region_and_privacy) %></li>
+			<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+				<li class="list-unstyled"><%= link_to "Тарифный калькулятор #{operator.name}", 
+					comparison_fast_optimizations_by_operator_path(hash_with_region_and_privacy({:operator_id => operator})) %></li>
+			<% end %>
+			<br />
+		</ul>
+	</div>
+	<div class=" col-md-3 col-sm-4">
+		<ul class="list-unstyled">
+			<li class="list-unstyled text-center"><%= link_to content_tag(:u, "СРАВНЕНИЕ ТАРИФОВ"), compare_tarifs_path(hash_with_region_and_privacy) %><br /><br /></li>
+			<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+				<li class="list-unstyled"><%= link_to "Сравнение тарифов #{operator.name}", 
+					compare_tarifs_by_operator_path(hash_with_region_and_privacy({:operator_id => operator})) %></li>
+			<% end %>
+			<br />
+		</ul>
+	</div>
+	<div class=" col-md-4 col-sm-12">
+		<div class="row-fluid">
+			<ul class="list-unstyled">
+				<li class="list-unstyled text-center"><%= link_to content_tag(:u, "ОПИСАНИЕ ТАРИФОВ"), tarif_classes_path(hash_with_region_and_privacy) %><br /><br /></li>
+				<li class=" col-xs-12 col-sm-6 col-md-6">
+					<ul class="list-unstyled">
+						<% Category::Operator.operators_with_tarifs.find_each do |operator| %>
+							<li class="list-unstyled"><%= link_to "Все тарифы #{operator.name}", 
+								tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => operator})) %></li>
+						<% end %>
+			 			<br />
+					</ul>
+				</li>
+				<li class=" col-xs-12 col-sm-6 col-md-6">
+					<ul class="list-unstyled">
+						<li class="list-unstyled"><%= link_to "Безлимитные тарифы", unlimited_tarif_classes_path(hash_with_region_and_privacy) %></li>			
+						<li class="list-unstyled"><%= link_to "Тарифы без абонентской платы", pay_as_go_tarif_classes_path(hash_with_region_and_privacy) %></li>			
+						<li class="list-unstyled"><%= link_to "Тарифы для планшета", planshet_tarif_classes_path(hash_with_region_and_privacy) %></li>
+						<li class="list-unstyled"><%= link_to "Международный роуминг", international_rouming_tarif_classes_path(hash_with_region_and_privacy) %></li>
+						<li class="list-unstyled"><%= link_to "Роуминг по России", country_rouming_tarif_classes_path(hash_with_region_and_privacy) %></li>
+						<br />
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<div class="col-xs-12 text-center">
+	<br />
+	<div class="visible-xs-inline visible-sm-inline text-center"><%= image_tag('android_osx_microsoft_log.png', alt: "Адаптировано для мобильных устройств", height: 45) %></div>
+	<%= render('/application/shared/trademark') %>
+</div>

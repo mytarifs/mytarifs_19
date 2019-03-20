@@ -1,0 +1,27 @@
+<% if result_run %>
+	<div class="panel panel-default">
+		<div class="panel-heading"><span class="h4">Текущие параметры подбора тарифа</span></div>
+		<ul class="list-group" >
+			<li class="list-group-item"><strong>Способ подбора тарифа: </strong><%= (result_run.optimization_type || "Способ подбора не выбран") %></li>
+			<% if result_run.call_run.try(:[], 'init_params').try(:[], 'general') %>
+				<% general_init_params = result_run.call_run.try(:[], 'init_params').try(:[], 'general') || {'privacy_id' => m_privacy_id, 'region_txt' => m_region} %>
+				<% if general_init_params["privacy_id"] == 1 %>
+					<li class="list-group-item"><strong><%= "Для бизнеса" %></strong></li>
+				<% end %>		
+				<% if result_run.call_run['region_txt'] %>
+					<li class="list-group-item"><strong>Выбранные регион: </strong><%= Category::MobileRegions[general_init_params['region_txt']]['name'] %></li>
+				<% end %>		
+			<% end %>
+			<% if result_run.call_run.try(:source) == 1 %>
+				<li class="list-group-item"><strong>Ваш текущий оператор (из детализации): </strong><%= (result_run.call_run.try(:operator).try(:name) || "Оператор не определен") %></li>
+				<li class="list-group-item"><strong>Ваш телефон (из детализации): </strong>
+					<%= (general_customer_info.try(:info).try(:[], "call_run").try(:[], result_run.call_run_id.try(:to_s)).try(:[], "own_number") || "Телефон не определен") %>
+				</li>
+			<% else %>
+				<li class="list-group-item"><strong>Выбранный оператор: </strong><%= (result_run.call_run.try(:operator).try(:name) || "Оператор не определен") %></li>
+			<% end %>
+			<li class="list-group-item"><strong>Период расчета: </strong><%= (result_run.accounting_period || "Период расчета не выбран") %></li>
+		</ul>
+	</div>
+<% end %>
+

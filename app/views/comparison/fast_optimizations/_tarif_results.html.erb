@@ -1,0 +1,19 @@
+<%
+table.init do |t|
+  t.heads = ['id', 'run_id', 'tarif_id', 'part', 'result']
+  t.set_fields do |f| 
+  [
+    f.id,
+    f.run_id,
+    f.tarif_id,
+    f.part,
+    f.result,
+#    (f.created_at.to_formatted_s(:short) if  f.created_at), 
+#    (f.updated_at.to_formatted_s(:short) if f.updated_at), 
+#    link_to( 'Show', f), 
+#    link_to( 'Edit', edit_price_list_path(f)), 
+#    link_to( 'Destroy', f, method: :delete, data: { confirm: 'Are you sure?' } )
+  ] 
+  end
+end
+%>

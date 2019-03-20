@@ -1,0 +1,28 @@
+<%
+table.init do |t|
+  filtr = session[:filtr]['items_filtr'] || {}
+    
+  heads_to_hide = ['source', 'page_item', 'content_name', 'page_item_name_for_check', 'content_desc', 'stat_id']
+  t.heads = ['ID', 'Name', 'Program', 'Item status', ] +
+  			(heads_to_hide - (filtr['hide_fields'] || [])) + ['', '']
+  
+  t.set_fields do |item| 
+  	fields_to_hide = heads_to_hide.map do |head_to_hide|
+  		((filtr['hide_fields'] || []).include?(head_to_hide) ? nil : (item.try(head_to_hide.to_sym)) || '')
+  	end
+
+	fields_to_show = [
+		item.id,
+		link_to(item.name || 'Show' , cpanet_programs_item_path(item), :my_remote => false),		
+		link_to(item.program.try(:name), cpanet_program_path(item.program), :my_remote => false),
+		item.status,
+		(item.try(:stat_id) || ''),
+	] + fields_to_hide +
+	[
+		link_to( "Edit", edit_cpanet_programs_item_path(item), :my_remote => false),
+		((item.status == 'active') ? '' : link_to( 'Destroy', cpanet_programs_item_path(item), method: :delete, data: { confirm: 'Are you sure?' } ) ),
+	]
+	fields_to_show.compact
+  end
+end	
+%>

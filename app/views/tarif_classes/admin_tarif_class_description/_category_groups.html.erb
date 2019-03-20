@@ -1,0 +1,51 @@
+<%
+table.init do |t|
+  t.heads = ['SCG', 'SCTC', 'Rouming', 'Service', 'Rest GID', 'Filtr', 'calculation order', 'standard formula', 'params', 
+  		'tarif set must include tarif options', 'regions', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+  t.set_fields do |scg|
+  	global_categories = scg.uniq_service_category.try(:split, "/") || []
+  	[
+#		scg.conditions.try(:[], 'parts').try(:[], 0),
+		scg.service_category_group_id,
+		scg.service_category_tarif_class_id,
+#		scg.price_list_id,
+#		scg.price_formula_id,
+#		scg.standard_formula_name,
+  		[scg.service_category_one_time_name, scg.service_category_periodic_name, global_categories[0]].compact[0],
+  		global_categories[1],
+  		global_categories[2..-1].try(:join, " / "),
+  		scg.filtr, 
+#  		scg.service_category_group_name, 
+		scg.calculation_order,
+		scg.standard_formula_name,
+		scg.formula.try(:[], 'params'),
+		scg.conditions.try(:[], 'tarif_set_must_include_tarif_options'),
+		scg.conditions.try(:[], 'regions'),
+#		scg.criteria.try(:[], 'status_of_auto_update'),
+		scg.service_category_group_id ? link_to( 'Copy SCG', 
+			tarif_class_service_copy_category_group_path(hash_with_region_and_privacy({:tarif_class_id => scg.tarif_class_id, :id => scg.service_category_group_id})), 
+			{:my_remote => true, :title => "Полное копирование ServiceCategoryGroup"}) : "",
+		scg.service_category_tarif_class_id ? link_to( 'Copy SCTC', 
+			tarif_class_service_copy_category_tarif_class_path(hash_with_region_and_privacy({:tarif_class_id => scg.tarif_class_id, :id => scg.service_category_tarif_class_id})), 
+			{:my_remote => true, :title => "Копирование ServiceCategoryTarifClass"}) : "",
+		scg.service_category_group_id ? link_to( 'Edit SCG', 
+			edit_service_category_group_path(hash_with_region_and_privacy({:id => scg.service_category_group_id})), 
+			{:my_remote => true, :title => "Редактировать ServiceCategoryGroup"}) : "",
+		scg.service_category_tarif_class_id ? link_to( 'Edit SCTC', 
+			edit_service_category_tarif_class_path(hash_with_region_and_privacy({:id => scg.service_category_tarif_class_id})), 
+			{:my_remote => true, :title => "Редактировать ServiceCategoryTarifClass"}) : "",
+		scg.price_formula_id ? link_to( 'Edit Form', 
+			price_list_price_formulas_path(hash_with_region_and_privacy({:price_list_id => scg.price_list_id})), 
+			{:my_remote => true, :title => "Редактировать PriceFormula"}) : "",
+	    scg.service_category_group_id ? link_to( 'Del SCG', 
+	    	service_category_group_path(hash_with_region_and_privacy({:id => scg.service_category_group_id})), 
+	    	method: :delete, data: { confirm: 'Вы уверены, что хотите удалить ServiceCategoryGroup'}, :title => "Удалить ServiceCategoryGroup") : "",
+	    scg.service_category_tarif_class_id ? link_to( 'Del SCTC', 
+	    	service_category_tarif_class_path(hash_with_region_and_privacy({:id => scg.service_category_tarif_class_id})), 
+	    	method: :delete, data: { confirm: 'Вы уверены, что хотите удалить ServiceCategoryTarifClass'}, :title => "Удалить ServiceCategoryTarifClass") : "",
+  	]
+  end
+end
+
+%>
+

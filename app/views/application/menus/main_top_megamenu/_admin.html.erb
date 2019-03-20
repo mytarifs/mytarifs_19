@@ -1,0 +1,16 @@
+<ul class="dropdown-menu">	
+	<li><%= link_to t(:tarif_classes_path), tarif_classes_path(hash_with_region_and_privacy) %></li>
+	<li><%= link_to "TarifClass mass_edit", mass_edit_tarif_classes_path %></li>
+	<li><%= link_to "TarifList scrap", scrap_tarif_lists_path %></li>
+	<li><%= link_to "parsed_tarif_lists", parsed_tarif_lists_path %></li>
+	<li><%= link_to t(:customer_calls_set_calls_generation_params_path), customer_calls_set_calls_generation_params_path(hash_with_region_and_privacy) %></li>
+	<li><%= link_to t(:customer_history_parsers_prepare_for_upload_path), customer_history_parsers_prepare_for_upload_path(hash_with_region_and_privacy) %></li>
+	<li><%= link_to t(:customer_calls_path), customer_calls_path %></li>
+	<li><%= link_to t(:tarif_optimizators_admin_index_path), tarif_optimizators_admin_index_path(hash_with_region_and_privacy) %></li>
+	<li><%= link_to t(:customer_optimization_results_show_additional_info_path), customer_optimization_results_show_additional_info_path %></li>
+	<li><%= link_to "Расчет рейтингов", comparison_set_calculate_ratings_options_path %></li>
+	<li><%= link_to "Расчет для быстрого подбора тарифов", comparison_fast_optimizations_calculation_start_path %></li>
+	<li><%= link_to "Список статей", content_articles_path %></li>
+</ul>
+
+

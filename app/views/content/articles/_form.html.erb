@@ -1,0 +1,107 @@
+<%
+
+form_item.init do |fi|
+	action_path = if action_name
+		action_name
+	else
+		fi.model.id ? edit_content_article_path(hash_with_region_and_privacy({:id => fi.model.slug})) : new_content_article_path(hash_with_region_and_privacy)
+	end
+		
+	input_html = {:filtr_name => form_item.form_name, :class => "form-control ", :action_name => action_path}
+	updatable_input_html = input_html.merge({:class => "updatable form-control "})
+	link_to_html = {:class => "btn btn-primary", :type =>"button", :remote => true}
+	label_html = {:class => "form-label "}
+	s = session_model_params(fi)
+
+  fi.set_fields do |f|
+ 	  [
+	   [	   	
+	   	f.submit("Сохранить", :class => "btn btn-primary", :type =>"submit", :remote => true), 
+
+	   	link_to("Список статей" , content_articles_path(hash_with_region_and_privacy), link_to_html), 
+	   ],
+	   [
+	   	f.label( :author_id, 'Автор', label_html),
+	 	f.select(:author_id, User.where(:id => current_or_guest_user_id).pluck(:name, :id), {:selected => s['author_id']}, input_html),
+
+	   	f.label( :title, 'Заголовок', label_html),
+	   	f.text_field( :title, input_html.merge({:value =>(s['title'] || "новое название")}))
+	   ], 
+	   [
+	   	f.label( :type_id, 'Slug', label_html), 
+	   	f.text_field( :slug, input_html.merge({:value =>(s['slug'])})),
+
+	   	f.label( "key[m_region]", "key[m_region]", label_html), 
+	 	f.select("key[m_region]", Category.mobile_regions_with_scope(['tarif_description']).to_a, 
+			{:include_blank => "выберите m_region", :selected => s['key'].try(:[], "m_region")  }, input_html)
+	   	], 
+	   [
+	   	f.label( :type_id, 'Тип статьи', label_html), 
+	 	f.select(:type_id, Content::Article::Type.to_a, 
+			{:include_blank => "выберите тип статьи", :selected => s['type_id']  }, input_html),
+
+	   	f.label( :status_id, 'Статус публикации', label_html), 
+	 	f.select(:status_id, Content::Article::PublishStatus.to_a, 
+			{:include_blank => "выберите статус публикации", :selected => s['status_id']  }, input_html)
+	   	], 
+	   [
+	   	f.label( "key[operator_id]", 'Operator_id', label_html), 
+		f.collection_select("key[operator_id]",  Category::Operator.operators_with_tarifs, :id, :name, {:include_blank => "выберите оператора", 
+			:selected => s['key'].try(:[], "operator_id").try(:to_i) }, updatable_input_html ),
+
+	   	f.label( "key[tarif_id]", 'Tarif_id', label_html), 
+		f.collection_select("key[tarif_id]",  TarifClass.includes(:operator).where(:operator_id => s['key'].try(:[], "operator_id").try(:to_i)), :id, :full_name_with_region, {:include_blank => "выберите тариф", 
+			:selected => s['key'].try(:[], "tarif_id").try(:to_i) }, input_html ),
+	   ], 
+	   [
+	   	f.label( "content[tag_title]", 'Tags - title', label_html), 
+	   	f.text_field( 'content[tag_title]', input_html.merge({:value => s['content'].try(:[], "tag_title")})),
+
+	   	f.label( "content[use_tag_title]", 'использовать Tags - title?', label_html), 
+		f.select("content[use_tag_title]", [['Yes', 'true'], ['No', 'false']], 
+			{:include_blank => "выберите use_tag_title", :selected => s['content'].try(:[], 'use_tag_title') || nil}, input_html.merge({:size => 3}) ),
+	   ], 
+	   [
+	   	f.label( "key[comparison_id]", 'Comparison_id', label_html), 
+		f.collection_select("key[comparison_id]",  Comparison::Optimization.all, :id, :name, {:include_blank => "выберите рейтинг", 
+			:selected => s['key'].try(:[], "comparison_id").try(:to_i) }, input_html ),
+
+	   	f.label( "content[tag_description]", 'Tags - description', label_html), 
+	   	f.text_area( "content[tag_description]", input_html.merge({:value => s['content'].try(:[], "tag_description"), :cols => 1, :rows => 3}))
+	   ], 
+	   [
+	   	f.label( "content[content_title]", 'Содержание - Название', label_html), 
+	   	f.text_field( "content[content_title]", input_html.merge({:value => s['content'].try(:[], "content_title")})),
+
+	   	f.label( "content[use_content_title]", 'использовать content_title?', label_html), 
+		f.select("content[use_content_title]", [['Yes', 'true'], ['No', 'false']], 
+			{:include_blank => "выберите use_content_title", :selected => s['content'].try(:[], 'use_content_title') || nil}, input_html.merge({:size => 3}) ),
+	   ], 
+	   [
+	   	f.label( "content[tag_keywords]", 'Tags - keywords', label_html), 
+	   	f.text_field( "content[tag_keywords]", input_html.merge({:value => s['content'].try(:[], "tag_keywords")})),
+
+	   	f.label( "content[is_noindex]", 'Содержание - использовать is_noindex?', label_html), 
+		f.select("content[is_noindex]", [['Use noindex', 'true'], ['No noindex', 'false']], 
+			{:include_blank => "выберите is_noindex", :selected => s['content'].try(:[], 'is_noindex') || nil}, input_html.merge({:size => 3}) ),
+	   ], 
+	   [
+	   	f.label( "content[content_body]", 'Содержание - Основной текст', label_html), 
+	   	f.text_area("content[content_body]", input_html.merge({:value => s['content'].try(:[], "content_body"), :cols => 1, :rows => 20}))
+	   ], 
+	   [
+	   	f.label( "content[image_name]", 'Содержание - Название файла с изображение', label_html), 
+	   	f.text_field( "content[image_name]", input_html.merge({:value => s['content'].try(:[], "image_name")})),
+
+	   	f.label( "content[image_title]", 'Содержание - Название изображения', label_html), 
+	   	f.text_field( "content[image_title]", input_html.merge({:value => s['content'].try(:[], "image_title")}))
+	   ], 
+	   [
+	   	f.submit("Сохранить", :class => "btn btn-primary", :type =>"submit", :remote => true), 
+	   	
+	   	link_to("Список статей" , content_articles_path(hash_with_region_and_privacy), link_to_html),  
+	   ],
+	  ]
+  end
+end
+%>

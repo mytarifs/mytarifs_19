@@ -1,0 +1,78 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => mass_edit_tarif_classes_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label "}
+  s = session[:filtr]['general_features_tarif_class_filtr']	
+
+  fields_for_features_or_dependency = {
+  	'features' => [:payment_type, :phone_number_type, :allowed_option_for_children, :tv_video_content, :contract_sharing_with_other_devices,
+		:phone_must_have_3g_or_4g, :only_mobile_phone, :limited_trafic_to_file_nets, :recommended_for_planshet, :internet_sharing_with_other_devices, :available_only_for_pencioner, 
+		:publication_status, :excluded_from_optimization],
+	'dependency' => [:general_priority, :multiple_use, :is_archived]
+  }  
+  
+  tarifs_with_chosen_value = TarifClass.none
+  if !s['features_or_dependency'].blank? and !s['fields_for_features_or_dependency'].blank?
+  	value_for_features_or_dependency = chosen_tarifs.pluck("(#{s['features_or_dependency']}->>'#{s['fields_for_features_or_dependency']}')").uniq
+  	
+  	s['value_for_features_or_dependency'] = nil if !value_for_features_or_dependency.include?(s['value_for_features_or_dependency']) and !s['value_for_features_or_dependency'].blank?
+  	
+  	tarifs_with_chosen_value = if !s['value_for_features_or_dependency'].blank?
+  		chosen_tarifs.
+  			where("#{s['features_or_dependency']}->>'#{s['fields_for_features_or_dependency']}' = $$#{s['value_for_features_or_dependency']}$$")
+  	else
+  		chosen_tarifs.
+  			where("(#{s['features_or_dependency']}->>'#{s['fields_for_features_or_dependency']}')::text is null")
+  	end
+  else
+  	value_for_features_or_dependency = []
+#  	s['value_for_features_or_dependency'] = nil
+  end   
+
+  if s['value_for_features_or_dependency'].blank?
+#  	['tarifs_with_chosen_value1', 'new_value_for_features_or_dependency1', 'tarifs_to_update_new_value'].each{|key| s[key] = []}
+  end
+      
+  tarifs_to_update_new_value = TarifClass.where(:id => ((s["tarifs_with_chosen_value"] || []) - ['']).map(&:to_i)).for_parsing('false')
+  
+  fi.set_fields do |filtr_name|
+    [
+    	[
+      	label(filtr_name, "fields_for_features_or_dependency", "fields_for_features_or_dependency", label_html),
+      	select(filtr_name, "fields_for_features_or_dependency", fields_for_features_or_dependency[s['features_or_dependency']] || [], 
+	  	{:include_blank => true, :selected => (s["fields_for_features_or_dependency"])}, input_html.merge({:size => (fields_for_features_or_dependency[s['features_or_dependency']].try(:size) || 0) + 1}) ),
+
+      	label(filtr_name, "features_or_dependency", "features_or_dependency", label_html) +
+      	select(filtr_name, "features_or_dependency", [['features', 'features'], ['dependency', 'dependency']], 
+	  	{:include_blank => false, :selected => (s["features_or_dependency"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "value_for_features_or_dependency", "value_for_features_or_dependency #{[s['value_for_features_or_dependency']]}", label_html) +
+      	select(filtr_name, "value_for_features_or_dependency", value_for_features_or_dependency.map{|v| [v, v.to_s]}, 
+	  	{:include_blank => false, :selected => (s["value_for_features_or_dependency"])}, input_html.merge({:size => [value_for_features_or_dependency.size, 2].max}) ),
+    		
+      	label(filtr_name, "new_value_for_features_or_dependency", "new_value_for_features_or_dependency #{[s['new_value_for_features_or_dependency']]}", label_html) +
+      	select(filtr_name, "new_value_for_features_or_dependency", value_for_features_or_dependency.map{|v| [v, v.to_s]}, 
+	  	{:include_blank => false, :selected => (s["new_value_for_features_or_dependency"])}, input_html.merge({:size => [value_for_features_or_dependency.size, 2].max}) ) +
+    			  	
+	   	content_tag(:p) +
+	   	label(filtr_name, "update_value_for_features_or_dependency", "Обновить выбранные тарифы", {:class => "btn btn-success", :type => "button"}) + 
+	   	check_box_tag("general_features_tarif_class_filtr[update_value_for_features_or_dependency]", "true", nil, 
+	   		input_html.merge({:class => "updatable hidden" })) +
+
+	   	content_tag(:p) +
+	   	label(filtr_name, "delete_value_for_service", "delete_value_for_service", {:class => "btn btn-success", :type => "button"}) + 
+	   	check_box_tag("general_features_tarif_class_filtr[delete_value_for_service]", "true", nil, 
+	   		input_html.merge({:class => "updatable hidden" })),
+
+      	label(filtr_name, "tarifs_with_chosen_value", "tarifs_with_chosen_value", label_html),
+      	collection_select(filtr_name, "tarifs_with_chosen_value", tarifs_with_chosen_value, :id, :name, 
+	  	{:include_blank => true, :selected => s["tarifs_with_chosen_value"] }, input_html.merge({:multiple => true, :size => tarifs_with_chosen_value.size + 1}) ),
+
+      	label(filtr_name, "tarifs_to_update_new_value", "tarifs_to_update_new_value", label_html),
+      	collection_select(filtr_name, "tarifs_to_update_new_value", tarifs_to_update_new_value, :id, :name, 
+	  	{:include_blank => false, :selected => s["tarifs_to_update_new_value"] }, input_html.merge({:multiple => true, :size => tarifs_to_update_new_value.size}) ),
+    	],
+    ].compact
+  end
+end
+%>

@@ -1,0 +1,5 @@
+<% title 'New Item' %>
+
+<%= render :partial => 'form', :layout => 'application/layouts/model_form_for_three_column', 
+	:locals => {:form_item => controller.item_form, :url => cpanet_program_items_path(program)} %>
+

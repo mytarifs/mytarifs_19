@@ -1,0 +1,64 @@
+ <%
+ case session_filtr_params(optimization_select_filtr).try(:[], "optimization_type_id")
+ when 1, "1" 
+ 	title_name = "Выбор тарифа и опций для оценки стоимости #{region_and_privacy_tag}"
+ 	next_step_button_name = "Приступить к оценке стоимости"
+ else
+ 	title_name = "Задание опций детального подбора тарифа #{region_and_privacy_tag}"
+ 	next_step_button_name = "Приступить к подбору тарифа"
+ end 
+ 
+ %>
+<% title title_name %>
+<% description "Задание опций детального подбора тарифа #{region_and_privacy_tag}. www.mytarifs.ru — сервис по подбору тарифов и опций для \
+				мобильных операторов МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий \
+				выбор средств для анализа услуг в области мобильной связи." %>
+<% keywords "задание опций детального подбора тарифа #{region_and_privacy_tag}" %>	
+<% content_for :hide_title, 'true' %>
+<% noindex 'googlebot' %>
+
+<%= render :partial => 'result/runs/calculation/steps', :locals => {:current_step => 2} %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <hr />
+        </div>
+    </div>
+</header>
+
+<p>
+	Заполните или выберите нужные значения в форме ниже и нажмите кнопку "<%= next_step_button_name %>" для начала расчетов
+</p>
+<p class="text-center">
+	<%= link_to(next_step_button_name, result_detailed_calculations_calculate_path(hash_with_region_and_privacy({:id => params[:id]})), 
+		{:class => "btn btn-success btn-xl btn_text_always_on_screen", :type =>"button", :remote => false, :rel => "nofollow"}) %>	
+</p>
+
+<p>
+	<%= link_to("Вернуться к выбору способа подбора тарифа",  
+		result_detailed_calculations_optimization_select_path(hash_with_region_and_privacy({:id => params[:id]})), 
+		{:class => "btn btn-primary btn_text_always_on_screen", :type =>"button", :remote => false, :rel => "nofollow"}) %>	
+</p>
+
+<div class="panel panel-default" >
+	<div class="panel-heading"><span class="h4"> Выбор тарифа и опций</span></div>
+	<div class="panel-body">
+		<%= 
+		case result_run.optimization_type_id
+		when 1
+			content_tag(:p, "Выберите оператора, тариф и опции, для которых вы хотите проверить стоимость, в полях ниже.") +
+			render( :partial => 'result/runs/calculation/fixed_services_select', :layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => fixed_services_select})
+		when 2
+			content_tag(:p, "Выберите одну или несколько услуг мобильной связи, для которых вы хотите подобрать тариф") +
+			render( :partial => 'result/runs/calculation/global_categories_select', :layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => global_categories_select})
+		when 3
+			content_tag(:p, "Выберите одного или нескольких операторов, для которых вы хотите подобрать тариф") +
+			render( :partial => 'result/runs/calculation/operators_select', :layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => operators_select})
+		end	 
+		%>
+	</div>
+</div>
+
+<%= render :partial => 'calculation_info', :locals => {:result_run => result_run} %>

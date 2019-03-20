@@ -1,0 +1,21 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => scrap_tarif_lists_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label "}
+  s = session_filtr_params(fi)	
+  
+  fi.set_fields do |filtr_name|
+    [
+	   [
+      	label(filtr_name, "use_selenium", "use_selenium", label_html),
+     	select(filtr_name, "use_selenium", [['yes', 'true']], 
+	  	  {:include_blank => true, :selected => s["use_selenium"]}, input_html.merge({:multiple => false, :size => 2})), 
+
+      	label(filtr_name, "calculate_on_background", "calculate_on_background", label_html),
+     	select(filtr_name, "calculate_on_background", [['yes', 'true']], 
+	  	  {:include_blank => true, :selected => s["calculate_on_background"]}, input_html.merge({:multiple => false, :size => 2})), 
+	   ],
+    ].compact
+  end
+end
+%>

@@ -1,0 +1,14 @@
+<% title t('.title') %>
+<% noindex 'googlebot' %>
+
+<p>
+	<%	link_to_html = {:class => "btn btn-link", :type => 'button'} %>
+</p>
+
+<%= render :partial => 'form', :layout => 'application/layouts/model_form_for', 
+	:locals => {:form_item => controller.customer_call_run_form, :url => customer_call_run_path(hash_with_region_and_privacy({:id => params[:id]})) } %>
+
+<%= render :partial => 'init_params', :layout => 'application/layouts/filtr_form_6_columns_with_1_label', 
+	:locals => {:form_item => controller.customer_call_run_form, :url => customer_call_run_path(hash_with_region_and_privacy({:id => params[:id]}))  } %>
+
+

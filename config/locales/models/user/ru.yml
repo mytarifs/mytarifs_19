@@ -1,0 +1,28 @@
+ru:
+  activerecord:
+    models:
+      user: 'Пользователь'
+    attributes:
+      user:
+        name: Имя
+        email: Электронный адрес
+        password: Пароль
+        password_confirmation: Подтверждение пароля
+        current_password: Текущий пароль
+        remember_me: Запомнить меня
+        confirmation_token: Ключ подтверждения
+    errors:
+      models:
+        user: 
+          attributes:
+            email:
+              taken: уже существует
+              blank: не может быть пустым
+              invalid: неправильный формат
+            password:
+              blank: не может быть пустым
+              too_short: слишком короткий
+            password_confirmation:
+              confirmation: Не совпадают пароли        
+            confirmation_token:
+              invalid: Ссылка для подтверждения электронной почты устаревшая      

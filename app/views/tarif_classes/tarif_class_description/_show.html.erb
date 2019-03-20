@@ -1,0 +1,103 @@
+<% local_tarif_class_description = tarif_class_description %>
+<% set_meta_tags site: local_tarif_class_description.tag_site, reverse: true if local_tarif_class_description.tag_site %>
+<% title local_tarif_class_description.tag_title %>
+<% description local_tarif_class_description.tag_description %>
+<% keywords local_tarif_class_description.tag_keywords %>
+<% set_meta_tags(canonical: tarif_class_url(hash_with_region_and_privacy({:id => tarif_class.slug}) )) if controller.if_to_make_tarif_class_page_canonical %>
+<% content_for :hide_title, 'true' %>
+
+<% 
+	expand_all = (session_filtr_params(controller.expand_all_filtr)["expand_all"] || 'false')
+%>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class=""><%= local_tarif_class_description.content_title %></h1>
+            <hr>
+        </div>
+        <% if !local_tarif_class_description.image_name.blank? %>
+		<div class="">
+			<%= image_tag(local_tarif_class_description.image_name, alt: local_tarif_class_description.image_title, :class => "img-responsive  center-block") %>
+			<br /><br />
+		</div>
+		<% end %>				
+    </div>
+</header>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_class_show, :under_h1) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+<br />
+
+<% if false and tarif_class.operator_id == Category::Operator::Const::Tele2 %>
+	<%= render :partial => "application/shared/get_300_from_tele2" %>
+	<br />
+<% end %>
+
+<div class="row">
+	<div class="col-xs-12">
+		<% if tarif_class and Comparison::FastOptimizationPresenter.fast_optimization_for_tarif_exists?(tarif_class.id, m_region) %>
+			<%= link_to("Оценить бюджет для данного тарифа", "#",  
+				{"data-link" => estimate_cost_tarif_class_path(hash_with_region_and_privacy({:tarif_class_id_to_estimate_cost => tarif_class.id})), 
+					:class => "external-link btn btn-success hidden-xs btn_text_always_on_screen", :type =>"button", 
+					:remote => true, :onclick => set_target("get_tarif_cost_estimation")})  %>
+		<% end %>
+	
+		<% if user_type == :admin %>
+			<%= link_to('Редактировать', 
+				edit_tarif_class_path(hash_with_region_and_privacy({:id => params[:id]})), 
+				{:class => "btn btn-primary  hidden-xs", :type =>"button", :remote => true}) %>
+		<% end %>
+	</div>
+</div>
+
+<div class="my_collapsable h3 bg-primary text-primary text-center">
+	<a my_collapsable="true" data-toggle="collapse" href="#general_description" aria-expanded="true" aria-controls="general_description">
+		Общее описание <span class="<%= "true" ? "fa fa-angle-up fa-lg" : "fa fa-angle-down fa-lg" %>"></span>
+	</a>
+</div>
+
+<div class="collapse in" id="general_description">
+	<%= render( :partial => 'tarif_classes/tarif_class_description/full_tarif_class', :layout => 'application/layouts/model_show', 
+		:locals => {:form_item => controller.tarif_class_form}) %>
+</div>
+
+<%= render( :partial => 'tarif_classes/tarif_class_description/full_category_groups', 
+			:locals => {:expand_all => expand_all, :action_name => action_name })  %>
+
+<div class="col-xs-12 text-right">
+	<%= render( :partial => 'tarif_classes/tarif_class_description/expand_all', :layout => 'application/layouts/filtr_form_inline', 
+		:locals => {:form_item => controller.expand_all_filtr}) if expand_all == 'true' %>		
+</div>
+
+<div class="collapse in" id="general_description">
+	<%= render( :partial => 'tarif_classes/tarif_class_description/full_tarif_class_after', :layout => 'application/layouts/model_show', 
+		:locals => {:form_item => controller.tarif_class_form}) %>
+</div>
+
+<div class="h3 bg-success text-center">
+	<%= link_to('Другие тарифы оператора', 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => tarif_class.try(:operator).try(:slug)})), {:class => "text-success"}) %>
+</div>
+
+<div id="other_operator_tarifs" class="collapse in">
+	<%= render( :partial => 'tarif_classes/tarif_class_description/other_tarifs_for_tarif_show', :layout => 'application/layouts/model_table', 
+		:locals => {:table => other_tarifs_for_tarif_show} ) %>
+</div>
+
+<div class="tarif_content_body">
+	<%= "<noindex>".html_safe if local_tarif_class_description.is_noindex %>
+	<%= local_tarif_class_description.content_body.try(:html_safe) %>
+	<%= "</noindex>".html_safe if local_tarif_class_description.is_noindex %>
+</div>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_class_show, :bottom) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<%= render :partial => "application/shared/social_share_buttons" %>
+
+<%= render :partial => "application/shared/hypercomments" %>

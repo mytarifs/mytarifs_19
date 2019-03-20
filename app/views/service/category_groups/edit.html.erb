@@ -1,0 +1,11 @@
+<%= render( :partial => 'service/category_groups/edit/category_tarif_classes', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => controller.category_tarif_classes }) %>
+
+<%= render( :partial => 'service/category_groups/edit/formulas', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => controller.price_formulas }) %>
+
+<%= render :partial => "service/category_groups/edit/filtr", :layout => 'application/layouts/filtr_form_n_columns',
+	:locals => {:form_item => service_category_group_filtr, :selected_parsed_global_categories => selected_parsed_global_categories} %>
+
+<%= render( :partial => 'service/category_groups/edit/index', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => selected_parsed_global_categories }) %>

@@ -1,0 +1,94 @@
+<%
+form_item.init do |fi|
+#  fi.caption = 'Show tarif class'
+  fi.set_fields do |tarif_class| 
+  	action_path = admin_tarif_class_path(hash_with_region_and_privacy({:id => tarif_class.id}))
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	label_html = {:class => "form-label "}
+  	s = session_model_params(fi)
+  	s["region_to_copy"] = nil if s["region_to_copy"].blank?
+  	
+  	 incompatibility = {}
+  	 if tarif_class.dependency and tarif_class.dependency['incompatibility']
+  	 	tarif_class.dependency['incompatibility'].each do |key, value|
+  	 		incompatibility[key] = TarifClass.where(:id => value).map(&:name)
+  	 	end  	 	 
+  	 end
+  	 general_priority = if tarif_class.dependency and tarif_class.dependency['general_priority']
+  	 	Category.where(:id => tarif_class.dependency['general_priority']).map(&:name).first 
+  	 end
+  	 lower_tarif_priority = if tarif_class.dependency and tarif_class.dependency['other_tarif_priority'] and tarif_class.dependency['other_tarif_priority']['lower'] 
+  	 	TarifClass.where(:id => tarif_class.dependency['other_tarif_priority']['lower']).map(&:name)
+  	 end
+  	 higher_tarif_priority = if tarif_class.dependency and tarif_class.dependency['other_tarif_priority'] and tarif_class.dependency['other_tarif_priority']['higher'] 
+  	 	TarifClass.where(:id => tarif_class.dependency['other_tarif_priority']['higher']).map(&:name)
+  	 end
+  	 prerequisites = if tarif_class.dependency and tarif_class.dependency['prerequisites']
+  	 	TarifClass.where(:id => tarif_class.dependency['prerequisites']).map(&:name).join(", ") 
+  	 end
+  	 
+  	 http = tarif_class.full_http_from_http(m_region, :http)
+  	 buy_http = tarif_class.full_http_from_http(m_region, :buy_http)
+  	
+	[
+      [link_to('Edit', edit_tarif_class_path(hash_with_region_and_privacy({:id => tarif_class.id})), {:class => "btn btn-primary", :type =>"button", :remote => true}), ''],  
+      [
+      	link_to('Копировать полное описание тарифа с новым регионом', 
+      		copy_tarif_class_path(hash_with_region_and_privacy(
+      			{:id => tarif_class.id, :region_to_copy => s["region_to_copy"], :privacy_id_to_copy => s["privacy_id_to_copy"], :fail_url => action_path})), 
+      		{:class => "btn btn-primary", :type =>"button", :remote => true}),
+
+      	label("tarif_class", "region_to_copy", "region_to_copy", label_html) +
+     	select("tarif_class", "region_to_copy", Category.mobile_regions_with_scope.map{|r| [r[1]['name'], r[0]]},
+	  	  {:include_blank => "region_to_copy", :selected => (s["region_to_copy"] || nil) }, input_html ) +
+
+      	label("tarif_class", "privacy_id_to_copy", "privacy_id_to_copy", label_html) +
+      	collection_select("tarif_class", "privacy_id_to_copy", Category.privacy, :id, :name, 
+	  	{:include_blank => "privacy_to_copy", :selected => (s["privacy_id_to_copy"] || nil) }, input_html),
+      	 
+	  ],  
+	  ['Оператор', (tarif_class.operator.name if tarif_class.operator) ], 
+	  ["Регион", tarif_class.region_txt],
+	  ["regions", tarif_class.regions],
+	  ["archived_regions", tarif_class.archived_regions],
+	  ["slug", tarif_class.slug],
+	  ['publication_status', tarif_class.publication_status ], 
+	  ['Кто может подключить', (tarif_class.privacy.name if tarif_class.privacy) ], 
+	  ['Тариф или опция', (tarif_class.standard_service.name if tarif_class.standard_service) ], 
+	  ['Описание у оператора', link_to_if(tarif_class.features, "Перейти на сайт оператора", http, :target => "", :rel => "nofollow") ], 
+	  (['Купить у оператора', link_to("Перейти на сайт оператора", buy_http, :target => "", :rel => "nofollow") ] if buy_http), 
+	  (['Требуемые тарифы или опции', prerequisites] if tarif_class.standard_service_id != 40), 
+	  ['Является архивным?', ((tarif_class.dependency['is_archived'] || "Нет") if tarif_class.dependency) ], 
+	  ['Исключена из расчетов (подбора тарифов)?', tarif_class.excluded_from_optimization ], 
+	  ['Возможность использовать несколько раз', (tarif_class.dependency['multiple_use'] if tarif_class.dependency) ], 
+	  ['Автоматически подобранные категории', (tarif_class.dependency['parts'] if tarif_class.dependency) ], 
+	  ['Несовместимость', incompatibility], 
+	  ['Общий приоритет', general_priority ], 
+	  ['Тарифы с меньшим приоритетом', lower_tarif_priority], 
+	  ['Тарифы с большим приоритетом', higher_tarif_priority], 
+	  ['parts', tarif_class.parts ], 
+	  ['payment_type', tarif_class.payment_type ], 
+	  ['phone_number_type', tarif_class.phone_number_type ], 
+	  ['allowed_option_for_children', tarif_class.allowed_option_for_children ], 
+	  ['tv_video_content', tarif_class.tv_video_content ], 
+	  ['contract_sharing_with_other_devices', tarif_class.contract_sharing_with_other_devices ], 
+	  ['phone_must_have_3g_or_4g', tarif_class.phone_must_have_3g_or_4g ], 
+	  ['only_mobile_phone', tarif_class.only_mobile_phone ], 
+	  ['limited_trafic_to_file_nets', tarif_class.limited_trafic_to_file_nets ], 
+	  ['limited_speed', tarif_class.limited_speed ], 
+	  ['limited_time_of_day', tarif_class.limited_time_of_day ], 
+	  ['recommended_for_planshet', tarif_class.recommended_for_planshet ], 
+	  ['internet_sharing_with_other_devices', tarif_class.internet_sharing_with_other_devices ], 
+	  ['available_only_for_pencioner', tarif_class.available_only_for_pencioner ], 
+	  ['multiple_use', tarif_class.multiple_use ], 
+	  ['forbidden_tarifs', tarif_class.forbidden_tarifs ], 
+	  ['for_parsing', tarif_class.for_parsing ], 
+	  ['for_existing_servises', tarif_class.for_existing_servises ], 
+	  ['search_services_tag', tarif_class.search_services_tag ], 
+	  ['services_to_skip_scrap', tarif_class.services_to_skip_scrap ], 
+	  ['has_parsing_class', tarif_class.has_parsing_class ], 
+	  ['parsing_class', tarif_class.parsing_class ], 
+	]
+  end
+end	
+%>

@@ -1,0 +1,64 @@
+<% title "Обратная связь с администрацией сайта" %>
+<% description "Обратная связь с администрацией сайта. www.mytarifs.ru — сервис по подбору тарифов и опций для мобильных \
+				операторов МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий выбор \
+				средств для анализа услуг в области мобильной связи." %>
+<% keywords "форма обратной связи" %>	
+<% 
+	set_meta_tags(canonical: new_customer_demand_url(hash_with_region_and_privacy({}, 'personal', 'moskva_i_oblast') )) if 
+		new_customer_demand_path(hash_with_region_and_privacy({:trailing_slash => false}, 'personal', 'moskva_i_oblast') ) != request.path
+ %>
+
+<%
+	input_html = {:class => "form-control  "}
+	link_to_html = {:class => "btn btn-link", :type => 'button'}
+	submit_html = {:class => "btn btn-primary"}
+	label_html = {:class => "control-label "}
+	
+	form_name = "customer_demand"
+%>
+
+<div>
+	<p>Обращаем Ваше внимание, что если вы задаете нам вопрос, то убедитесь что предоставляете ваши контакты для обратной связи.
+	Нам часто задают вопросы незарегистрированные пользователи - ответить им у нас нет никакой возможности, так как не знаем как.
+	</p>
+</div>
+
+<%= form_for(@demand, :url => customer_demands_path(hash_with_region_and_privacy), html: {:class => "" }) do |f| %>
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) if current_or_guest_user %>
+
+   <% if !@demand.errors.blank? %>
+	<div class="alert alert-warning alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert">
+			<span aria-hidden="true">&times;</span>
+			<span class="sr-only">Close</span>
+		</button>
+		<ul>
+			<% @demand.errors.full_messages.each do |msg| %>
+				<li><%= msg %></li>
+			<% end %>
+		</ul>
+	</div>
+  <% end %>
+ 
+  <div class="row">
+  	  <div class="col-xs-0 col-sm-1 col-md-3"></div>
+	  <div class="col-xs-12 col-sm-10 col-md-6">
+	  	<div>
+  			<%= f.collection_select(:type_id, Category.customer_demand_types, :id, :name,  {:include_blank => "выберите тип сообщения", :selected => @demand.type_id}, {autofocus: true }.merge(input_html) ) %>
+	  	</div>
+	  	<div>
+		  	<%= label "info[title]", "Тема сообщения", label_html %>
+	  		<%= text_field(form_name, "info[title]", input_html.merge({:value => @demand.info.try(:[], 'title')}) ) %>
+	  	</div>
+	  	<div>
+		  	<%= label "info[message]", "Сообщение", label_html %>
+	  		<%= text_area(form_name, "info[message]", input_html.merge({:value => @demand.info.try(:[], 'message')}) ) %>
+	  	</div>
+	  	<div>
+	  		<br />
+  			<%= f.submit "Отправить", submit_html %>
+	  	</div>
+  	  </div>
+  	  <div class="col-xs-0 col-sm-1 col-md-3"></div>
+  </div>
+<% end %>

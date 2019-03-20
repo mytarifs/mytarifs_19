@@ -1,0 +1,4 @@
+<% @group_result_description[privacy_key][region_txt].each do |comparison_id, rating| %>
+	<%= render partial: "comparison/optimizations/unlimited_rating_panel", 
+		:locals => {:rating => rating }%>
+<% end %>

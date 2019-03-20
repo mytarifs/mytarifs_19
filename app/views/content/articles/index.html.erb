@@ -1,0 +1,21 @@
+<% title "Список описаний" %>
+<% description "Список описаний" %>	
+<% noindex 'googlebot' %>
+
+<p>
+<%= link_to( 'Создать новое описание', new_content_article_path(hash_with_region_and_privacy), {:class => "btn btn-success", :type => 'button', :rel => "nofollow"})  %>
+</p>
+
+<p>
+<%= render(:partial => 'content/articles/articles_select', :layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => articles_select} ) if user_type == :admin %>
+</p>
+
+<%= render :partial => 'articles', :layout => 'application/layouts/model_table', :locals => {:table => controller.content_articles}%>
+
+<%= render :partial => 'form', :layout => 'application/layouts/model_form_for_three_column', 
+	:locals => {
+		:form_item => content_article_form_for_table, 
+		:action_name => (request.path_info + "/"),
+		:url => content_article_path(hash_with_region_and_privacy({:id => session[:form].try(:[], "content_article").try(:[], :id).try(:to_i)})) 
+		} %>
+

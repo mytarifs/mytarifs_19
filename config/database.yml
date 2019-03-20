@@ -1,0 +1,43 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 125
+  username: <%= ENV["PG_USERNAME"] %>
+  password: <%= ENV["PG_PASSWORD"] %>
+  host: localhost
+  template: template0
+  reconnect: true
+#  shared_buffers: 256MB
+#  work_mem: 512MB
+
+development:
+  <<: *default
+  database: tarif_development
+#  max_stack_depth: 7500
+#  shared_buffers: 256
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *default
+  database: tarif_test
+
+# Do not keep production credentials in the repository,
+# instead read the configuration from the environment.
+#
+# Example:
+#   sqlite3://myuser:mypass@localhost/full/path/to/somedatabase
+#
+production:
+#  <<: *default #use for rack-mini-profiller
+#  database: tarif_development
+  url: <%= ENV["DATABASE_URL"] %>
+#  url: <%= ENV["DOKKU_DATABASE_URL"] %>
+#<% if ENV["DATABASE_URL"] %>
+#  url: ENV["DATABASE_URL"]
+#<% else %>
+#  <<: *default #use for rack-mini-profiller
+#  database: 'tarif_development' 
+# <% end %>  
+

@@ -1,0 +1,23 @@
+<%
+table.init do |t|
+  t.heads = ['Стоимость в месяц, руб', 'Тип роуминга', 'Услуга', 'География услуги', 'Тип принимающего оператор', 'Кол-во минут', 
+  	'Кол-во смс и ммс', 'Объем интернета, Мб', ('Кол-во обработанных записей'  if current_user_admin?)].compact
+#  s_desc = service_description(all_service_ids)
+  t.row_action = result_service_sets_report_path(hash_with_region_and_privacy({:result_run_id => params[:result_run_id], :service_set_id => controller.service_set_id}) )
+  t.set_fields do |f| 
+  	[
+     (f.price.round(0).to_s(:delimited, precision: 0) if f.price),      
+  	 geo_presenter(f.rouming_names.join(', '), f.rouming_details),
+  	 ((f.calls_names || []) + (f.fix_names || [])).join(', '),
+  	 geo_presenter(f.geo_names.join(', '), f.geo_details),
+  	 f.partner_names.join(', '),
+     f.sum_duration_minute,
+     f.count_volume,
+     f.sum_volume,
+     (f.call_id_count if current_user_admin?),
+#     (f.categ_ids if current_user_admin?)      
+  	] 
+  end
+end
+%>
+

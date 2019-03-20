@@ -1,0 +1,24 @@
+<%
+table.init do |t|
+#  t.caption = 'Listing users'
+  link_to_html = {:class => "btn btn-primary", :type =>"button", :my_remote => true}
+  remote_link_html = {:my_remote => true}
+  t.heads = []
+  t.set_fields do |article| 
+  	read_more = link_to("Читать дальше", content_mobile_article_path(hash_with_region_and_privacy({:id => article.slug})), {:my_remote => true})
+  	first_paragraph = article.content_body.split("</p>")[0] + " #{read_more}</p>"
+  [
+    content_tag(:div, {:class => "media"}) do
+    	content_tag(:div, {:class => "media-left media-middle"}) do    	  
+    		image_tag(article.image_name, alt: article.image_title, :class => "media-object", :height => "120")
+    	end +
+    	content_tag(:div, {:class => "media-body"}) do  
+    		link =  link_to(article.title, content_mobile_article_path(hash_with_region_and_privacy({:id => article.slug})), {:my_remote => true})
+    		content_tag(:h2, link, {:class => "media-heading"}) +  
+	    	"#{first_paragraph}".html_safe
+    	end
+    end
+  ]
+  end
+end
+%>

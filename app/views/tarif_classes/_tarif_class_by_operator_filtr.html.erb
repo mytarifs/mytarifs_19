@@ -1,0 +1,37 @@
+<%
+form_item.init do |fi|
+input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", 
+	:action_name => tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => params[:operator_id]}) )}
+label_html = {:class => "control-label "}
+  s = session_filtr_params(fi)	
+#  fi.caption = "Фильтр"	
+  dependency_parts = [
+  	["Звонки (внутри России)", "own-country-rouming/calls"], ["СМС (внутри России)", "own-country-rouming/sms"],
+  	["ММС (внутри России)", "own-country-rouming/mms"], ["Интернет (внутри России)", "own-country-rouming/mobile-connection"],
+  	["Звонки (за границей)", "all-world-rouming/calls"], ["СМС (за границей)", "all-world-rouming/sms"],
+  	["ММС (за границей)", "all-world-rouming/mms"], ["Интернет (за границей)", "all-world-rouming/mobile-connection"],
+  	]
+  fi.set_fields do |filtr_name|
+
+    [
+	  [ 
+      	label(filtr_name, "standard_service_id", "Тип услуги", label_html),
+      	collection_select(filtr_name, "standard_service_id", Category.where(:id => TarifClass::ServiceType.slice(:tarif, :common_service, :special_service).values), :id, :name, 
+	  	{:include_blank => "выберите тариф или опцию", :selected => s["standard_service_id"] }, input_html.merge({:size => 4}) ),
+
+      	label(filtr_name, "dependency_parts", "Категория услуги", label_html),
+      	select(filtr_name, "dependency_parts", dependency_parts, 
+	  	{:include_blank => "выберите категорию", :selected => (s["dependency_parts"])}, input_html.merge({:multiple => false, :size => dependency_parts.size + 1}) ),
+
+      	label(filtr_name, "dependency_is_archived", "Архивный?", label_html),
+      	select(filtr_name, "dependency_is_archived", [['Да', 'true'], ['Нет', 'false']], 
+	  	{:include_blank => "выберите статус", :selected => (s["dependency_is_archived"])}, input_html.merge({:size => 3}) ),
+
+      	label(filtr_name, "row_per_page", "Кол-во записей на странице", label_html),
+      	select(filtr_name, "row_per_page", [10, 25, 50], 
+	  	{:selected => (s["row_per_page"] || 25)}, input_html.merge({:size => 3}) ),
+	  ],
+    ] 
+  end
+end
+%>

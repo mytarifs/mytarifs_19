@@ -1,0 +1,47 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any styles
+ * defined in the other CSS/SCSS files in this directory. It is generally better to create a new
+ * file per style scope.
+ *
+ *  require scaffolds_1
+ *  require_tree .
+ *= require_self
+ */
+
+@import "font-awesome";
+
+//Import bootstrap-sprockets
+@import "bootstrap-sprockets";
+
+// Import cerulean variables
+@import "bootswatch/yeti/variables";
+
+@import "my_bootstrap_variables";
+
+// Then bootstrap itself
+@import "bootstrap";
+
+// Bootstrap body padding for fixed navbar
+body1 { padding-top: 60px; }
+
+// And finally bootswatch style itself
+@import "bootswatch/yeti/bootswatch";
+
+// Whatever application styles you have go last
+//@import "multi_level_menu";
+//@import "bootstrap-submenu.min";
+@import "inputrange";
+@import "yandex_rtb_test";
+@import "scaffolds_1";
+
+// @import "landing_zero_styles";
+
+
+

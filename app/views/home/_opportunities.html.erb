@@ -1,0 +1,19 @@
+<%
+
+content_in :accordion do |user| 
+  [
+    [
+     'Порядок подбора лучшего тарифа и тарифных опций',
+     render(:partial => 'home/opportunities/general_description')
+    ], 
+    [
+     'Моделирование использования мобильных услуг',
+     render(:partial => 'home/opportunities/calls_modelling')
+    ], 
+    [
+     'Подбор оптимального тарифа с учетом выбранного набора услуг оператора',
+     render(:partial => 'home/opportunities/limited_scope')
+    ], 
+  ] 
+end
+%>

@@ -1,0 +1,30 @@
+<%
+form_item.init do |fi|
+input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control btn_text_always_on_screen",
+	:action_name => result_detailed_calculations_optimization_select_path(hash_with_region_and_privacy({:id => params[:id]}))}
+label_html = {:class => "control-label "}
+link_to_html = {:class => "btn btn-success btn_text_always_on_screen", :type =>"button", :remote => false}
+  s = session_filtr_params(fi)	
+  
+  fi.set_fields do |filtr_name|
+    [
+      [
+		select(filtr_name, :optimization_type_id, Result::Run::UserOptimizationTypes.except(2).map{|r| [r[1][:name], r[0]]}, 
+			{:include_blank => "выберите способ подбора тарифа", :selected => s['optimization_type_id']}, input_html.merge({:'aria-describedby' => "help_on_optimization_type"})),
+
+		(case
+		when s["optimization_type_id"].blank?
+			""
+		when [0, "0"].include?(s["optimization_type_id"])
+			link_to( 'Приступить к подбору тарифа', 
+			result_detailed_calculations_calculate_path(hash_with_region_and_privacy({:id => params[:id]})), link_to_html)
+		else
+			link_to( 'Перейти на следующий шаг', 
+			result_detailed_calculations_optimization_options_path(hash_with_region_and_privacy({:id => params[:id]})), link_to_html)
+		end
+		),
+	  ],
+    ] 
+  end
+end
+%>

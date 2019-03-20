@@ -1,0 +1,66 @@
+<% caption = "Мобильные тарифы без абонентской платы #{region_and_privacy_tag}" %>
+<% title "Мобильные тарифы без абонентской платы #{region_and_privacy_tag} #{pagination_page_name('pay_as_go_tarif_classes_page')} - MyTarifs.ru" %>
+<% description "Мобильные тарифы без абонентской платы #{region_and_privacy_tag}. \
+				www.mytarifs.ru — помогаем принять правильное решение! Предлагаем широкий выбор средств для анализа услуг \
+				в области мобильной связи." %>
+<% keywords "мобильные тарифы без абонентской платы от сотовых операторов" %>
+<% content_for :hide_title, 'true' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class=""> <%= caption %></h1>
+            <span class="h5">Здесь вы можете выбрать и посмотреть подробное описание тарифов и опций. 
+            	Найти нужный тариф можно с помощью фильтра</span>
+            <hr>
+        </div>
+        <%= render :partial => "application/shared/social_share_buttons" %>
+        <br />
+    </div>
+</header>
+
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :under_h1) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<br />
+<div class="btn-group" role="group" aria-label="...">
+	<% operator_link_html = {:class => "btn", :type =>"button", :remote => false} %>
+	<%= link_to( image_tag('mts.png', alt: "МТС"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Mts)}) ), operator_link_html) %>
+	<%= link_to( image_tag('beeline.png', alt: "Билайн"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Beeline)}) ), operator_link_html) %>
+	<%= link_to( image_tag('megafon.png', alt: "Мегафон"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Megafon)}) ), operator_link_html) %>
+	<%= link_to( image_tag('tele2.png', alt: "Теле2"), 
+		tarif_classes_by_operator_path(hash_with_region_and_privacy({:operator_id => Category::Operator.find(Category::Operator::Const::Tele2)}) ), operator_link_html) %>
+</div>
+
+<br />
+<div class="panel panel-success">
+	<div class="panel-body">
+		<div class="h4 text-center1 text-success">Выберите параметры отбора опций</div>
+		<%= render :partial => 'tarif_classes/pay_as_go/tarif_class_filtr', 
+			:layout => 'application/layouts/filtr_form_n_columns', :locals => {:form_item => pay_as_go_tarif_class_filtr}%>
+	</div>
+</div>
+
+<%= render :partial => 'tarif_classes', :layout => 'application/layouts/model_table', :locals => {:table => pay_as_go_tarif_classes}%>
+
+<p> Между операторами мобильной связи идет очень жесткая и напряженная борьба за новых абонентов. Одним из самых действенных и проверенных способов привлечения новых клиентов являются выгодные тарифы без абонентской платы для мобильного телефона. Они рассчитаны на людей, которые мало звонят и привыкли очень щепетильно относиться к своим расходам на связь. Как правило, это пенсионеры, а также школьники, у которых нет необходимости в огромном количестве предоплаченных пакетных минут. </p>
+<p> В нашей базе представлены тарифы без абонентской платы от крупнейших операторов Российской Федерации. Среди них: МТС, Мегафон, Теле 2 и Билайн. Они предлагают выгодные условия для звонков внутри сети как в пределах домашнего региона, так и в национальном роуминге. Также имеются пакеты для общения посредством текстовых сообщений и Интернета. </p>
+<p> Выбрать тарифы без абонентской платы для телефона можно, воспользовавшись нашим сервисом. Он позволяет сравнить каждое тарифное предложение и наглядно увидеть все сильные и слабые стороны. Кстати, если потребность в связи резко возрастет, то абоненты могут спокойно воспользоваться возможностью перехода в другие тарифы. </p>
+<p> Все мобильные тарифы без абонентки имеют небольшую цену и доступны широкому спектру абонентов. При желании, можно подобрать стартовый пакет с посекундной тарификацией звонков без округления в большую сторону. </p>
+
+<br />
+<div class="row text-center">
+	<%= show_cpanet_program_item_with_html(:tarif_classes, :bottom) if show_cpanet_adv and ENV["RAILS_ENV"] == "production" %>	
+	<%= render :partial => "tarif_classes/tarif_class_description/yandex_rtb_test" if ENV["RAILS_ENV"] == "development" %>
+</div>
+
+<%= render :partial => "application/shared/social_share_buttons" %>
+
+<br />
+<%= render :partial => "application/shared/hypercomments" %>
+

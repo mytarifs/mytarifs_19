@@ -1,0 +1,166 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => parsed_tarif_lists_path(hash_with_region_and_privacy)}
+  inactive_input = input_html.merge(:disabled => 'disabled')
+  label_html = {:class => "control-label "}
+  s = session[:filtr]['parsed_tarif_lists_tarif_class_parser_filtr'] || {}	
+  parsed_tarif_lists_filtr = session[:filtr]['parsed_tarif_lists_filtr'] || {}	
+  tarif_class_filtr = session[:filtr]['parsed_tarif_lists_tarif_class_filtr'] || {}
+  tarif_class_id_to_parse = tarif_class_filtr['tarif_class_id'].try(:to_i)
+  tarif_class_to_parse = TarifClass.where(:id => tarif_class_id_to_parse).first
+  
+  tarif_lists = TarifList.includes(:tarif_class, :region).joins(:tarif_class).where(:tarif_class_id => tarif_class_id_to_parse)
+  tarif_lists = tarif_lists.where(:region_id => parsed_tarif_lists_filtr['region_id'].map(&:to_i)) if !parsed_tarif_lists_filtr['region_id'].blank?
+  tarif_list_to_parse = tarif_lists.first
+  
+  service_parsing_tags = {}
+  service_block_tags_list = []
+  parsed_page_to_show_options = []
+  block_titles = []
+  sub_block_titles = []
+  
+  parsed_page_to_show = ''
+  
+  
+  if tarif_class_to_parse
+    parser = ServiceParser::Runner.init({
+      :operator_id => tarif_class_to_parse.try(:operator_id) || 1030,
+      :tarif_class => tarif_class_to_parse,
+      :parsing_class => tarif_class_to_parse.try(:parsing_class),
+    })  	
+      	
+    service_parsing_tags = parser.service_parsing_tags
+    service_parsing_tags[:service_blocks].each_with_index{|sbt, index| service_block_tags_list << [sbt[:block_tag], index] }
+  end
+
+  if tarif_list_to_parse
+    parser = ServiceParser::Runner.init({
+      :operator_id => tarif_list_to_parse.try(:tarif_class).try(:operator_id) || 1030,
+      :region_id => tarif_list_to_parse.try(:region_id) || 1200,
+      :tarif_class => tarif_list_to_parse.try(:tarif_class),
+      :parsing_class => tarif_list_to_parse.try(:tarif_class).try(:parsing_class),
+      :original_page => tarif_list_to_parse.description,
+    })  	
+    
+    service_scope = parser.parse_base_service_scope(service_parsing_tags) || parser.body
+    
+    service_block_tags_index = s['service_block_tags_index'].blank? ? 0 : [s['service_block_tags_index'].to_i, (service_parsing_tags[:service_blocks].try(:size) || 1) - 1].min
+    service_block_tags = service_parsing_tags[:service_blocks].try(:[], service_block_tags_index) || {}
+    
+    block_scopes = parser.parse_service_scope_for_block_scopes(service_scope, service_block_tags)
+    block_scopes.each_with_index do |block_scope, index|
+      block_scope =parser.add_new_element_to_node_as_child_with_tag(block_scope, block_scope.previous_element, "title") if service_block_tags[:outside_block_name_tag]      
+      block_title = parser.parse_block_scope_for_block_title(block_scope, service_block_tags)
+      block_titles << [block_title, index]
+    end
+    
+    block_scope_index = s['block_scope_index'].blank? ? 0 : [s['block_scope_index'].to_i, block_scopes.size - 1].min
+    block_scope = block_scopes[block_scope_index]
+    
+    sub_block_scopes = parser.parse_block_scope_for_sub_block_scopes(block_scope, service_block_tags)
+    default_sub_block_title = sub_block_scopes.blank? ? 'no_sub_block' : "sub_block"
+    default_param_values = []
+    row_params = {}
+    sub_block_scopes.each_with_index do |sub_block_scope, index|
+      sub_block_scope = parser.add_new_element_to_node_as_child_with_tag(sub_block_scope, sub_block_scope.previous_element, "title") if service_block_tags[:outside_sub_block_name_tag]      
+      sub_block_title = parser.parse_sub_block_scope_for_sub_block_title(sub_block_scope, service_block_tags, default_sub_block_title)      
+      sub_block_title, default_param_value = parser.parse_sub_block_title_to_split_by_regex(sub_block_title, service_block_tags)
+      default_param_values << default_param_value
+      sub_block_titles << [sub_block_title, index]
+    end
+    
+    sub_block_scope_index = s['sub_block_scope_index'].blank? ? 0 : [s['sub_block_scope_index'].to_i, sub_block_scopes.size - 1].min
+    sub_block_scope = sub_block_scopes[sub_block_scope_index]
+    default_param_value = default_param_values[sub_block_scope_index]
+    
+    row_params = parser.parse_row_scope(sub_block_scope, service_block_tags, default_param_value) if sub_block_scope
+    
+    parsed_page_to_show_options = ['show_row_params', 'show_sub_block_scope', 'show_sub_block_scopes', 'show_block_scope', 'show_block_scopes', 'show_base_service_scope']
+    parsed_page_to_show = case s['parsed_page_to_show_option']
+    when 'show_row_params'
+    	row_params
+    when 'show_sub_block_scope'
+    	sub_block_scope.try(:to_html)
+    when 'show_sub_block_scopes'
+    	sub_block_scopes.map{|sbss| sbss.try(:to_html)}.join('')
+    when 'show_block_scope'
+    	block_scope.try(:to_html)
+    when 'show_block_scopes'
+    	block_scopes.map{|bss| bss.try(:to_html)}.join('')
+    when 'show_base_service_scope'    	
+    	service_scope.try(:to_html)
+    else
+    	''
+    end
+    parsed_page_to_show = parsed_page_to_show.try(:html_safe) if s['show_html_safe'] == 'true' and s['parsed_page_to_show_option'] != 'show_row_params'
+    
+    
+  end
+
+  fi.set_fields do |filtr_name|
+  	service_block_tags_desc = {'block' => [], 'sub_block' => [], 'rows' => []}
+  	(service_block_tags || {}).each do |service_block_tag_key, service_block_tag_value|
+  		group_key = case
+  		when service_block_tag_key.to_s =~ /sub_block/; 'sub_block';
+  		when service_block_tag_key.to_s =~ /block/; 'block';
+  		else 'rows'
+  		end
+	   	service_block_tags_desc[group_key] << label(filtr_name, service_block_tag_key, service_block_tag_key, label_html)
+	   	service_block_tags_desc[group_key] << text_field_tag(filtr_name, service_block_tag_key, inactive_input.merge({:value => service_block_tag_value}))
+  	end
+    [
+	   [
+	   	label(filtr_name, "parser_class_name", 'parser_class', label_html),
+	   	text_field_tag(filtr_name, "parser_class_name", inactive_input.merge({:value => parser.class})) +
+
+	   	label(filtr_name, "base_service_scope", 'base_service_scope', label_html) +
+	   	text_field_tag(filtr_name, "base_service_scope", inactive_input.merge({:value => service_parsing_tags[:base_service_scope]})) +
+
+	   	label(filtr_name, "additional_service_scope", 'additional_service_scope', label_html) +
+	   	text_field_tag(filtr_name, "additional_service_scope", inactive_input.merge({:value => service_parsing_tags[:additional_service_scope]})),
+
+      	label(filtr_name, "parsed_page_to_show_option", "parsed_page_to_show_option", label_html),
+      	select(filtr_name, "parsed_page_to_show_option", parsed_page_to_show_options, 
+	  	{:include_blank => "выберите parsed_page_to_show_option", :selected => (s["parsed_page_to_show_option"])}, input_html.merge({:size => parsed_page_to_show_options.size + 1}) ),
+
+      	label(filtr_name, "show_html_safe", "show_html_safe", label_html),
+      	select(filtr_name, "show_html_safe", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите show_html_safe", :selected => (s["show_html_safe"])}, input_html.merge({:size => 2}) ),
+	   ],
+	   [
+      	label(filtr_name, "service_block_tags_index", "service_block_tags_index", label_html),
+      	select(filtr_name, "service_block_tags_index", service_block_tags_list, 
+	  		{:include_blank => "выберите service_block_tags_index", :selected => (s["service_block_tags_index"])}, 
+	  			input_html.merge({:multiple => false, :size => service_block_tags_list.size + 1}) ),
+
+      	label(filtr_name, "block_scope_index", "block_scope_index", label_html),
+      	select(filtr_name, "block_scope_index", block_titles, 
+	  		{:include_blank => "выберите block_scope_index", :selected => (s["block_scope_index"])}, 
+	  			input_html.merge({:multiple => false, :size => block_titles.size + 1}) ),
+
+      	label(filtr_name, "sub_block_scope_index", "sub_block_scope_index", label_html),
+      	select(filtr_name, "sub_block_scope_index", sub_block_titles, 
+	  		{:include_blank => "выберите sub_block_scope_index", :selected => (s["sub_block_scope_index"])}, 
+	  			input_html.merge({:multiple => false, :size => sub_block_titles.size + 1}) ),
+	   ],
+	] + 
+	[
+		[
+		service_block_tags_desc['block'][0],
+		(service_block_tags_desc['block'][1..-1] || []).join('').try(:html_safe),
+
+		service_block_tags_desc['sub_block'][0],
+		(service_block_tags_desc['sub_block'][1..-1] || []).join('').try(:html_safe),
+
+		service_block_tags_desc['rows'][0],
+		(service_block_tags_desc['rows'][1..-1] || []).join('').try(:html_safe),
+		]		
+	] +
+	[
+	   [
+	   	'', parsed_page_to_show
+	   ]
+    ].compact
+  end
+end
+%>

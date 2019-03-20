@@ -1,0 +1,14 @@
+<% title "Websites" %>
+
+<%= link_to('Synchronize Websites', cpanet_synchronize_websites_path, 
+		{:class => "btn btn-primary", :type =>"button"})  %>
+
+
+<%= render :partial => 'cpanet/websites/tabs', :layout => 'application/layouts/tabs', 
+	:locals => {:name => 'cpanet_websites_tabs', :active => session[:current_tabs_page]['cpanet_websites_tabs'].to_i, 
+	:action_name => cpanet_websites_path} %>
+
+<br />
+	
+<%= render( :partial => 'cpanet/websites/websites', :layout => 'application/layouts/model_table', 
+     	:locals => {:table => websites }) %>

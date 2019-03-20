@@ -1,0 +1,90 @@
+<%
+form_item.init do |fi|
+  s = session_filtr_params(fi)	
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => tarif_classes_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label "}
+#  fi.caption = "Фильтр"	
+  dependency_parts = [
+  	["Звонки (внутри России)", "own-country-rouming/calls"], ["СМС (внутри России)", "own-country-rouming/sms"],
+  	["ММС (внутри России)", "own-country-rouming/mms"], ["Интернет (внутри России)", "own-country-rouming/mobile-connection"],
+  	["Звонки (за границей)", "all-world-rouming/calls"], ["СМС (за границей)", "all-world-rouming/sms"],
+  	["ММС (за границей)", "all-world-rouming/mms"], ["Интернет (за границей)", "all-world-rouming/mobile-connection"],
+  	]
+
+	service_region_ids = Category.mobile_regions_with_scope(['tarif_description']).map{|key, desc| desc['region_ids'][0]}
+	service_regions = Category.where(:id => service_region_ids)
+
+  fi.set_fields do |filtr_name|
+    [
+	  [
+      	label(filtr_name, "operator_id", "Оператор", label_html),
+      	collection_select(filtr_name, "operator_id", Category::Operator.operators_with_tarifs, :id, :name, 
+	  	{:include_blank => "выберите оператора", :selected => s["operator_id"] }, input_html.merge({:size => 5}) ),
+
+      	label(filtr_name, "standard_service_id", "Тип услуги", label_html),
+      	collection_select(filtr_name, "standard_service_id", Category.where(:id => TarifClass::ServiceType.slice(:tarif, :common_service, :special_service).values), :id, :name, 
+	  	{:include_blank => "выберите тариф или опцию", :selected => s["standard_service_id"] }, input_html.merge({:size => 4}) ),
+	  ],
+	  [
+	   	label(filtr_name, "payment_type", 'Способ оплаты', label_html),
+      	select(filtr_name, "payment_type", ["Постоплатная", "Авансовая"], {:include_blank => "выберите способ оплаты", 
+      		:selected => s['payment_type'] }, input_html.merge({:size => 3}) ),
+
+      	label(filtr_name, "dependency_is_archived", "Архивный?", label_html),
+      	select(filtr_name, "dependency_is_archived", [['Да', 'true'], ['Нет', 'false']], 
+	  	{:include_blank => "выберите статус", :selected => (s["dependency_is_archived"])}, input_html.merge({:size => 3}) ),
+
+      	label(filtr_name, "row_per_page", "Кол-во записей на странице", label_html),
+      	select(filtr_name, "row_per_page", [10, 25, 50], 
+	  	{:selected => (s["row_per_page"] || 25)}, input_html.merge({:size => 3}) ),
+	  ],
+	  (user_type == :admin ? [
+      	label(filtr_name, "privacy_id", "Для физических или юридических лиц", label_html),
+      	collection_select(filtr_name, "privacy_id", Category.privacy, :id, :name, 
+	  	{:include_blank => "privacy", :selected => s["privacy_id"] }, input_html.merge({:size => 3})),
+
+	   	label(filtr_name, "regions", "regions", label_html),
+      	select(filtr_name, "regions_filtr_type", [['all regions', 'all'], ['any regions', 'any']], 
+	  	{:include_blank => false, :selected => (s["regions_filtr_type"] || 'all')}, input_html.merge({:size => 2}) ) +
+     	collection_select(filtr_name, "regions", service_regions, :id, :name, 
+	  	  {:include_blank => true, :selected => (s["regions"] || []) }, input_html.merge({:multiple => true, :size => service_regions.size + 1}) ),   
+
+		label(filtr_name, "status_id", "Статус публикации", label_html),
+		select(filtr_name, "status_id", Content::Article::PublishStatus.to_a, 
+			{:include_blank => "выберите статус публикации", 
+			 :selected => s['status_id']}, input_html.merge({:size => (Content::Article::PublishStatus.keys.size + 1)}) ) +
+
+      	label(filtr_name, "archived_regions", "archived_regions", label_html) +
+      	select(filtr_name, "archived_regions", [['archived', 'true'], ['active', 'false']], 
+	  	{:include_blank => "all services", :selected => (s["archived_regions"])}, input_html.merge({:size => 3}) ),
+
+      	label(filtr_name, "dependency_parts", "Категория услуги", label_html),
+      	select(filtr_name, "dependency_parts", dependency_parts, 
+	  	{:include_blank => "выберите категорию", :selected => (s["dependency_parts"])}, input_html.merge({:multiple => false, :size => dependency_parts.size + 1}) ),
+
+      	label(filtr_name, "for_parsing", "for_parsing", label_html),
+      	select(filtr_name, "for_parsing", [['Да', 'true'], ['Нет', 'false']], 
+	  	{:include_blank => "выберите статус", :selected => (s["for_parsing"])}, input_html.merge({:size => 3}) ) +
+
+      	label(filtr_name, "excluded_from_optimization", "excluded_from_optimization", label_html) +
+      	select(filtr_name, "excluded_from_optimization", [['Да', 'true'], ['Нет', 'false']], 
+	  	{:include_blank => "выберите excluded_from_optimization", :selected => (s["excluded_from_optimization"])}, input_html.merge({:size => 3}) ) +
+
+      	label(filtr_name, "change_status_field_name", "change_status_field_name", label_html) +
+      	select(filtr_name, "change_status_field_name", ['excluded_from_optimization'], 
+	  	{:include_blank => "выберите change_status_field_name", :selected => (s["change_status_field_name"])}, input_html.merge({:size => 2}) ),
+
+      	label(filtr_name, "hide_secondary_tarif_class", "hide_secondary_tarif_class", label_html) +
+      	select(filtr_name, "hide_secondary_tarif_class", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["hide_secondary_tarif_class"])}, input_html.merge({:size => 2}) ) +
+
+      	label(filtr_name, "show_as_for_not_admin", "show_as_for_not_admin", label_html) +
+      	select(filtr_name, "show_as_for_not_admin", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["show_as_for_not_admin"])}, input_html.merge({:size => 2}) ),
+
+	  ] : []
+	  )
+    ].compact 
+  end
+end
+%>

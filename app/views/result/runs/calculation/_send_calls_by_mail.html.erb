@@ -1,0 +1,38 @@
+<%
+form_item.init do |f|
+  f.set_fields do |filtr_name|
+	input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control", 
+		:action_name => result_detailed_calculations_select_calls_path(hash_with_region_and_privacy({:id => params[:id]}))}
+	label_html = {:class => "control-label"}
+    s = session_filtr_params(f)
+    
+    default_email = [:trial, :user, :admin].include?(user_type) ? current_or_guest_user.email : nil
+    email_to_use = s["use_registration_email"] == 'true' ? default_email : (s['email'] || default_email)
+	
+  [
+  	([
+     label(filtr_name, "Использовать электронную почту, указанную при регистрации", label_html),
+     check_box(filtr_name, "use_registration_email", (s["use_registration_email"] == 'true' ? {:checked => 'checked'} : {} ).merge(input_html), true, false ),
+  	] if [:trial, :user, :admin].include?(user_type) and current_or_guest_user.confirmed?),
+  	[
+     label(filtr_name, "Электронная почта", label_html),
+     phone_field(filtr_name, "email", {:placeholder => "электронная почта", :value => email_to_use}.merge(input_html))
+  	],
+  	[
+     label(filtr_name, "Телефон", label_html),
+     content_tag(:div, {:class => "input-group"}) do
+	     content_tag(:span, "+7", {:class => "input-group-addon"}) +
+	     phone_field(filtr_name, "phone", {:placeholder => "9-ти значный номер", :value => s['phone']}.merge(input_html))
+	  end,
+  	],
+  	[
+	link_to("Заказать подбор тарифа после получения детализации", result_detailed_calculations_send_calls_by_mail_path(hash_with_region_and_privacy({:id => params[:id]})), 
+			{:class => "btn btn-success btn_text_always_on_screen", :type =>"button", :remote => false, :rel => "nofollow"}),
+	""  		
+  	]
+
+  ].compact
+	    
+  end
+end
+%>

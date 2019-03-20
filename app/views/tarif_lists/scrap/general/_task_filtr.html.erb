@@ -1,0 +1,51 @@
+<%
+form_item.init do |fi|
+  input_html = {:filtr_name => form_item.filtr_name, :class => "updatable form-control ", :action_name => scrap_tarif_lists_path(hash_with_region_and_privacy)}
+  label_html = {:class => "control-label "}
+  s = session_filtr_params(fi)	
+  
+  tarif_regions = Category.where(:id => Category::Region::Desc.region_ids_ready_for_scraping)
+  
+  fi.set_fields do |filtr_name|
+    [
+	   [
+      	label(filtr_name, "operator_id", "Оператор", label_html),
+      	collection_select(filtr_name, "operator_id", Category::Operator.operators_with_tarifs, :id, :name, 
+	  	{:include_blank => "выберите оператора", :selected => s["operator_id"] }, input_html.merge({:multiple => true, :size => 5}) ) +
+
+      	label(filtr_name, "standard_service_id", "Тип услуги", label_html) +
+      	collection_select(filtr_name, "standard_service_id", Category.where(:id => TarifClass::ServiceType.slice(:tarif, :common_service, :special_service).values), :id, :name, 
+	  	{:include_blank => "выберите тариф или опцию", :selected => s["standard_service_id"] }, input_html.merge({:multiple => true, :size => 4}) ) +
+
+      	label(filtr_name, "privacy_id", "Для физических или юридических лиц", label_html) +
+      	collection_select(filtr_name, "privacy_id", Category.privacy, :id, :name, 
+	  	{:include_blank => "privacy", :selected => s["privacy_id"] }, input_html.merge({:multiple => true, :size => 3})) +
+
+	   	label(filtr_name, "region_id", 'region_id', label_html) +
+      	collection_select(filtr_name, "region_id", tarif_regions, :id, :name, 
+	  	{:include_blank => "выберите регион", :selected => s["region_id"] }, input_html.merge({:multiple => true, :size => [10, tarif_regions.size + 1].min}) ) +
+
+      	label(filtr_name, "force_to_scrap", "force_to_scrap", label_html) +
+      	select(filtr_name, "force_to_scrap", [['Да', 'true'], ], 
+	  	{:include_blank => "выберите статус", :selected => (s["force_to_scrap"] || nil)}, input_html.merge({:size => 2}) ) +
+
+	   	label(filtr_name, "run_full_scraper_for_tarif_list", "run_full_scraper_for_tarif_list", {:class => "btn btn-success", :type => "button"}) +
+	   	check_box_tag("general_task_filtr[run_full_scraper_for_tarif_list]", "true", nil, 
+	   		input_html.merge({:class => "updatable hidden" })),
+
+	   	label(filtr_name, "run_tarif_classes_for_parsing", "run_tarif_classes_for_parsing", {:class => "btn btn-success", :type => "button"}), 
+	   	check_box_tag("general_task_filtr[run_tarif_classes_for_parsing]", "true", nil, 
+	   		input_html.merge({:class => "updatable hidden" })),
+
+	   	label(filtr_name, "update_services_to_scrap_for_all_regions", "update_services_to_scrap_for_all_regions", {:class => "btn btn-success", :type => "button"}), 
+	   	check_box_tag("general_task_filtr[update_services_to_scrap_for_all_regions]", "true", nil, 
+	   		input_html.merge({:class => "updatable hidden" })) +
+
+	   	label(filtr_name, "update_only_new_services_to_scrap_for_all_regions", "update_only_new_services_to_scrap_for_all_regions", {:class => "btn btn-success", :type => "button"}) + 
+	   	check_box_tag("general_task_filtr[update_only_new_services_to_scrap_for_all_regions]", "true", nil, 
+	   		input_html.merge({:class => "updatable hidden" })),
+	   ],
+    ].compact
+  end
+end
+%>

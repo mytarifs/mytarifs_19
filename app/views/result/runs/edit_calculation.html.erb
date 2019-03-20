@@ -1,0 +1,31 @@
+<% title "Изменение описания детального подбора тарифа #{region_and_privacy_tag}" %>
+<% description "Изменение описания детального подбора тарифа #{region_and_privacy_tag}. www.mytarifs.ru — сервис по подбору тарифов и опций для \
+				мобильных операторов МТС, «Билайн», «Мегафон», TELE2. Помогаем принять правильное решение! Предлагаем широкий \
+				выбор средств для анализа услуг в области мобильной связи." %>
+<% keywords "изменение описания детального подбора тарифа #{region_and_privacy_tag}" %>	
+<% content_for :hide_title, 'true' %>
+<% noindex 'googlebot' %>
+
+<header id="first">
+    <div class="header-content header-content-smaller">
+        <div class="inner">
+            <h1 class="cursive"><%= title %></h1>
+            <hr />
+        </div>
+    </div>
+</header>
+
+<% input_html = {:class => "form-control "}%>
+<%= form_for result_run, :url => result_detailed_calculations_update_path(hash_with_region_and_privacy({:id => result_run.id})), :method => 'patch' do |f| %>
+	<div class="panel panel-default">
+		<div class="panel-heading"><span class="h4">Изменение описания подбора тарифа</span></div>
+		<ul class="list-group" >
+				<li class="list-group-item"><strong>Название подбора:</strong><%= f.text_field :name, input_html %></li>
+				<li class="list-group-item"><strong>Описание:</strong><%= f.text_area :description, input_html %></li>
+				<li class="list-group-item"><strong>Если вы хотите изменить другие параметры, то вернитесь назад на соответствующий шаг задания подбора тарифа</strong></li>
+		</ul>
+		<div class="panel-footer">
+			<%= f.submit("Сохранить изменения", :class => "btn btn-success btn_text_always_on_screen", :type =>"submit", :rel => "nofollow") %>	
+		</div>
+	</div>
+<% end %>

@@ -1,0 +1,40 @@
+<%
+table.init do |t|
+#  t.caption = 'Listing users'
+  t.heads = ['Название', 'Источник данные', 'Оператор', 'Дата обновления'] + 
+  			(user_type == :admin ? ["Пользователь", 'ID'] : []) + ['', '', '', '', '', '']
+  t.set_fields do |call_run| 
+	general_init_params = call_run.try(:init_params).try(:[], 'general') || {'privacy_id' => m_privacy_id, 'region_txt' => m_region}
+	m_privacy_to_use = general_init_params['privacy_id'] == 1 ? 'business' : 'personal'
+	m_region_to_use = general_init_params['region_txt']
+
+  [
+    link_to(call_run.name, customer_call_run_path(hash_with_region_and_privacy({:id => call_run.id})), {:title => "Нажмите для просмотра"}), 
+    call_run.source_name,
+#    call_run.description,
+    (call_run.operator.name if call_run.operator),     
+    call_run.updated_at.try(:to_formatted_s, :short)
+  ] + (user_type != :admin ? [] : [
+  	(call_run.user.name if call_run.user and user_type == :admin),
+  	call_run.id, 
+  	]) + [
+  	(controller.customer_has_free_calls_modelling_trials? ? link_to("Смоделировать звонки", 
+  		customer_calls_set_calls_generation_params_path(hash_with_region_and_privacy({:call_run_choice_filtr => {:customer_call_run_id => call_run.id}},
+  			m_privacy_to_use, m_region_to_use))) : "Звонки не загружены"),
+  	(controller.customer_has_free_history_parsing_trials? ? link_to("Загрузить детализацию", 
+  		customer_history_parsers_prepare_for_upload_path(hash_with_region_and_privacy({:call_run_choice_filtr => {:customer_call_run_id => call_run.id}},
+  			m_privacy_to_use, m_region_to_use))) : "")
+  	] + (call_run.stat.blank? ? [] : [
+  	link_to( t('customer.call_runs.index.call_runs.call_stat_link'), customer_call_stat_path(hash_with_region_and_privacy({:id => call_run.id},
+  		m_privacy_to_use, m_region_to_use))),
+  	link_to(  "Загруженные звонки", customer_calls_path(hash_with_region_and_privacy({:customer_calls_filtr => {:call_run_id => call_run.id}},
+  		m_privacy_to_use, m_region_to_use )), {:rel => "nofollow"}),
+  	]) +
+  	[
+    link_to( content_tag(:span, "", { :class => "fa fa-pencil-square-o fa-lg"}), 
+    	edit_customer_call_run_path(hash_with_region_and_privacy({:id => call_run.id}, m_privacy_to_use, m_region_to_use)), {:title => "Редактировать"}), 
+    link_to( content_tag(:span, "", { :class => "fa fa-times-circle fa-lg"}), call_run, method: :delete, data: { confirm: 'Вы уверены, что хотите удалить запись?'}, :title => "Удалить"),
+  	]
+  end
+end
+%>

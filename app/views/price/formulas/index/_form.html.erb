@@ -1,0 +1,65 @@
+<%
+form_item.init do |fi|
+  fi.set_fields do |f|
+  	action_path = price_list_price_formulas_path(hash_with_region_and_privacy({:price_list_id => price_list.id}))
+	input_html = {:filtr_name => form_item.form_name, :class => "updatable form-control ", :action_name => action_path}
+	updatable_input_html = input_html.merge({:class => "updatable form-control "})
+	label_html = {:class => "form-label "}
+	s = session_model_params(fi)
+	
+
+	service_region_ids = TarifList.where(:tarif_class_id => f.object.try(:price_list).try(:service_category_group).try(:tarif_class_id)).pluck(:region_id).uniq
+	service_region_ids = Category.mobile_regions_with_scope(['tarif_description']).map{|key, desc| desc['region_ids'][0]} if service_region_ids.blank?
+	service_regions = Category.where(:id => service_region_ids)
+
+	standard_formulas = Price::StandardFormula::Const.constants.map{|sr| r = "Price::StandardFormula::Const::#{sr.to_s}"; [r, (r.to_s.constantize.is_a?(Integer) ? r.to_s.constantize : nil)]}.compact
+    
+    formula_params = []
+    (Price::StandardFormula::Const::ParamsByFormula[s["standard_formula_id"].try(:to_i)].try(:[], 'params') || {}).each do |param_name|
+    	formula_params << [
+		   	f.label("formula[params][#{param_name}]", "#{param_name}", label_html),
+			f.number_field("formula[params][#{param_name}]", input_html.merge({:value => (s["formula"].try(:[], 'params').try(:[], "#{param_name}") || nil)}))
+    	]
+    end
+    [ 
+	   [
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => true})
+	   ],
+ 	   ['id', f.object.id],
+	   ['standard_formula name', f.object.standard_formula.try(:name)], 
+	   ['params', f.object.formula.try(:[], "params")],
+	   ['standard_formula price_unit', f.object.standard_formula.try(:price_unit).try(:name)], 
+	   ['standard_formula volume', f.object.standard_formula.try(:volume).try(:name)], 
+	   ['standard_formula volume_unit', f.object.standard_formula.try(:volume_unit).try(:name)], 
+	   [
+	   	f.label("formula[regions]", "regions", label_html),
+     	f.collection_select("formula[regions]", service_regions, :id, :name, 
+	  	  {:include_blank => true, :selected => (s["formula"].try(:[], 'regions') || []) }, input_html.merge({:multiple => true, :size => service_regions.size + 1}) )   
+	   ],	
+	   [
+	   	f.label("calculation_order", "calculation_order", label_html),
+		f.number_field('calculation_order', input_html.merge({:value => (s["calculation_order"] || 0)}))	   
+	   ],	
+
+	   [
+	   	f.label("standard_formula_id", "standard_formula_id", label_html),
+     	f.select("standard_formula_id", standard_formulas, 
+	  	  {:include_blank => false, :selected => (s["standard_formula_id"].try(:to_s) || nil) }, input_html.merge({:multiple => false, :size => standard_formulas.size}) )   
+	   ],	
+	] + formula_params +
+	[
+	   ([
+	   	f.label("formula[window_over]", "window_over", label_html),
+     	f.select("formula[window_over]", ['day', 'week', 'month'], 
+	  	  {:include_blank => true, :selected => (s["formula"].try(:[], 'window_over') || nil) }, input_html.merge({:multiple => false, :size => 4}) )   
+	   ] if Price::StandardFormula::Const::ParamsByFormula[s["standard_formula_id"].try(:to_i)].try(:[], 'window_over')),	
+
+	   [
+      	link_to('GroupCategories', admin_tarif_class_path(hash_with_region_and_privacy({:id => price_list.service_category_group.tarif_class_id})), 
+      		{:class => "btn btn-primary", :type =>"button", :remote1 => true}), 
+	   	f.submit( "Сохранить", {:class => "btn btn-primary", :type =>"submit", :remote => true})
+	   ],
+	].compact
+  end
+end
+%>

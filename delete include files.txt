@@ -1,0 +1,15 @@
+OpenEXR			gmp.h			libavresample		mpc.h			pgtypes_date.h		tbb
+c++			gmpxx.h			libavutil		mpf2mpfr.h		pgtypes_error.h		tesseract
+ecpg_config.h		informix		libltdl			mpfr.h			pgtypes_interval.h	tiff.h
+ecpg_informix.h		internal		libpng16		opencv			pgtypes_numeric.h	tiffconf.h
+ecpgerrno.h		isl			libpostproc		opencv2			pgtypes_timestamp.h	tiffio.h
+ecpglib.h		jconfig.h		libpq			pcre.h			png.h			tiffio.hxx
+ecpgtype.h		jerror.h		libpq-events.h		pcre_scanner.h		pngconf.h		tiffvers.h
+eigen3			jmorecfg.h		libpq-fe.h		pcre_stringpiece.h	pnglibconf.h		x264.h
+evdns.h			jpeglib.h		libswresample		pcrecpp.h		postgres_ext.h		x264_config.h
+event.h			lame			libswscale		pcrecpparg.h		server			xvid.h
+event2			leptonica		log4cplus		pcreposix.h		sql3types.h
+evhttp.h		libavcodec		ltdl.h			pg_config.h		sqlca.h
+evrpc.h			libavdevice		lzma			pg_config_ext.h		sqlda-compat.h
+evutil.h		libavfilter		lzma.h			pg_config_manual.h	sqlda-native.h
+gdbm.h			libavformat		memcached		pg_config_os.h		sqlda.h
