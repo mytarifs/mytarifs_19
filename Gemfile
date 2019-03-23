@@ -106,6 +106,7 @@ group :production do
   gem 'rails_12factor'
   gem 'rack-timeout'
   gem 'unicorn'
+  gem 'puma'
 end
 
 gem 'spawnling', '~>2.1' #background processing

@@ -30,7 +30,7 @@ test:
 #   sqlite3://myuser:mypass@localhost/full/path/to/somedatabase
 #
 production:
-#  <<: *default #use for rack-mini-profiller
+  <<: *default #use for rack-mini-profiller
 #  database: tarif_development
   url: <%= ENV["DATABASE_URL"] %>
 #  url: <%= ENV["DOKKU_DATABASE_URL"] %>
