@@ -58,7 +58,7 @@ copy file from docker to local: rsync -a mt-staging-1:/tmp/articles.rb /tmp/arti
 
 Получение продакшн версии (на любом сервере): curl -s http://$PUBLIC_IP:8500/v1/kv/versions/frontend/production | jq -r .[].Value | base64 -d | sed 's/$/\n/'
 Установка новой версии: curl -s -X PUT -d _НОВАЯ_ВЕРСИЯ_ http://$PUBLIC_IP:8500/v1/kv/versions/frontend/production
-Установка новой версии: curl -s -X PUT -d 217 http://$PUBLIC_IP:8500/v1/kv/versions/frontend/production
+Установка новой версии: curl -s -X PUT -d 216 http://$PUBLIC_IP:8500/v1/kv/versions/frontend/production
 проверка результата: curl -s http://$PUBLIC_IP:8500/v1/kv/versions/frontend/production | jq -r .[].Value | base64 -d | sed 's/$/\n/'
 
 Информация о сервисах:
