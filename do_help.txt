@@ -70,7 +70,10 @@ RAILS_ENV=production rails s -b 0.0.0.0
 printenv
 bundle exec sidekiq -e production -C config/sidekiq.yml
 createdb -h localhost --username=ayakushev -T template0 db_tarif
-dropdb -h localhost --username=ayakushev db_tarif			  	  
+dropdb -h localhost --username=ayakushev db_tarif
+
+RAILS_ENV=production foreman start -f Procfile.development_with_sidekiq			  	  
+RAILS_ENV=production foreman start -f Procfile.development_with_jobs_and_mailman			  	  
 
 
 запуск консоли на  ssh -p 122 root@188.166.166.166 (вход на mt-staging-1) потом docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rails c"
