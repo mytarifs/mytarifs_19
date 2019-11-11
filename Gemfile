@@ -107,6 +107,7 @@ group :production do
   gem 'rack-timeout'
   gem 'unicorn'
   gem 'puma'
+  gem 'foreman'
 end
 
 gem 'spawnling', '~>2.1' #background processing

@@ -37,7 +37,41 @@ ssh -p 122 root@server
 например docker exec -it mt-frontend bash
 
 доступ к pg:  docker exec -it postgres su postgres -c psql
-дамп pg:      docker exec -it postgres su postgres -c 'pg_dump mytariffs'
+дамп pg:      docker exec -it postgres su postgres -c 'pg_dump mytariffs > mytariffs.sql'
+              docker exec -it postgres su postgres -c 'pg_dump -Fc mytariffs > /tmp/mytariffs.dump'
+              docker exec -it postgres su postgres -c 'pg_dump mytariffs | gzip -9 > /tmp/mytariffs.sql.gz'
+              
+copy dump file from postgres container to docker machine:   
+			  docker cp postgres:/tmp/mytariffs.sql.gz /tmp/mytariffs.sql.gz
+			  docker cp postgres:/tmp/mytariffs.dump /tmp/mytariffs.dump
+
+remove dump file from container:   
+			  docker exec -it postgres su postgres -c 'rm /tmp/mytariffs.sql.gz'
+			  docker exec -it postgres su postgres -c 'rm /tmp/mytariffs.dump'
+
+copy file from docker to local: 
+			  rsync -a mt-staging-1:/tmp/mytariffs.dump /tmp/mytariffs.dump
+
+copy file from app to docker: 
+			  docker cp mt-frontend:/tmp/mytariffs.dump /tmp/mytariffs.dump
+
+скопировать file from local на сервер при помощи команды scp. Например,
+			  scp /tmp/mytariffs.dump mt-staging-1:/tmp/mytariffs.dump
+			  
+Restore db
+			  pg_restore -h localhost --username=ayakushev --verbose -C -d db_tarif /tmp/mytariffs.dump	
+			  pg_restore -h localhost --username=ayakushev --verbose -d db_tarif /tmp/mytariffs.dump	
+			  
+Connect to db from server
+			  psql -h localhost --username=ayakushev db_tarif	
+			  
+cd /mytarifs/current
+RAILS_ENV=production rails s -b 0.0.0.0
+printenv
+bundle exec sidekiq -e production -C config/sidekiq.yml
+createdb -h localhost --username=ayakushev -T template0 db_tarif
+dropdb -h localhost --username=ayakushev db_tarif			  	  
+
 
 запуск консоли на  ssh -p 122 root@188.166.166.166 (вход на mt-staging-1) потом docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rails c"
 run mailman from docker: docker exec -it mt-frontend /bin/bash -c "cd /app; bundle exec rake run_mailman"
@@ -124,11 +158,11 @@ root@mt-staging-1:~# df -h
 root@mt-staging-1:/# du -sh /var/log
 or du -sh * (for directory)
 (cd ..
-cd var/lib/db-backups
+cd /var/lib/db-backups
 rm -f 20170228-postgres.sql.gz
 ) для очистки бекапров БД
 
-cd var/log - для очистки логов
+cd /var/log - для очистки логов
 
 
 создание дампа БД (команда запускается из локальной консоли)
