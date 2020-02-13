@@ -52,8 +52,8 @@ Rails.application.configure do
 
   # Use a different cache store in production.
   #config.cache_store = :dalli_store, #:mem_cache_store
-  mem_cache_url = "memcached://memcached.service.consul:11211"
-  if true and ENV['REDIS_URL']
+  mem_cache_url = "memcached://127.0.0.1:11211"
+  if false and ENV['REDIS_URL']
 #    config.cache_store = :redis_store, ENV['REDIS_URL']#, { expires_in: 90.minutes }
     config.cache_store = :readthis_store, {
       expires_in: 2.weeks.to_i,
@@ -61,7 +61,7 @@ Rails.application.configure do
       redis: { url: ENV['REDIS_URL'], driver: :hiredis }
     }
   else
-    config.cache_store = :dalli_store, mem_cache_url, { :pool_size => 5 }
+    config.cache_store = :dalli_store, mem_cache_url, { :pool_size => 5, :expires_in => 14.day, :compress => true  }
   end
 
 config.action_dispatch.rack_cache = {
