@@ -12,7 +12,6 @@
 //
 //= require jquery
 // require jquery.turbolinks
-// require ahoy
 // require jquery.ui.all
 // require jquery.ui.datepicker
 // require jquery.ui.draggable

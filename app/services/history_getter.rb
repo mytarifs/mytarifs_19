@@ -1,5 +1,6 @@
 #require 'capybara/rails'
 require 'capybara/poltergeist'  
+require 'capybara/dsl'  
 module HistoryGetter
   class Scrapper   
     include Capybara::DSL

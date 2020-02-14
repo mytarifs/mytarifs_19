@@ -75,18 +75,4 @@ class Customer::HistoryParsersController < ApplicationController
     
   private
   
-  def track_upload
-#    ahoy.track "#{controller_name}/#{action_name}", {
-#      'flash' => flash,
-#      'parsing_params' => parsing_params, 
-#      'user_params' => user_params,
-#      }
-  end
-
-  def track_prepare_for_upload
-#    ahoy.track("#{controller_name}/#{action_name}", {
-#      :flash => flash
-#    }) if params.count == 2
-  end
-
 end

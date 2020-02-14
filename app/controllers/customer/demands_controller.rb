@@ -50,19 +50,5 @@ class Customer::DemandsController < ApplicationController
       350
     end
 
-    def track_new
-#      ahoy.track("#{controller_name}/#{action_name}", {
-#        'flash' => flash,      
-#        'params' => params,
-#      })
-    end
-  
-    def track_create
- #     ahoy.track("#{controller_name}/#{action_name}", {
- #       'flash' => flash,      
- #       'params' => params,
- #     })
-    end
-  
   
 end
