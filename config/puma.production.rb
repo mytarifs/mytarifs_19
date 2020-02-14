@@ -5,7 +5,7 @@ workers Integer(ENV['PUMA_WORKERS'] || 1)
 preload_app! 
 
 bind 'unix:///mytarifs/shared/tmp/sockets/puma.sock'
-pidfile '/mytarifs/shared/tmp/pids/puma.pid'
+pidfile '/mytarifs/shared/tmp/pids/puma.production.pid'
 state_path '/mytarifs/shared/tmp/pids/puma.state'
  
 rackup DefaultRackup 
