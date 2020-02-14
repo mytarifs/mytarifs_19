@@ -20,7 +20,7 @@ gem 'roo-xls'
 gem 'pdf-reader'
 gem 'puma'
 
-gem 'bootstrap-sass', '~> 3.3.6'
+gem 'bootstrap-sass', '~> 3.4.1'
 gem 'sass-rails', '>= 5.0.3'
 gem 'autoprefixer-rails'
 gem 'uglifier', '>= 1.3.0'
