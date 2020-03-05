@@ -4,7 +4,7 @@ ruby "2.3.8"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 #TODO обновить до 4.1.0
-gem 'rails', "4.2.2"
+gem 'rails', "4.2.7.1"
 
 gem 'pg', '~> 0.20'
 gem 'httparty'
@@ -18,9 +18,9 @@ gem "capybara"
 gem 'roo', '~> 2.1.0'
 gem 'roo-xls'
 gem 'pdf-reader'
-gem 'puma'
+gem 'puma', ">= 4.3.3"
 
-gem 'bootstrap-sass', '~> 3.3.6'
+gem 'bootstrap-sass', '~> 3.4.1'
 gem 'sass-rails', '>= 5.0.3'
 gem 'autoprefixer-rails'
 gem 'uglifier', '>= 1.3.0'
