@@ -4,7 +4,7 @@ ruby "2.3.8"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 #TODO обновить до 4.1.0
-gem 'rails', "4.2.7.1"
+gem 'rails', "4.2.11.1"
 
 gem 'pg', '~> 0.20'
 gem 'httparty'
