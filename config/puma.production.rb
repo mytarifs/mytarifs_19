@@ -11,7 +11,9 @@ state_path '/mytarifs/shared/tmp/pids/puma.state'
 rackup DefaultRackup 
 #port ENV['PORT'] || 3000 
 environment ENV['RACK_ENV'] || 'production' 
-  
+
+print(ENV['DATABASE_URL'])
+    
 on_worker_boot do 
   # worker specific setup 
   ActiveSupport.on_load(:active_record) do 
